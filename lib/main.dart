@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:foodcost/view/start_up/login_page.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
-import 'view/table_calendar.dart';
+import 'view/calendar/table_calendar.dart';
 
 
 void main() {
@@ -20,6 +21,8 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
         ),
-        home: const TableBasicsExample());
+        // home: const TableBasicsExample());
+        home: const LoginPage()
+    );
   }
 }

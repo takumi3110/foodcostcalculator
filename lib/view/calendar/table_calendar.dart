@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 
-import '../utils/utils.dart';
+import '../../utils/utils.dart';
 
 class TableBasicsExample extends StatefulWidget {
   const TableBasicsExample({super.key});
