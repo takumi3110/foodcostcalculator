@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
 
 import 'utils/utils.dart';
 
@@ -20,11 +21,9 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
         ),
-        home: const TableBasicsExample()
-    );
+        home: const TableBasicsExample());
   }
 }
-
 
 class TableBasicsExample extends StatefulWidget {
   const TableBasicsExample({super.key});
@@ -35,7 +34,7 @@ class TableBasicsExample extends StatefulWidget {
 
 class _TableBasicsExampleState extends State<TableBasicsExample> {
   late final ValueNotifier<List<Event>> _selectedEvents;
-  final CalendarFormat _calendarFormat = CalendarFormat.month;
+  CalendarFormat _calendarFormat = CalendarFormat.month;
   RangeSelectionMode _rangeSelectionMode = RangeSelectionMode.toggledOff;
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
@@ -55,6 +54,7 @@ class _TableBasicsExampleState extends State<TableBasicsExample> {
     super.dispose();
   }
 
+  // ここでイベントをゲット
   List<Event> _getEventsForDay(DateTime day) {
     return kEvents[day] ?? [];
   }
@@ -105,47 +105,84 @@ class _TableBasicsExampleState extends State<TableBasicsExample> {
         title: const Text('TableCalendar'),
       ),
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-        child: TableCalendar(
-          // locale: 'zh_CN',
-          firstDay: kFirstDay,
-          lastDay: kLastDay,
-          focusedDay: _focusedDay,
-          calendarFormat: _calendarFormat,
-          selectedDayPredicate: (day) {
-            // `selectedDayPredicate`を使用して、現在選択されている日を決定します。
-            // これが true を返す場合、`day` は選択済みとしてマークされます。
-            // `isSameDay`の使用は無視することをお勧めします
-            // 比較されたDateTimeオブジェクトの時間部分。
-            return isSameDay(_selectedDay, day);
-          },
-          onDaySelected: (selectedDay, focusedDay) {
-            if(!isSameDay(_selectedDay, selectedDay)) {
-              // 選択した日を更新するときに `setState()` を呼び出します
-              setState(() {
-                _selectedDay = selectedDay;
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            TableCalendar(
+              locale: 'ja_JP',
+              firstDay: kFirstDay,
+              lastDay: kLastDay,
+              focusedDay: _focusedDay,
+              calendarFormat: _calendarFormat,
+              selectedDayPredicate: (day) {
+                // `selectedDayPredicate`を使用して、現在選択されている日を決定します。
+                // これが true を返す場合、`day` は選択済みとしてマークされます。
+                // `isSameDay`の使用は無視することをお勧めします
+                // 比較されたDateTimeオブジェクトの時間部分。
+                return isSameDay(_selectedDay, day);
+              },
+              rangeStartDay: _rangeStart,
+              rangeEndDay: _rangeEnd,
+              rangeSelectionMode: _rangeSelectionMode,
+              eventLoader: _getEventsForDay,
+              startingDayOfWeek: StartingDayOfWeek.monday,
+              calendarStyle: const CalendarStyle(outsideDaysVisible: false),
+              onDaySelected: _onDaySelected,
+              onRangeSelected: _onRangeSelected,
+              onFormatChanged: (format) {
+                if (_calendarFormat != format) {
+                  // formatを更新するときに `setState()` を呼び出します
+                  setState(() {
+                    _calendarFormat = format;
+                  });
+                }
+              },
+              onPageChanged: (focusedDay) {
+                // ここで`setState()`を呼び出す必要はありません
                 _focusedDay = focusedDay;
-              });
-            }
-          },
-          onFormatChanged: (format) {
-            if (_calendarFormat != format) {
-              // formatを更新するときに `setState()` を呼び出します
-              setState(() {
-                _calendarFormat: format;
-              });
-            }
-          },
-          onPageChanged: (focusedDay) {
-            // ここで`setState()`を呼び出す必要はありません
-            _focusedDay = focusedDay;
-          },
-          eventLoader: (day) {
-            if (day.weekday == DateTime.monday) {
-              return [Event('monday')];
-            }
-            return [];
-          },
+              },
+              calendarBuilders: CalendarBuilders(dowBuilder: (_, day) {
+                final text = DateFormat.E('ja').format(day);
+                if (day.weekday == DateTime.sunday) {
+                  return Center(
+                    child: Text(text, style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+                  );
+                } else if (day.weekday == DateTime.saturday) {
+                  return Center(
+                    child: Text(
+                      text,
+                      style: const TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
+                    ),
+                  );
+                }
+                return null;
+              }),
+            ),
+            const SizedBox(
+              height: 8.0,
+            ),
+            const Divider(),
+            Expanded(
+                child: ValueListenableBuilder<List<Event>>(
+              valueListenable: _selectedEvents,
+              builder: (context, value, _) {
+                return ListView.builder(
+                    itemCount: value.length,
+                    itemBuilder: (context, index) {
+                      return Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
+                          decoration: BoxDecoration(
+                            border: Border.all(),
+                            borderRadius: BorderRadius.circular(12.0),
+                          ),
+                          child: ListTile(
+                            onTap: () => print('${value[index]}'),
+                            title: Text('${value[index]}'),
+                          ));
+                    });
+              },
+            ))
+          ],
         ),
       ),
     );

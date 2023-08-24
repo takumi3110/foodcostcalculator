@@ -10,18 +10,26 @@ class Event {
   String toString() => title;
 }
 
+// 日にちをいれるとイベントゲット
 final kEvents = LinkedHashMap<DateTime, List<Event>>(
   equals: isSameDay,
   hashCode: getHashCode,
-)..addAll(_kEventSource);
+)
+// イベントの内容を追加する
+  ..addAll(_createEvent);
 
-final _kEventSource = Map.fromIterable(List.generate(50, (index) => index),
-    key: (item) => DateTime.utc(kFirstDay.year, kFirstDay.month, item * 5),
-    value: (item) => List.generate(
-        item % 4 + 1, (index) => Event('Event $item | ${index + 1}')))
-  ..addAll({
-    kToday: [const Event('Today\'s Event 1'), const Event('Today\'sEvent 2')]
-  });
+// ここでデモのイベントを作っている
+final _createEvent = {
+  // for (var item in List.generate(300, (index) => index))
+  //   DateTime.utc(kFirstDay.year, kFirstDay.month, item * 2):
+  //       List.generate(item % 4 + 1, (index) => Event('Event $item | ${index + 1}'))
+  DateTime.utc(kFirstDay.year, 8, 22): [Event('event')]
+}..addAll({
+  // 今日のイベントのみの表記
+  kToday: [const Event('Today\'s Event 1'), const Event('Today\'sEvent 2')]
+});
+
+
 
 int getHashCode(DateTime key) {
   return key.day * 1000000 + key.month * 10000 + key.year;
