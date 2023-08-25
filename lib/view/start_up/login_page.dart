@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:foodcost/view/calendar/calendar_page.dart';
 import 'package:foodcost/view/start_up/create_account_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -59,14 +60,16 @@ class _LoginPageState extends State<LoginPage> {
                       text: 'こちら',
                       style: const TextStyle(color: Colors.blue),
                       recognizer: TapGestureRecognizer()..onTap = () {
-                        // TODO: ここにルーティング
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => CreateAccountPage()));
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => const CreateAccountPage()));
                       }
                     )
                   ]
                 )),
                 const SizedBox(height: 70,),
-                ElevatedButton(onPressed: () {}, child: const Text('メールアドレスでログイン'))
+                ElevatedButton(
+                    onPressed: () {
+                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const CalendarPage()));
+                }, child: const Text('メールアドレスでログイン'))
               ],
             ),
           ),

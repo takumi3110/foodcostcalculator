@@ -23,7 +23,7 @@ final _createEvent = {
   // for (var item in List.generate(300, (index) => index))
   //   DateTime.utc(kFirstDay.year, kFirstDay.month, item * 2):
   //       List.generate(item % 4 + 1, (index) => Event('Event $item | ${index + 1}'))
-  DateTime.utc(kFirstDay.year, 8, 22): [Event('event')]
+  DateTime.utc(kFirstDay.year, 8, 22): [const Event('event')]
 }..addAll({
   // 今日のイベントのみの表記
   kToday: [const Event('Today\'s Event 1'), const Event('Today\'sEvent 2')]
