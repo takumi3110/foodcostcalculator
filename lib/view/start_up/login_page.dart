@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:foodcost/view/start_up/create_account_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -59,6 +60,7 @@ class _LoginPageState extends State<LoginPage> {
                       style: const TextStyle(color: Colors.blue),
                       recognizer: TapGestureRecognizer()..onTap = () {
                         // TODO: ここにルーティング
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => CreateAccountPage()));
                       }
                     )
                   ]
