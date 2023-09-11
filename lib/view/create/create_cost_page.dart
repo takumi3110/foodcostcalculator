@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:foodcost/model/dish_material.dart';
 import 'package:foodcost/view/calendar/calendar_page.dart';
+
 
 class CreateCostPage extends StatefulWidget {
   const CreateCostPage({super.key});
@@ -12,9 +14,16 @@ class CreateCostPage extends StatefulWidget {
 class _CreateCostPageState extends State<CreateCostPage> {
   TextEditingController foodNameController = TextEditingController();
   TextEditingController materialController = TextEditingController();
-  TextEditingController priceController = TextEditingController();
+  TextEditingController unitPriceController = TextEditingController();
   TextEditingController usedCountController = TextEditingController();
-  TextEditingController sumPriceController = TextEditingController();
+  TextEditingController priceController = TextEditingController();
+  TextEditingController totalPriceController = TextEditingController();
+
+  String _material = '';
+  int _price = 0;
+  List<DishMaterial> materialList = [];
+
+
   double selectedUsedCount = 1.0;
 
   @override
@@ -39,211 +48,180 @@ class _CreateCostPageState extends State<CreateCostPage> {
           padding: const EdgeInsets.all(10.0),
           child: SizedBox(
             width: double.infinity,
-            child: Column(
-              children: [
-                const SizedBox(
-                  height: 30,
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 1.0),
-                  child: SizedBox(
-                    width: 200,
-                    child: TextFormField(
-                      controller: foodNameController,
-                      decoration: const InputDecoration(label: Text('料理名')),
-                    ),
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  const SizedBox(
+                    height: 30,
                   ),
-                ),
-                const SizedBox(
-                  height: 20.0,
-                ),
-                // Row(
-                //   children: [
-                //     Container(
-                //         width: 110,
-                //         child: const Center(
-                //             child: Text('材料', style: TextStyle(fontWeight: FontWeight.bold),
-                //             ))),
-                //     // SizedBox(width: 30,),
-                //     Container(
-                //         width: 90,
-                //         child: const Center(
-                //             child: Text('金額', style: TextStyle(fontWeight: FontWeight.bold),
-                //             ))),
-                //     // SizedBox(width: 30,),
-                //     Container(
-                //         width: 80,
-                //         child: Center(child: Text('量', style: TextStyle(fontWeight: FontWeight.bold),))),
-                //     // SizedBox(width: 30,),
-                //     Container(
-                //       width: 90,
-                //         child: Center(child: Text('合計', style: TextStyle(fontWeight: FontWeight.bold),)))
-                //   ],
-                // ),
-                // Expanded(
-                //   child: ListView.builder(
-                //     // TODO:　カウントは増やせるようにする
-                //     itemCount: 1,
-                //       itemBuilder: (context, index) {
-                //     return Row(
-                //       children: [
-                //         Container(
-                //           width: 110,
-                //           child: Center(
-                //             child: Padding(
-                //               padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 10.0),
-                //               child: TextFormField(
-                //                 controller: materialController,
-                //                 decoration: const InputDecoration(
-                //                     border: OutlineInputBorder()
-                //                 ),
-                //               ),
-                //             ),
-                //           ),
-                //         ),
-                //         Container(
-                //           width: 90,
-                //           child: Center(
-                //             child: Padding(
-                //               padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 10.0),
-                //               child: TextFormField(
-                //                 controller: moneyController,
-                //                 decoration: const InputDecoration(
-                //                     border: OutlineInputBorder()
-                //                 ),
-                //               ),
-                //             ),
-                //           ),
-                //         ),
-                //         Container(
-                //           width: 80,
-                //           child: Center(
-                //             child: Padding(
-                //               padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 10.0),
-                //               child: TextFormField(
-                //                 controller: countController,
-                //                 decoration: const InputDecoration(
-                //                     border: OutlineInputBorder()
-                //                 ),
-                //               ),
-                //             ),
-                //           ),
-                //         ),
-                //         Container(
-                //           width: 90,
-                //           child: Center(
-                //             child: Padding(
-                //               padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 10.0),
-                //               child: TextFormField(
-                //                 controller: sumController,
-                //                 decoration: const InputDecoration(
-                //                   border: OutlineInputBorder(),
-                //                 ),
-                //               ),
-                //             ),
-                //           ),
-                //         )
-                //       ],
-                //     );
-                //   }),
-                // ),
-                SizedBox(
-                  width: 300,
-                  child: TextFormField(
-                    controller: materialController,
-                    decoration: const InputDecoration(border: OutlineInputBorder(), labelText: '材料'),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 20.0),
-                  child: SizedBox(
-                    width: 300,
-                    child: TextFormField(
-                      controller: priceController,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.digitsOnly,
-                        FilteringTextInputFormatter.deny(RegExp(r'^0+'))
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                    child: Row(
+                      children: [
+                        SizedBox(
+                          width: 200,
+                          child: TextFormField(
+                            controller: foodNameController,
+                            decoration: const InputDecoration(labelText: '料理名'),
+                          ),
+                        ),
+                        const SizedBox(width: 30,),
+                        SizedBox(
+                          width: 100,
+                          child: TextFormField(
+                            textAlign: TextAlign.right,
+                            readOnly: true,
+                            controller: totalPriceController,
+                            decoration: const InputDecoration(
+                                labelText: '合計金額',
+                              suffix: Text('円'),
+
+                            ),
+
+                          ),
+                        )
                       ],
-                      decoration:
-                          const InputDecoration(labelText: '金額', border: OutlineInputBorder(), suffix: Text('円')),
-                      onChanged: (text) {
-                        // if (usedCountController.text.isNotEmpty) {
-                        //   var usedCount = int.parse(usedCountController.text);
-                        //   var sumPrice = int.parse(text) * usedCount;
-                        //   sumPriceController.text = sumPrice.toString();
-                        // }
-                        var sumPrice = int.parse(text) * selectedUsedCount;
-                        sumPriceController.text = sumPrice.round().toString();
-                      },
                     ),
                   ),
-                ),
-                SizedBox(
-                    width: 300,
-                    child: DropdownMenu(
-                      controller: usedCountController,
-                      initialSelection: 1.0,
-                      label: const Text('使った量'),
-                      dropdownMenuEntries: usedCountEntries,
-                      onSelected: (count) {
-                        setState(() {
-                          selectedUsedCount = count;
-                        });
-                        if (priceController.text.isNotEmpty) {
-                          var price = int.parse(priceController.text);
-                          var sumPrice = count * price;
-                          sumPriceController.text = sumPrice.round().toString();
-                        }
-                      },
-                    )),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 20.0),
-                  child: SizedBox(
+                  ListView.builder(
+                    shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: materialList.length,
+                      itemBuilder: (context, index) {
+                       return Container(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            children: [
+                              Text((index + 1).toString()),
+                              Text(materialList[index].name),
+                              Text('${materialList[index].unitPrice}円'),
+                            ],
+                          ),
+                        );
+                  }),
+
+                  const SizedBox(
+                    height: 20.0,
+                  ),
+                  SizedBox(
                     width: 300,
                     child: TextFormField(
-                      readOnly: true,
-                      controller: sumPriceController,
-                      decoration: const InputDecoration(
-                        labelText: '合計',
-                        border: OutlineInputBorder(),
-                        suffix: Text('円'),
+                      controller: materialController,
+                      decoration: const InputDecoration(border: OutlineInputBorder(), labelText: '材料'),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 20.0),
+                    child: SizedBox(
+                      width: 300,
+                      child: TextFormField(
+                        controller: unitPriceController,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                          FilteringTextInputFormatter.deny(RegExp(r'^0+'))
+                        ],
+                        decoration:
+                        const InputDecoration(labelText: '金額', border: OutlineInputBorder(), suffix: Text('円')),
+                        onChanged: (text) {
+                          var sumPrice = int.parse(text) * selectedUsedCount;
+                          priceController.text = sumPrice.round().toString();
+                        },
                       ),
                     ),
                   ),
-                ),
-                // TODO: 行を追加できるようにする
-                const SizedBox(
-                  height: 10,
-                ),
-                ElevatedButton.icon(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.white, backgroundColor: Colors.amber
+                  SizedBox(
+                      width: 300,
+                      child: DropdownMenu(
+                        controller: usedCountController,
+                        initialSelection: 1.0,
+                        label: const Text('使った量'),
+                        dropdownMenuEntries: usedCountEntries,
+                        onSelected: (count) {
+                          setState(() {
+                            selectedUsedCount = count;
+                          });
+                          if (unitPriceController.text.isNotEmpty) {
+                            var price = int.parse(unitPriceController.text);
+                            var sumPrice = count * price;
+                            priceController.text = sumPrice.round().toString();
+                          }
+                        },
+                      )),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 20.0),
+                    child: SizedBox(
+                      width: 300,
+                      child: TextFormField(
+                        readOnly: true,
+                        controller: priceController,
+                        decoration: const InputDecoration(
+                          labelText: '合計',
+                          border: OutlineInputBorder(),
+                          suffix: Text('円'),
+                        ),
+                      ),
+                    ),
                   ),
-                  icon: const Icon(Icons.add),
-                  label: const Text('材料を追加する', style: TextStyle(fontWeight: FontWeight.bold),),
-                ),
-                const SizedBox(
-                  height: 80,
-                ),
-                SizedBox(
-                  width: 150,
-                  height: 60,
-                  child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => const CalendarPage()));
-                      },
+                  // TODO: 行を追加できるようにする
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      setState(() {
+                        _material = materialController.text;
+                        selectedUsedCount = 1.0;
+                      });
+                      if (totalPriceController.text.isNotEmpty) {
+                        var totalPrice = int.parse(totalPriceController.text) + int.parse(priceController.text);
+                        totalPriceController.text = totalPrice.toString();
+                      } else {
+                        totalPriceController.text = priceController.text;
+                      }
+                      materialList.add(
+                          DishMaterial(
+                              id: (materialList.length + 1).toString(),
+                              name: materialController.text,
+                              unitPrice: int.parse(unitPriceController.text),
+                              costCount: usedCountController.text,
+                              price: int.parse(priceController.text)
+                          )
+                      );
+                      materialController.text = '';
+                      unitPriceController.text = '';
+                      usedCountController.text = '全部';
+                      priceController.text = '';
+
+                    },
                     style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      backgroundColor: Colors.green
+                        foregroundColor: Colors.white, backgroundColor: Colors.amber
                     ),
-                      child: const Text(
-                        '登録する',
-                        style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                      ),
+                    icon: const Icon(Icons.add),
+                    label: const Text('材料を追加する', style: TextStyle(fontWeight: FontWeight.bold),),
                   ),
-                )
-              ],
+                  const SizedBox(
+                    height: 80,
+                  ),
+
+                  SizedBox(
+                    width: 150,
+                    height: 60,
+                    child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => const CalendarPage()));
+                        },
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        backgroundColor: Colors.green
+                      ),
+                        child: const Text(
+                          '登録する',
+                          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                        ),
+                    ),
+                  )
+                ],
+              ),
             ),
           ),
         ),
