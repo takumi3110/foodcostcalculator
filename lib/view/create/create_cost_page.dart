@@ -19,11 +19,7 @@ class _CreateCostPageState extends State<CreateCostPage> {
   TextEditingController priceController = TextEditingController();
   TextEditingController totalPriceController = TextEditingController();
 
-  String _material = '';
-  int _price = 0;
   List<DishMaterial> materialList = [];
-
-
   double selectedUsedCount = 1.0;
 
   @override
@@ -31,8 +27,9 @@ class _CreateCostPageState extends State<CreateCostPage> {
     final List<DropdownMenuEntry> usedCountEntries = [
       const DropdownMenuEntry(value: 1.0, label: '全部'),
       const DropdownMenuEntry(value: 0.5, label: '半分'),
-      const DropdownMenuEntry(value: 0.25, label: '1/4個'),
-      const DropdownMenuEntry(value: 0.125, label: '1/8個'),
+      const DropdownMenuEntry(value: 0.33, label: '1/3'),
+      const DropdownMenuEntry(value: 0.25, label: '1/4'),
+      const DropdownMenuEntry(value: 0.125, label: '1/8'),
     ];
     return Scaffold(
       appBar: AppBar(
@@ -57,6 +54,7 @@ class _CreateCostPageState extends State<CreateCostPage> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20.0),
                     child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         SizedBox(
                           width: 200,
@@ -65,7 +63,6 @@ class _CreateCostPageState extends State<CreateCostPage> {
                             decoration: const InputDecoration(labelText: '料理名'),
                           ),
                         ),
-                        const SizedBox(width: 30,),
                         SizedBox(
                           width: 100,
                           child: TextFormField(
@@ -88,16 +85,40 @@ class _CreateCostPageState extends State<CreateCostPage> {
                       physics: const NeverScrollableScrollPhysics(),
                       itemCount: materialList.length,
                       itemBuilder: (context, index) {
-                       return Container(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Row(
-                            children: [
-                              Text((index + 1).toString()),
-                              Text(materialList[index].name),
-                              Text('${materialList[index].unitPrice}円'),
-                            ],
-                          ),
-                        );
+                       return Padding(
+                         padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 5.0),
+                         child: Row(
+                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                           children: [
+
+                             Row(
+                               children: [
+                                 IconButton(
+                                     onPressed: () {
+                                       setState(() {
+                                         var totalPrice = int.parse(totalPriceController.text) - materialList[index].price;
+                                         totalPriceController.text = totalPrice.toString();
+                                         materialList.removeAt(index);
+                                       });
+                                     },
+                                     icon: const Icon(Icons.delete_forever)
+                                 ),
+                                 Text((index + 1).toString()),
+                                 Padding(
+                                   padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                                   child: Text(
+                                     materialList[index].name,
+                                     style: const TextStyle(
+                                         fontSize: 16
+                                     ),),
+                                 ),
+                               ],
+                             ),
+                             Text('${materialList[index].price}円'),
+
+                           ],
+                         ),
+                       );
                   }),
 
                   const SizedBox(
@@ -169,7 +190,6 @@ class _CreateCostPageState extends State<CreateCostPage> {
                   ElevatedButton.icon(
                     onPressed: () {
                       setState(() {
-                        _material = materialController.text;
                         selectedUsedCount = 1.0;
                       });
                       if (totalPriceController.text.isNotEmpty) {
