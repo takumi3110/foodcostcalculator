@@ -5,5 +5,7 @@ class DishMaterial {
   String costCount;
   int price;
 
-  DishMaterial({this.id = '', this.name = '', this.unitPrice = 0, this.costCount = '', this.price = 0});
+  DishMaterial(
+      {this.id = '', this.name = '', this.unitPrice = 0, this.costCount = '', this.price = 0}
+      );
 }
