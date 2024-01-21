@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:foodcost/view/create/create_cost_page.dart';
+import 'package:foodcost/view/create/create_menu_page.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 
