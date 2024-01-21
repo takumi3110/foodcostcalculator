@@ -93,60 +93,60 @@ class _CalendarPageState extends State<CalendarPage> {
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-            // TableCalendar(
-            //   locale: 'ja_JP',
-            //   firstDay: kFirstDay,
-            //   lastDay: kLastDay,
-            //   focusedDay: _focusedDay,
-            //   // calendarFormat: _calendarFormat,
-            //   selectedDayPredicate: (day) {
-            //     // `selectedDayPredicate`を使用して、現在選択されている日を決定します。
-            //     // これが true を返す場合、`day` は選択済みとしてマークされます。
-            //     // `isSameDay`の使用は無視することをお勧めします
-            //     // 比較されたDateTimeオブジェクトの時間部分。
-            //     return isSameDay(_selectedDay, day);
-            //   },
-            //   // rangeStartDay: _rangeStart,
-            //   // rangeEndDay: _rangeEnd,
-            //   // rangeSelectionMode: _rangeSelectionMode,
-            //   eventLoader: _getEventsForDay,
-            //   startingDayOfWeek: StartingDayOfWeek.monday,
-            //   calendarStyle: const CalendarStyle(outsideDaysVisible: false),
-            //   onDaySelected: _onDaySelected,
-            //   // onRangeSelected: _onRangeSelected,
-            //   // onFormatChanged: (format) {
-            //   //   if (_calendarFormat != format) {
-            //   //     // formatを更新するときに `setState()` を呼び出します
-            //   //     setState(() {
-            //   //       _calendarFormat = format;
-            //   //     });
-            //   //   }
-            //   // },
-            //   onPageChanged: (focusedDay) {
-            //     // ここで`setState()`を呼び出す必要はありません
-            //     _focusedDay = focusedDay;
-            //   },
-            //   // format buttonを消す
-            //   headerStyle: const HeaderStyle(
-            //       formatButtonVisible: false
-            //   ),
-            //   calendarBuilders: CalendarBuilders(dowBuilder: (_, day) {
-            //     final text = DateFormat.E('ja').format(day);
-            //     if (day.weekday == DateTime.sunday) {
-            //       return Center(
-            //         child: Text(text, style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
-            //       );
-            //     } else if (day.weekday == DateTime.saturday) {
-            //       return Center(
-            //         child: Text(
-            //           text,
-            //           style: const TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
-            //         ),
-            //       );
-            //     }
-            //     return null;
-            //   }),
-            // ),
+            TableCalendar(
+              locale: 'ja_JP',
+              firstDay: kFirstDay,
+              lastDay: kLastDay,
+              focusedDay: _focusedDay,
+              // calendarFormat: _calendarFormat,
+              selectedDayPredicate: (day) {
+                // `selectedDayPredicate`を使用して、現在選択されている日を決定します。
+                // これが true を返す場合、`day` は選択済みとしてマークされます。
+                // `isSameDay`の使用は無視することをお勧めします
+                // 比較されたDateTimeオブジェクトの時間部分。
+                return isSameDay(_selectedDay, day);
+              },
+              // rangeStartDay: _rangeStart,
+              // rangeEndDay: _rangeEnd,
+              // rangeSelectionMode: _rangeSelectionMode,
+              eventLoader: _getEventsForDay,
+              startingDayOfWeek: StartingDayOfWeek.monday,
+              calendarStyle: const CalendarStyle(outsideDaysVisible: false),
+              onDaySelected: _onDaySelected,
+              // onRangeSelected: _onRangeSelected,
+              // onFormatChanged: (format) {
+              //   if (_calendarFormat != format) {
+              //     // formatを更新するときに `setState()` を呼び出します
+              //     setState(() {
+              //       _calendarFormat = format;
+              //     });
+              //   }
+              // },
+              onPageChanged: (focusedDay) {
+                // ここで`setState()`を呼び出す必要はありません
+                _focusedDay = focusedDay;
+              },
+              // format buttonを消す
+              headerStyle: const HeaderStyle(
+                  formatButtonVisible: false
+              ),
+              calendarBuilders: CalendarBuilders(dowBuilder: (_, day) {
+                final text = DateFormat.E('ja').format(day);
+                if (day.weekday == DateTime.sunday) {
+                  return Center(
+                    child: Text(text, style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+                  );
+                } else if (day.weekday == DateTime.saturday) {
+                  return Center(
+                    child: Text(
+                      text,
+                      style: const TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
+                    ),
+                  );
+                }
+                return null;
+              }),
+            ),
             const SizedBox(
               height: 8.0,
             ),
