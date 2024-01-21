@@ -116,7 +116,7 @@ class _CreateCostPageState extends State<CreateCostPage> {
                           itemCount: materialList.length,
                           itemBuilder: (context, index) {
                             return Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 5.0),
+                              padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 1.0),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
@@ -303,7 +303,7 @@ class _CreateCostPageState extends State<CreateCostPage> {
                         ),
                       ),
                       const SizedBox(
-                        height: 30,
+                        height: 20,
                       ),
                       Align(
                         alignment: Alignment.bottomCenter,
@@ -314,7 +314,7 @@ class _CreateCostPageState extends State<CreateCostPage> {
                                     ScaffoldMessenger.of(context)
                                         .showSnackBar(const SnackBar(content: Text('Processing Data')));
                                   }
-                                  // Navigator.push(context, MaterialPageRoute(builder: (context) => const CalendarPage()));
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) => const CalendarPage()));
                                 }
                               : null,
                           style: ElevatedButton.styleFrom(

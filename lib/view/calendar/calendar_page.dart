@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:foodcost/view/create/create_cost_page.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -164,7 +165,10 @@ class _CalendarPageState extends State<CalendarPage> {
                                 borderRadius: BorderRadius.circular(12.0),
                               ),
                               child: ListTile(
-                                onTap: () => print('${value[index]}'),
+                                onTap: () => {
+                                  // とりあえず
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) => const CreateCostPage()))
+                                },
                                 title: Text('${value[index]}'),
                               ));
                         });
