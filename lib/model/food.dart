@@ -15,3 +15,13 @@ class Food {
     this.price = 0
   });
 }
+
+class Count {
+  String name;
+  String count;
+  Count({
+    this.name = '',
+    required this.count
+}
+);
+}
