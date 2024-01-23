@@ -11,7 +11,7 @@ class CreateFoodPage extends StatefulWidget {
 class _CreateFoodPageState extends State<CreateFoodPage> {
   TextEditingController nameController = TextEditingController();
   TextEditingController unitPriceController = TextEditingController();
-  TextEditingController costCountController = TextEditingController();
+  // TextEditingController costCountController = TextEditingController();
   TextEditingController priceController = TextEditingController();
 
   // static var menuItemValues = [
@@ -22,15 +22,15 @@ class _CreateFoodPageState extends State<CreateFoodPage> {
   static List<Count> menuItemValues = [
     Count(
       name: 'all',
-      count: '1'
+      count: 1.0
     ),
     Count(
       name: 'half',
-      count: '0.5'
+      count: 0.5
     )
   ];
 
-  Count? _selected = menuItemValues[0];
+  Count _selected = menuItemValues[0];
 
   @override
   Widget build(BuildContext context) {
@@ -57,19 +57,23 @@ class _CreateFoodPageState extends State<CreateFoodPage> {
                 height: 20,
               ),
               TextField(
-                controller: nameController,
-                decoration: const InputDecoration(labelText: '金額', border: OutlineInputBorder()),
+                controller: unitPriceController,
+                decoration: const InputDecoration(labelText: '金額', border: OutlineInputBorder(), suffix: Text('円')),
+                keyboardType: TextInputType.number,
+                onChanged: (String value) {
+                  if (value.isNotEmpty) {
+                    int price = int.parse(value);
+                    var sumPrice = price * _selected.count;
+                    print(sumPrice.round().toString());
+                    priceController.text = sumPrice.round().toString();
+                  } else {
+                    priceController.text = '0';
+                  }
+                },
               ),
               const SizedBox(
                 height: 20,
               ),
-              // TextField(
-              //   controller: nameController,
-              //   decoration: const InputDecoration(
-              //       labelText: '使った量',
-              //     border: OutlineInputBorder()
-              //   ),
-              // ),
               SizedBox(
                 width: 400,
                 child: DropdownButtonFormField(
@@ -78,16 +82,22 @@ class _CreateFoodPageState extends State<CreateFoodPage> {
                     items: menuItemValues.map(
                         (value) {
                           return DropdownMenuItem(
-                            child: Text('${value.name}'),
                             value: value,
+                            child: Text(value.name),
                           );
                         }
                     ).toList(),
-                    onChanged: (value) {
+                    onChanged: (Count? value) {
                     setState(() {
-                      _selected = value;
+                      if (value != null) {
+                        _selected = value;
+                        if (unitPriceController.text.isNotEmpty) {
+                          var price = int.parse(unitPriceController.text);
+                          var sumPrice = value.count * price;
+                          priceController.text = sumPrice.round().toString();
+                        }
+                      }
                     });
-                    print(value?.count);
                     }
                 ),
               ),
@@ -95,8 +105,9 @@ class _CreateFoodPageState extends State<CreateFoodPage> {
                 height: 20,
               ),
               TextField(
-                controller: nameController,
-                decoration: const InputDecoration(labelText: '使った金額', border: OutlineInputBorder()),
+                controller: priceController,
+                decoration: const InputDecoration(labelText: '使った金額', border: OutlineInputBorder(), suffix: Text('円')),
+                readOnly: true,
               ),
               const SizedBox(
                 height: 20,

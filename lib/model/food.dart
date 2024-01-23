@@ -18,10 +18,7 @@ class Food {
 
 class Count {
   String name;
-  String count;
-  Count({
-    this.name = '',
-    required this.count
-}
-);
+  double count;
+
+  Count({this.name = '', this.count = 0.0});
 }
