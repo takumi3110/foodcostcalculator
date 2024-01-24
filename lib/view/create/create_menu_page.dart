@@ -15,53 +15,21 @@ class CreateCostPage extends StatefulWidget {
 
 class _CreateCostPageState extends State<CreateCostPage> {
   TextEditingController foodNameController = TextEditingController();
-  TextEditingController materialController = TextEditingController();
-  TextEditingController unitPriceController = TextEditingController();
-  TextEditingController usedCountController = TextEditingController();
-  TextEditingController priceController = TextEditingController();
   TextEditingController totalPriceController = TextEditingController();
 
   // double selectedUsedCount = 1.0;
   String? foodName;
+
   // String? dropdownValue;
   // List<Material> materialList = [];
 
-  List<Food> materialList = [
-    Food(
-      id: '1',
-      menuId: '1',
-      name: 'kome',
-      unitPrice: 100,
-      costCount: '',
-      price: 100
-    )
-  ];
-
-  Menu menu = Menu(
-    id: '1',
-    name: 'curry',
-    createdTime: Timestamp.now()
-  );
+  List<Food> materialList = [Food(id: '1', menuId: '1', name: 'kome', unitPrice: 100, costCount: '', price: 100)];
 
   final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
-    // final List<DropdownMenuEntry> usedCountEntries = [
-    //   const DropdownMenuEntry(value: 1.0, label: '全部'),
-    //   const DropdownMenuEntry(value: 0.5, label: '半分'),
-    //   const DropdownMenuEntry(value: 0.33, label: '1/3'),
-    //   const DropdownMenuEntry(value: 0.25, label: '1/4'),
-    //   const DropdownMenuEntry(value: 0.125, label: '1/8'),
-    // ];
-    // List<DropdownMenuItem> dropdownLists = [
-    //   const DropdownMenuItem(value: '1', child: Text('all')),
-    //   const DropdownMenuItem(value: '0.5', child: Text('1/2'))
-    // ];
-
-
     bool isEnabled = _formKey.currentState?.validate() ?? false;
-
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -105,7 +73,7 @@ class _CreateCostPageState extends State<CreateCostPage> {
                                   // );
                                   // return _result ? null : "Please enter a valid email";
                                 },
-                                onSaved: (value) {
+                                onSaved: (String? value) {
                                   setState(() {
                                     foodName = value;
                                   });
@@ -286,35 +254,12 @@ class _CreateCostPageState extends State<CreateCostPage> {
                       //   height: 10,
                       // ),
                       ElevatedButton.icon(
-                        onPressed: () {
-                          // setState(() {
-                          //   selectedUsedCount = 1.0;
-                          // });
-                          print(_formKey.currentState!.validate());
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => const CreateFoodPage()));
-                          // if (_formKey.currentState!.validate()) {
-                          //   setState(() {
-                          //     if (totalPriceController.text.isNotEmpty) {
-                          //       var totalPrice = int.parse(totalPriceController.text) + int.parse(priceController.text);
-                          //       totalPriceController.text = totalPrice.toString();
-                          //     } else {
-                          //       totalPriceController.text = priceController.text;
-                          //     }
-                          //     materialList.add(Material(
-                          //         id: (materialList.length + 1).toString(),
-                          //         name: materialController.text,
-                          //         unitPrice: int.parse(unitPriceController.text),
-                          //         costCount: usedCountController.text,
-                          //         price: int.parse(priceController.text))
-                          //     );
-                          //     materialController.text = '';
-                          //     unitPriceController.text = '';
-                          //     usedCountController.text = '';
-                          //     priceController.text = '';
-                          //     dropdownValue = '1';
-                          //   });
-                          // }
-                        },
+                        onPressed: isEnabled
+                            ? () {
+                                Navigator.push(
+                                    context, MaterialPageRoute(builder: (context) => const CreateFoodPage()));
+                              }
+                            : null,
                         style: ElevatedButton.styleFrom(foregroundColor: Colors.white, backgroundColor: Colors.amber),
                         icon: const Icon(Icons.add),
                         label: const Text(
@@ -328,13 +273,14 @@ class _CreateCostPageState extends State<CreateCostPage> {
                       Align(
                         alignment: Alignment.bottomCenter,
                         child: ElevatedButton(
-                          onPressed: isEnabled || materialList.isNotEmpty
+                          onPressed: isEnabled
                               ? () {
                                   if (_formKey.currentState!.validate()) {
                                     ScaffoldMessenger.of(context)
                                         .showSnackBar(const SnackBar(content: Text('Processing Data')));
                                   }
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) => const CalendarPage()));
+                                  Navigator.push(
+                                      context, MaterialPageRoute(builder: (context) => const CalendarPage()));
                                 }
                               : null,
                           style: ElevatedButton.styleFrom(

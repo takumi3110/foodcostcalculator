@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:foodcost/model/food.dart';
+import 'package:foodcost/utils/firestore/post_material.dart';
 
 class CreateFoodPage extends StatefulWidget {
   const CreateFoodPage({super.key});
@@ -21,12 +22,24 @@ class _CreateFoodPageState extends State<CreateFoodPage> {
 
   static List<Count> menuItemValues = [
     Count(
-      name: 'all',
+      name: '全部',
       count: 1.0
     ),
     Count(
-      name: 'half',
+      name: '1/2',
       count: 0.5
+    ),
+    Count(
+      name: '1/3',
+      count: 0.3
+    ),
+    Count(
+      name: '1/4',
+      count: 0.25
+    ),
+    Count(
+      name: '1/8',
+      count: 0.125
     )
   ];
 
@@ -64,7 +77,6 @@ class _CreateFoodPageState extends State<CreateFoodPage> {
                   if (value.isNotEmpty) {
                     int price = int.parse(value);
                     var sumPrice = price * _selected.count;
-                    print(sumPrice.round().toString());
                     priceController.text = sumPrice.round().toString();
                   } else {
                     priceController.text = '0';
@@ -113,8 +125,21 @@ class _CreateFoodPageState extends State<CreateFoodPage> {
                 height: 20,
               ),
               ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
+                  onPressed: () async{
+                    if(nameController.text.isNotEmpty && unitPriceController.text.isNotEmpty) {
+                      Food newFood = Food(
+                        name: nameController.text,
+                        unitPrice: int.parse(unitPriceController.text),
+                        costCount: _selected.name,
+                        price: int.parse(priceController.text)
+                      );
+                      var result = await FoodsFirestore.addFood(newFood);
+                      if (result == true) {
+                        Navigator.pop(context);
+                      }
+                    } else {
+                      null;
+                    }
                   },
                   child: const Text('保存'))
             ],
@@ -123,9 +148,4 @@ class _CreateFoodPageState extends State<CreateFoodPage> {
       ),
     );
   }
-}
-
-class Person {
-  String name;
-  Person(this.name);
 }

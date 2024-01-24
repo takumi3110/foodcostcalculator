@@ -2,19 +2,20 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:foodcost/model/food.dart';
 
 
-class MaterialFirestore {
+class FoodsFirestore {
   static final _firestoreInstance = FirebaseFirestore.instance;
-  static final CollectionReference material = _firestoreInstance.collection(('materials'));
+  static final CollectionReference material = _firestoreInstance.collection(('foods'));
 
-  static Future<dynamic> addMaterial(Food newMaterial) async {
+  static Future<dynamic> addFood(Food newFood) async {
     try {
+      // TODO: 先にメニューを登録してみる
       final CollectionReference _menu = _firestoreInstance.collection('menus')
-      .doc(newMaterial.menuId).collection('materials');
+      .doc(newFood.menuId).collection('foods');
       var result = await material.add({
-        'name': newMaterial.name,
-        'unit_price': newMaterial.unitPrice,
-        'cost_count': newMaterial.costCount,
-        'price': newMaterial.price
+        'name': newFood.name,
+        'unit_price': newFood.unitPrice,
+        'cost_count': newFood.costCount,
+        'price': newFood.price
       });
       _menu.doc(result.id).set({
         'material_id': result.id,
