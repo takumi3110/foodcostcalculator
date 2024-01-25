@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:foodcost/model/Account.dart';
+import 'package:foodcost/utils/firestore/users.dart';
+import 'package:foodcost/utils/functionUtils.dart';
+import 'dart:io';
 
 class CreateAccountPage extends StatefulWidget {
   const CreateAccountPage({super.key});
@@ -12,6 +16,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
   TextEditingController userIdController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController passController = TextEditingController();
+  File? image;
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +33,14 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
               children: [
                 const SizedBox(height: 30,),
                 GestureDetector(
-                  onTap: () {},
+                  onTap: () async{
+                    var result = await FunctionUtils.getImageFromGallery();
+                    if (result != null) {
+                      setState(() {
+                        image = File(result.path);
+                      });
+                    }
+                  },
                   child: const CircleAvatar(
                     child: Icon(Icons.add),
                   ),
@@ -88,4 +100,16 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
       ),
     );
   }
+  Future<dynamic> createAccount(String uid) async {
+    String imagePath = await FunctionUtils.uploadImage(uid, image!);
+    Account newAccount = Account(
+      id: uid,
+      name: nameController.text,
+      imagePath: imagePath
+    );
+    var _result = await UserFirestore.setUser(newAccount);
+    return _result;
+  }
 }
+
+
