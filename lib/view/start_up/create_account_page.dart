@@ -1,4 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:foodcost/model/Account.dart';
+import 'package:foodcost/utils/authentication.dart';
+import 'package:foodcost/utils/firestore/users.dart';
+import 'package:foodcost/utils/functionUtils.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:io';
 
 class CreateAccountPage extends StatefulWidget {
   const CreateAccountPage({super.key});
@@ -12,6 +18,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
   TextEditingController userIdController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController passController = TextEditingController();
+  File? image;
 
   @override
   Widget build(BuildContext context) {
@@ -26,45 +33,48 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
             padding: const EdgeInsets.all(20.0),
             child: Column(
               children: [
-                const SizedBox(height: 30,),
+                const SizedBox(height: 50,),
                 GestureDetector(
-                  onTap: () {},
-                  child: const CircleAvatar(
-                    child: Icon(Icons.add),
-                  ),
-                ),
-                SizedBox(
-                  width: 300,
-                  child: TextField(
-                    controller: nameController,
-                    decoration: const InputDecoration(
-                      hintText: '名前'
-                    ),
+                  onTap: () async{
+                    var result = await FunctionUtils.getImageFromGallery();
+                    if (result != null) {
+                      setState(() {
+                        image = File(result.path);
+                      });
+                    }
+                  },
+                  child: CircleAvatar(
+                    foregroundImage: image == null ? null: FileImage(image!),
+                    radius: 40,
+                    child: const Icon(Icons.add),
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 20.0),
+                  padding: const EdgeInsets.all(10.0),
                   child: SizedBox(
                     width: 300,
                     child: TextField(
-                      controller: userIdController,
+                      controller: nameController,
                       decoration: const InputDecoration(
-                        hintText: 'ユーザーID'
+                        hintText: '名前'
                       ),
                     ),
                   ),
                 ),
-                SizedBox(
-                  width: 300,
-                  child: TextField(
-                    controller: emailController,
-                    decoration: const InputDecoration(
-                      hintText: 'メールアドレス'
+                Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: SizedBox(
+                    width: 300,
+                    child: TextField(
+                      controller: emailController,
+                      decoration: const InputDecoration(
+                        hintText: 'メールアドレス'
+                      ),
                     ),
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 20.0),
+                  padding: const EdgeInsets.all(10.0),
                   child: SizedBox(
                     width: 300,
                     child: TextField(
@@ -77,8 +87,17 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                 ),
                 const SizedBox(height: 50,),
                 ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
+                    onPressed: () async{
+                      // 入力されてない時は作動しない
+                      if (nameController.text.isNotEmpty && emailController.text.isNotEmpty && passController.text.isNotEmpty && image !=null) {
+                        var result = await Authentication.signUp(email: emailController.text, pass: passController.text);
+                        if (result is UserCredential) {
+                          var _result = await createAccount(result.user!.uid);
+                          if (_result == true) {
+                            Navigator.pop(context);
+                          }
+                        }
+                      }
                     },
                     child: const Text('アカウント作成'))
               ],
@@ -88,4 +107,19 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
       ),
     );
   }
+  Future<dynamic> createAccount(String uid) async {
+    String imagePath = await FunctionUtils.uploadImage(uid, image!);
+    if (imagePath != '') {
+      Account newAccount = Account(
+          id: uid,
+          name: nameController.text,
+          imagePath: imagePath
+      );
+      var _result = await UserFirestore.setUser(newAccount);
+      return _result;
+    }
+
+  }
 }
+
+
