@@ -43,8 +43,10 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                       });
                     }
                   },
-                  child: const CircleAvatar(
-                    child: Icon(Icons.add),
+                  child: CircleAvatar(
+                    foregroundImage: image == null ? null: FileImage(image!),
+                    radius: 40,
+                    child: const Icon(Icons.add),
                   ),
                 ),
                 Padding(
@@ -90,7 +92,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                       if (nameController.text.isNotEmpty && emailController.text.isNotEmpty && passController.text.isNotEmpty && image !=null) {
                         var result = await Authentication.signUp(email: emailController.text, pass: passController.text);
                         if (result is UserCredential) {
-                          var _result = createAccount(result.user!.uid);
+                          var _result = await createAccount(result.user!.uid);
                           if (_result == true) {
                             Navigator.pop(context);
                           }
@@ -107,13 +109,16 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
   }
   Future<dynamic> createAccount(String uid) async {
     String imagePath = await FunctionUtils.uploadImage(uid, image!);
-    Account newAccount = Account(
-      id: uid,
-      name: nameController.text,
-      imagePath: imagePath
-    );
-    var _result = await UserFirestore.setUser(newAccount);
-    return _result;
+    if (imagePath != '') {
+      Account newAccount = Account(
+          id: uid,
+          name: nameController.text,
+          imagePath: imagePath
+      );
+      var _result = await UserFirestore.setUser(newAccount);
+      return _result;
+    }
+
   }
 }
 

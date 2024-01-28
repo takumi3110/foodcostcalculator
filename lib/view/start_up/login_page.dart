@@ -77,15 +77,16 @@ class _LoginPageState extends State<LoginPage> {
                           await Authentication.emailSignIn(email: emailController.text, password: passController.text);
                       // resultがUserCredentialタイプだったらtrue
                       if (result is UserCredential) {
-                        if (result.user!.emailVerified == true) {
-                          var _result = await UserFirestore.getUser(result.user!.uid);
-                          if (_result == true) {
-                            Navigator.pushReplacement(
-                                context, MaterialPageRoute(builder: (context) => const CalendarPage()));
-                          }
-                        } else {
-                          print('メール認証できませんでした。');
-                        }
+                        // if (result.user!.emailVerified == true) {
+                        //   var _result = await UserFirestore.getUser(result.user!.uid);
+                        //   if (_result == true) {
+                        //     Navigator.pushReplacement(
+                        //         context, MaterialPageRoute(builder: (context) => const CalendarPage()));
+                        //   }
+                        // } else {
+                        //   print('メール認証できませんでした。');
+                        // }
+                        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const CalendarPage()));
                       }
                     },
                     child: const Text('メールアドレスでログイン'))
