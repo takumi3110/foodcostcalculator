@@ -54,6 +54,7 @@ dev_dependencies:
   table_calendar: ^3.0.9
   firebase_auth: ^4.16.0
   image_picker: ^1.0.7
+  loading_animation_widget: ^1.2.0+4
 
 
 
