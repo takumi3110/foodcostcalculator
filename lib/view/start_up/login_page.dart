@@ -18,6 +18,8 @@ class _LoginPageState extends State<LoginPage> {
   TextEditingController passController = TextEditingController();
 
   bool _isLoading = false;
+  bool _isObscure = true;
+  bool _isLoginError = false;
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +57,20 @@ class _LoginPageState extends State<LoginPage> {
                     width: 300,
                     child: TextField(
                       controller: passController,
-                      decoration: const InputDecoration(hintText: 'パスワード'),
+                      decoration: InputDecoration(
+                          hintText: 'パスワード',
+                        suffixIcon: IconButton(
+                            onPressed: () {
+                              setState(() {
+                                _isObscure = !_isObscure;
+                              });
+                            },
+                            icon: Icon(
+                                _isObscure ? Icons.visibility_off: Icons.visibility
+                            )
+                        )
+                      ),
+                      obscureText: _isObscure,
                     ),
                   ),
                   const SizedBox(
@@ -75,29 +90,44 @@ class _LoginPageState extends State<LoginPage> {
                   const SizedBox(
                     height: 70,
                   ),
+                  if (_isLoginError)
+                    const Center(
+                        child: Text(
+                          '正しいメールアドレスとパスワードを入力してください。', style: TextStyle(color: Colors.red),
+                        )
+                    ),
                   ElevatedButton(
                       onPressed: () async {
-                        setState(() {
-                          _isLoading = true;
-                        });
-                        var result =
-                            await Authentication.emailSignIn(email: emailController.text, password: passController.text);
-                        // resultがUserCredentialタイプだったらtrue
-                        if (result is UserCredential) {
-                          // if (result.user!.emailVerified == true) {
-                          //   var _result = await UserFirestore.getUser(result.user!.uid);
-                          //   if (_result == true) {
-                          //     Navigator.pushReplacement(
-                          //         context, MaterialPageRoute(builder: (context) => const CalendarPage()));
-                          //   }
-                          // } else {
-                          //   print('メール認証できませんでした。');
-                          // }
-                          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const CalendarPage()));
+                        if (emailController.text.isNotEmpty && passController.text.isNotEmpty) {
+                          setState(() {
+                            _isLoading = true;
+                          });
+                          var result =
+                          await Authentication.emailSignIn(email: emailController.text, password: passController.text);
+                          // resultがUserCredentialタイプだったらtrue
+                          if (result is UserCredential) {
+                            // if (result.user!.emailVerified == true) {
+                            //   var _result = await UserFirestore.getUser(result.user!.uid);
+                            //   if (_result == true) {
+                            //     Navigator.pushReplacement(
+                            //         context, MaterialPageRoute(builder: (context) => const CalendarPage()));
+                            //   }
+                            // } else {
+                            //   print('メール認証できませんでした。');
+                            // }
+                            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const CalendarPage()));
+                          } else {
+                            setState(() {
+                              _isLoginError = true;
+                            });
+                          }
                           setState(() {
                             _isLoading = false;
                           });
+                        } else {
+                          null;
                         }
+
                       },
                       child: const Text('メールアドレスでログイン')
                   ),
@@ -109,15 +139,15 @@ class _LoginPageState extends State<LoginPage> {
       ),
         if (_isLoading)
           const Opacity(
-            opacity: 0.7,
+            opacity: 0.8,
             child: ModalBarrier(
               dismissible: false,
-              color: Colors.black
+              color: Colors.white
             ),
           ),
         if (_isLoading)
           Center(
-            child: LoadingAnimationWidget.stretchedDots(color: Colors.white, size: 50),
+            child: LoadingAnimationWidget.stretchedDots(color: Colors.blue, size: 70),
           ),
     ]
     );

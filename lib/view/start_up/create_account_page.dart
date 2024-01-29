@@ -22,6 +22,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
   File? image;
 
   bool _isLoading = false;
+  bool _isObscure = true;
 
   @override
   Widget build(BuildContext context) {
@@ -84,9 +85,20 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                       width: 300,
                       child: TextField(
                         controller: passController,
-                        decoration: const InputDecoration(
-                          hintText: 'パスワード'
+                        decoration: InputDecoration(
+                            hintText: 'パスワード',
+                            suffixIcon: IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    _isObscure = !_isObscure;
+                                  });
+                                },
+                                icon: Icon(
+                                    _isObscure ? Icons.visibility_off: Icons.visibility
+                                )
+                            )
                         ),
+                        obscureText: _isObscure,
                       ),
                     ),
                   ),
@@ -121,12 +133,12 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
               opacity: 0.8,
               child: ModalBarrier(
                   dismissible: false,
-                  color: Colors.black
+                  color: Colors.white
               ),
             ),
           if (_isLoading)
             Center(
-              child: LoadingAnimationWidget.stretchedDots(color: Colors.white, size: 50),
+              child: LoadingAnimationWidget.stretchedDots(color: Colors.blue, size: 70),
             ),
     ]
       ),
