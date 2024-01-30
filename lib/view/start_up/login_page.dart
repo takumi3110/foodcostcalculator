@@ -2,6 +2,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:foodcost/utils/authentication.dart';
+import 'package:foodcost/utils/firestore/users.dart';
 import 'package:foodcost/view/calendar/calendar_page.dart';
 import 'package:foodcost/view/start_up/create_account_page.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -18,7 +19,7 @@ class _LoginPageState extends State<LoginPage> {
   TextEditingController passController = TextEditingController();
 
   bool _isLoading = false;
-  bool _isObscure = true;
+  bool _isObscureText = true;
   bool _isLoginError = false;
 
   @override
@@ -62,15 +63,15 @@ class _LoginPageState extends State<LoginPage> {
                         suffixIcon: IconButton(
                             onPressed: () {
                               setState(() {
-                                _isObscure = !_isObscure;
+                                _isObscureText = !_isObscureText;
                               });
                             },
                             icon: Icon(
-                                _isObscure ? Icons.visibility_off: Icons.visibility
+                                _isObscureText ? Icons.visibility_off: Icons.visibility
                             )
                         )
                       ),
-                      obscureText: _isObscure,
+                      obscureText: _isObscureText,
                     ),
                   ),
                   const SizedBox(
@@ -115,7 +116,12 @@ class _LoginPageState extends State<LoginPage> {
                             // } else {
                             //   print('メール認証できませんでした。');
                             // }
-                            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const CalendarPage()));
+                              var _result = await UserFirestore.getUser(result.user!.uid);
+                              if (_result == true) {
+                                Navigator.pushReplacement(
+                                    context, MaterialPageRoute(builder: (context) => const CalendarPage()));
+                              }
+                            // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const CalendarPage()));
                           } else {
                             setState(() {
                               _isLoginError = true;

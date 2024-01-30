@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:foodcost/view/create/create_menu_page.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
-
-import '../../utils/calendar_utils.dart';
+import 'package:foodcost/utils/widget_utils.dart';
+import 'package:foodcost/utils/calendar_utils.dart';
 
 class CalendarPage extends StatefulWidget {
   const CalendarPage({super.key});
@@ -80,15 +80,14 @@ class _CalendarPageState extends State<CalendarPage> {
   //   }
   // }
 
+  var _scaffoldKey = GlobalKey<ScaffoldState>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: const Text('カレンダー', style: TextStyle(fontWeight: FontWeight.bold),),
-        elevation: 1,
-        backgroundColor: Theme.of(context).canvasColor,
-      ),
+      key: _scaffoldKey,
+      appBar: WidgetUtils.createAppBar('カレンダー', _scaffoldKey),
+      drawer: WidgetUtils.sideMenuDrawer(),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(

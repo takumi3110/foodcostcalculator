@@ -10,6 +10,7 @@ class UserFirestore {
     try {
       await users.doc(newAccount.id).set({
         'name': newAccount.name,
+        'email': newAccount.email,
         'image_path': newAccount.imagePath,
         'created_time': newAccount.createdTime,
       });
@@ -29,6 +30,7 @@ class UserFirestore {
         Account myAccount = Account(
           id: uid,
           name: data['name'],
+          email: data['email'],
           imagePath: data['image_path'],
           createdTime: data['created_time'],
         );
