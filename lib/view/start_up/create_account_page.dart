@@ -150,6 +150,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
       Account newAccount = Account(
           id: uid,
           name: nameController.text,
+          email: emailController.text,
           imagePath: imagePath
       );
       var _result = await UserFirestore.setUser(newAccount);
