@@ -87,7 +87,7 @@ class _CalendarPageState extends State<CalendarPage> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: WidgetUtils.createAppBar('カレンダー', _scaffoldKey),
-      drawer: WidgetUtils.sideMenuDrawer(),
+      drawer: WidgetUtils.sideMenuDrawer(context),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
