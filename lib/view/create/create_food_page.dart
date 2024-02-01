@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:foodcost/model/food.dart';
-import 'package:foodcost/utils/firestore/post_material.dart';
+import 'package:foodcost/utils/firestore/posts.dart';
 
 class CreateFoodPage extends StatefulWidget {
   const CreateFoodPage({super.key});
@@ -133,7 +133,7 @@ class _CreateFoodPageState extends State<CreateFoodPage> {
                         costCount: _selected.name,
                         price: int.parse(priceController.text)
                       );
-                      var result = await FoodsFirestore.addFood(newFood);
+                      var result = await PostFirestore.addFood(newFood);
                       if (result == true) {
                         Navigator.pop(context);
                       }

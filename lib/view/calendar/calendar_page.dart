@@ -166,7 +166,7 @@ class _CalendarPageState extends State<CalendarPage> {
                               child: ListTile(
                                 onTap: () => {
                                   // とりあえず
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) => const CreateCostPage()))
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) => const CreateMenuPage()))
                                 },
                                 title: Text('${value[index]}'),
                               ));
@@ -175,6 +175,12 @@ class _CalendarPageState extends State<CalendarPage> {
                 ))
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const CreateMenuPage()));
+        },
+        child: const Icon(Icons.add_outlined),
       ),
     );
   }
