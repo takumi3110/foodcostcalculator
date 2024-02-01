@@ -1,8 +1,13 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:foodcost/model/food.dart';
-import 'package:foodcost/view/calendar/calendar_page.dart';
+import 'package:foodcost/model/menu.dart';
+import 'package:foodcost/utils/authentication.dart';
+import 'package:foodcost/utils/firestore/posts.dart';
+import 'package:foodcost/utils/widget_utils.dart';
 import 'package:foodcost/view/create/create_food_page.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class CreateMenuPage extends StatefulWidget {
   const CreateMenuPage({super.key});
@@ -16,6 +21,8 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
   TextEditingController totalPriceController = TextEditingController();
 
   List<Food> materialList = [Food(id: '1', menuId: '1', name: 'kome', unitPrice: 100, costCount: '', price: 100)];
+
+  bool _isLoading = false;
 
   final _formKey = GlobalKey<FormState>();
 
@@ -33,7 +40,8 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
       body: Form(
         key: _formKey,
         child: SafeArea(
-          child: Stack(children: [
+          child: Stack(
+              children: [
             Padding(
               padding: const EdgeInsets.all(10.0),
               child: SizedBox(
@@ -124,9 +132,23 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
                             );
                           }),
                       ElevatedButton.icon(
-                        onPressed: () {
+                        onPressed: () async{
                           if (_formKey.currentState!.validate()) {
-                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('success')));
+                            setState(() {
+                              _isLoading = true;
+                            });
+                            Menu newMenu = Menu(
+                              name: menuNameController.text,
+                              userId: Authentication.myAccount!.id,
+                            );
+                            var result = await PostFirestore.addMenu(newMenu);
+                            if (result is String) {
+                              // ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('success')));
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => CreateFoodPage(menuId: result,)));
+                            }
+                            setState(() {
+                              _isLoading = false;
+                            });
                           }
                         },
                         style: ElevatedButton.styleFrom(foregroundColor: Colors.white, backgroundColor: Colors.amber),
@@ -160,7 +182,21 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
                 ),
               ),
             ),
-          ]),
+                WidgetUtils.loadingStack(_isLoading)
+                // if (_isLoading)
+                //   const Opacity(
+                //     opacity: 0.8,
+                //     child: ModalBarrier(
+                //         dismissible: false,
+                //         color: Colors.white
+                //     ),
+                //   ),
+                // if (_isLoading)
+                //   Center(
+                //     child: LoadingAnimationWidget.stretchedDots(color: Colors.blue, size: 70),
+                //   ),
+          ]
+          ),
         ),
       ),
     );

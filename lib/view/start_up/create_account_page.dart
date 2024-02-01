@@ -1,9 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:foodcost/model/Account.dart';
 import 'package:foodcost/utils/authentication.dart';
 import 'package:foodcost/utils/firestore/users.dart';
 import 'package:foodcost/utils/functionUtils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:foodcost/utils/widget_utils.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'dart:io';
 
@@ -128,18 +130,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
             ),
           ),
         ),
-          if (_isLoading)
-            const Opacity(
-              opacity: 0.8,
-              child: ModalBarrier(
-                  dismissible: false,
-                  color: Colors.white
-              ),
-            ),
-          if (_isLoading)
-            Center(
-              child: LoadingAnimationWidget.stretchedDots(color: Colors.blue, size: 70),
-            ),
+       WidgetUtils.loadingStack(_isLoading)
     ]
       ),
     );
@@ -151,7 +142,8 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
           id: uid,
           name: nameController.text,
           email: emailController.text,
-          imagePath: imagePath
+          imagePath: imagePath,
+          createdTime: Timestamp.now()
       );
       var _result = await UserFirestore.setUser(newAccount);
       return _result;

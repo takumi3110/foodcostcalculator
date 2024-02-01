@@ -3,7 +3,11 @@ import 'package:foodcost/model/food.dart';
 import 'package:foodcost/utils/firestore/posts.dart';
 
 class CreateFoodPage extends StatefulWidget {
-  const CreateFoodPage({super.key});
+  final String menuId;
+  const CreateFoodPage({
+    super.key,
+    required this.menuId
+  });
 
   @override
   State<CreateFoodPage> createState() => _CreateFoodPageState();
@@ -15,10 +19,13 @@ class _CreateFoodPageState extends State<CreateFoodPage> {
   // TextEditingController costCountController = TextEditingController();
   TextEditingController priceController = TextEditingController();
 
-  // static var menuItemValues = [
-  //   Count('Alice'),
-  //   Count('bob')
-  // ];
+  late String menuId;
+
+  @override
+  void initState() {
+    super.initState();
+    menuId = widget.menuId;
+  }
 
   static List<Count> menuItemValues = [
     Count(
@@ -131,7 +138,8 @@ class _CreateFoodPageState extends State<CreateFoodPage> {
                         name: nameController.text,
                         unitPrice: int.parse(unitPriceController.text),
                         costCount: _selected.name,
-                        price: int.parse(priceController.text)
+                        price: int.parse(priceController.text),
+                        menuId: menuId
                       );
                       var result = await PostFirestore.addFood(newFood);
                       if (result == true) {
