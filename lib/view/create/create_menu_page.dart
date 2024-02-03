@@ -20,7 +20,8 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
   TextEditingController menuNameController = TextEditingController();
   TextEditingController totalPriceController = TextEditingController();
 
-  List<Food> materialList = [Food(id: '1', menuId: '1', name: 'kome', unitPrice: 100, costCount: '', price: 100)];
+  // List<Food> foodList = [Food(id: '1', menuId: '1', name: 'kome', unitPrice: 100, costCount: '', price: 100)];
+  List<Food> foodList = [];
 
   bool _isLoading = false;
 
@@ -94,43 +95,96 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
                           ],
                         ),
                       ),
-                      ListView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: materialList.length,
-                          itemBuilder: (context, index) {
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 1.0),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Row(
-                                    children: [
-                                      IconButton(
-                                          onPressed: () {
-                                            setState(() {
-                                              var totalPrice =
-                                                  int.parse(totalPriceController.text) - materialList[index].price;
-                                              totalPriceController.text = totalPrice.toString();
-                                              materialList.removeAt(index);
-                                            });
-                                          },
-                                          icon: const Icon(Icons.delete_forever)),
-                                      Text((index + 1).toString()),
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                                        child: Text(
-                                          materialList[index].name,
-                                          style: const TextStyle(fontSize: 16),
-                                        ),
+                      // StreamBuilder<QuerySnapshot>(
+                      //   stream: PostFirestore.menus.orderBy('created_time', descending: true).snapshots(),
+                      //   builder: (context, snapshot) {
+                      //     if (snapshot.hasData) {
+                      //       // TODO:userIdを取得
+                      //       List<String> postUserIds = [];
+                      //       snapshot.data!.docs.forEach((doc) {
+                      //         Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+                      //         // TODO: postUserIdsに登録されていなければ新規登録
+                      //         if (!postUserIds.contains(data['user_id'])) {
+                      //           postUserIds.add(data['user_id']);
+                      //         }
+                      //       });
+                      //     }
+                      //     return ListView.builder(
+                      //         shrinkWrap: true,
+                      //         physics: const NeverScrollableScrollPhysics(),
+                      //         itemCount: materialList.length,
+                      //         itemBuilder: (context, index) {
+                      //           return Padding(
+                      //             padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 1.0),
+                      //             child: Row(
+                      //               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      //               children: [
+                      //                 Row(
+                      //                   children: [
+                      //                     IconButton(
+                      //                         onPressed: () {
+                      //                           setState(() {
+                      //                             var totalPrice =
+                      //                                 int.parse(totalPriceController.text) - materialList[index].price;
+                      //                             totalPriceController.text = totalPrice.toString();
+                      //                             materialList.removeAt(index);
+                      //                           });
+                      //                         },
+                      //                         icon: const Icon(Icons.delete_forever)),
+                      //                     Text((index + 1).toString()),
+                      //                     Padding(
+                      //                       padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      //                       child: Text(
+                      //                         materialList[index].name,
+                      //                         style: const TextStyle(fontSize: 16),
+                      //                       ),
+                      //                     ),
+                      //                   ],
+                      //                 ),
+                      //                 Text('${materialList[index].price}円'),
+                      //               ],
+                      //             ),
+                      //           );
+                      //         });
+                      //   }
+                      // ),
+                    ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: foodList.length,
+                        itemBuilder: (context, index) {
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 1.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  children: [
+                                    IconButton(
+                                        onPressed: () {
+                                          setState(() {
+                                            var totalPrice =
+                                                int.parse(totalPriceController.text) - foodList[index].price;
+                                            totalPriceController.text = totalPrice.toString();
+                                            foodList.removeAt(index);
+                                          });
+                                        },
+                                        icon: const Icon(Icons.delete_forever)),
+                                    Text((index + 1).toString()),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                                      child: Text(
+                                        foodList[index].name,
+                                        style: const TextStyle(fontSize: 16),
                                       ),
-                                    ],
-                                  ),
-                                  Text('${materialList[index].price}円'),
-                                ],
-                              ),
-                            );
-                          }),
+                                    ),
+                                  ],
+                                ),
+                                Text('${foodList[index].price}円'),
+                              ],
+                            ),
+                          );
+                        }),
                       ElevatedButton.icon(
                         onPressed: () async{
                           if (_formKey.currentState!.validate()) {
@@ -144,7 +198,12 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
                             var result = await PostFirestore.addMenu(newMenu);
                             if (result is String) {
                               // ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('success')));
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => CreateFoodPage(menuId: result,)));
+                             final foodList =  await Navigator.of(context).push(MaterialPageRoute(builder: (context) => CreateFoodPage(menuId: result,)));
+                             if (foodList != null) {
+                               setState(() {
+                                 foodList.add(foodList);
+                               });
+                             }
                             }
                             setState(() {
                               _isLoading = false;

@@ -51,6 +51,7 @@ class _CreateFoodPageState extends State<CreateFoodPage> {
   ];
 
   Count _selected = menuItemValues[0];
+  // TODO:menu_pageに送る用のFood変数を作る
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +63,6 @@ class _CreateFoodPageState extends State<CreateFoodPage> {
           style: TextStyle(color: Colors.black),
         ),
       ),
-      //   TODO: 追加する項目を作成
       body: Padding(
         padding: const EdgeInsets.all(40.0),
         child: Center(
@@ -143,7 +143,9 @@ class _CreateFoodPageState extends State<CreateFoodPage> {
                       );
                       var result = await PostFirestore.addFood(newFood);
                       if (result == true) {
-                        Navigator.pop(context);
+                        // TODO: 戻った時に取得するtimelinepageのように
+                        // TODO: Food変数を送る
+                        Navigator.of(context).pop(nameController.text);
                       }
                     } else {
                       null;
