@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:foodcost/model/food.dart';
 import 'package:foodcost/model/menu.dart';
+import 'package:foodcost/utils/authentication.dart';
+import 'package:intl/intl.dart';
 
 
 class PostFirestore {
@@ -48,6 +50,32 @@ class PostFirestore {
     } on FirebaseException catch(e) {
       print('メニュー登録エラー: $e');
       return false;
+    }
+  }
+
+  static Future<List<Menu>?> getPostMenuMap(DateTime? selectedDate) async {
+    List<Menu> menuList = [];
+    String userId = Authentication.myAccount!.id;
+    DateFormat format = DateFormat('yyyy-MM-dd');
+    try {
+      var menus = await _firestoreInstance.collection('menus').where('user_id', isEqualTo: userId).get();
+      for (var menu in menus.docs) {
+        print(menu);
+        Timestamp createdTime = menu.data()['created_time'];
+        var formattedDate = format.format(createdTime.toDate());
+        if (format.format(selectedDate!) == formattedDate) {
+          Menu registeredMenu = Menu(
+              id: menu.id,
+              name: menu.data()['name'],
+              createdTime: menu.data()['created_time']
+          );
+          menuList.add(registeredMenu);
+        }
+      }
+      return menuList;
+    } on FirebaseException catch(e) {
+      print('メニュー取得エラー: $e');
+      return null;
     }
   }
 

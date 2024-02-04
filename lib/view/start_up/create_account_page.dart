@@ -143,7 +143,8 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
           name: nameController.text,
           email: emailController.text,
           imagePath: imagePath,
-          createdTime: Timestamp.now()
+          createdTime: Timestamp.now(),
+          updatedTime: Timestamp.now()
       );
       var _result = await UserFirestore.setUser(newAccount);
       return _result;

@@ -6,6 +6,7 @@ class Account {
   String email;
   String imagePath;
   Timestamp? createdTime;
+  Timestamp? updatedTime;
 
-  Account({this.id = '', this.name = '', this.email = '', this.imagePath = '', this.createdTime});
+  Account({this.id = '', this.name = '', this.email = '', this.imagePath = '', this.createdTime, this.updatedTime});
 }
