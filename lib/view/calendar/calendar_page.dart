@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:foodcost/model/menu.dart';
+import 'package:foodcost/utils/firestore/posts.dart';
 import 'package:foodcost/view/create/create_menu_page.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -80,7 +82,7 @@ class _CalendarPageState extends State<CalendarPage> {
   //   }
   // }
 
-  var _scaffoldKey = GlobalKey<ScaffoldState>();
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
@@ -108,7 +110,7 @@ class _CalendarPageState extends State<CalendarPage> {
               // rangeStartDay: _rangeStart,
               // rangeEndDay: _rangeEnd,
               // rangeSelectionMode: _rangeSelectionMode,
-              eventLoader: _getEventsForDay,
+              // eventLoader: _getEventsForDay,
               startingDayOfWeek: StartingDayOfWeek.monday,
               calendarStyle: const CalendarStyle(outsideDaysVisible: false),
               onDaySelected: _onDaySelected,
@@ -154,27 +156,40 @@ class _CalendarPageState extends State<CalendarPage> {
                 child: ValueListenableBuilder<List<Event>>(
                   valueListenable: _selectedEvents,
                   builder: (context, value, _) {
-                    return ListView.builder(
-                        itemCount: value.length,
-                        itemBuilder: (context, index) {
-                          return Container(
-                              margin: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
-                              decoration: BoxDecoration(
-                                border: Border.all(),
-                                borderRadius: BorderRadius.circular(12.0),
-                              ),
-                              child: ListTile(
-                                onTap: () => {
-                                  // とりあえず
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) => const CreateCostPage()))
-                                },
-                                title: Text('${value[index]}'),
-                              ));
-                        });
+                    return FutureBuilder<List<Menu>?>(
+                      // TODO: selectした日付でメニューを取得？
+                      future: PostFirestore.getPostMenuMap(_selectedDay),
+                      builder: (context, snapshot) {
+                        return ListView.builder(
+                            itemCount: snapshot.data!.length,
+                            itemBuilder: (context, index) {
+                              return Container(
+                                  margin: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(),
+                                    borderRadius: BorderRadius.circular(12.0),
+                                  ),
+                                  child: ListTile(
+                                    onTap: () => {
+                                      // とりあえず
+                                      Navigator.push(context, MaterialPageRoute(builder: (context) => const CreateMenuPage()))
+                                    },
+                                    title: Text(snapshot.data![index].name),
+                                  ));
+                            });
+                      }
+
+                    );
                   },
                 ))
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const CreateMenuPage()));
+        },
+        child: const Icon(Icons.add_outlined),
       ),
     );
   }

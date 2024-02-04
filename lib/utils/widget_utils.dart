@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:foodcost/model/Account.dart';
 import 'package:foodcost/utils/authentication.dart';
 import 'package:foodcost/view/start_up/login_page.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class WidgetUtils {
   static AppBar createAppBar(String title, GlobalKey<ScaffoldState> key) {
@@ -60,4 +61,24 @@ class WidgetUtils {
       ),
     );
   }
+
+  static Stack loadingStack(isLoading) {
+      return Stack(
+        children: [
+          if (isLoading)
+            const Opacity(
+              opacity: 0.8,
+              child: ModalBarrier(
+                  dismissible: false,
+                  color: Colors.white
+              ),
+            ),
+          if (isLoading)
+            Center(
+              child: LoadingAnimationWidget.stretchedDots(color: Colors.blue, size: 70),
+            ),
+        ],
+      );
+    }
+
 }

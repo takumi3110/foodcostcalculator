@@ -1,35 +1,34 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:foodcost/model/food.dart';
 import 'package:foodcost/model/menu.dart';
-import 'package:foodcost/view/calendar/calendar_page.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:foodcost/utils/authentication.dart';
+import 'package:foodcost/utils/firestore/posts.dart';
+import 'package:foodcost/utils/widget_utils.dart';
 import 'package:foodcost/view/create/create_food_page.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
-class CreateCostPage extends StatefulWidget {
-  const CreateCostPage({super.key});
+class CreateMenuPage extends StatefulWidget {
+  const CreateMenuPage({super.key});
 
   @override
-  State<CreateCostPage> createState() => _CreateCostPageState();
+  State<CreateMenuPage> createState() => _CreateMenuPageState();
 }
 
-class _CreateCostPageState extends State<CreateCostPage> {
-  TextEditingController foodNameController = TextEditingController();
+class _CreateMenuPageState extends State<CreateMenuPage> {
+  TextEditingController menuNameController = TextEditingController();
   TextEditingController totalPriceController = TextEditingController();
 
-  // double selectedUsedCount = 1.0;
-  String? foodName;
+  // List<Food> foodList = [Food(id: '1', menuId: '1', name: 'kome', unitPrice: 100, costCount: '', price: 100)];
+  List<Food> foodList = [];
 
-  // String? dropdownValue;
-  // List<Material> materialList = [];
-
-  List<Food> materialList = [Food(id: '1', menuId: '1', name: 'kome', unitPrice: 100, costCount: '', price: 100)];
+  bool _isLoading = false;
 
   final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
-    bool isEnabled = _formKey.currentState?.validate() ?? false;
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -42,7 +41,8 @@ class _CreateCostPageState extends State<CreateCostPage> {
       body: Form(
         key: _formKey,
         child: SafeArea(
-          child: Stack(children: [
+          child: Stack(
+              children: [
             Padding(
               padding: const EdgeInsets.all(10.0),
               child: SizedBox(
@@ -74,17 +74,15 @@ class _CreateCostPageState extends State<CreateCostPage> {
                                   // return _result ? null : "Please enter a valid email";
                                 },
                                 onSaved: (String? value) {
-                                  setState(() {
-                                    foodName = value;
-                                  });
+                                  setState(() {});
                                 },
-                                controller: foodNameController,
+                                controller: menuNameController,
                                 decoration: const InputDecoration(labelText: '料理名'),
                               ),
                             ),
                             SizedBox(
                               width: 100,
-                              child: TextFormField(
+                              child: TextField(
                                 textAlign: TextAlign.right,
                                 readOnly: true,
                                 controller: totalPriceController,
@@ -97,169 +95,121 @@ class _CreateCostPageState extends State<CreateCostPage> {
                           ],
                         ),
                       ),
-                      ListView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: materialList.length,
-                          itemBuilder: (context, index) {
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 1.0),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Row(
-                                    children: [
-                                      IconButton(
-                                          onPressed: () {
-                                            setState(() {
-                                              var totalPrice =
-                                                  int.parse(totalPriceController.text) - materialList[index].price;
-                                              totalPriceController.text = totalPrice.toString();
-                                              materialList.removeAt(index);
-                                            });
-                                          },
-                                          icon: const Icon(Icons.delete_forever)),
-                                      Text((index + 1).toString()),
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                                        child: Text(
-                                          materialList[index].name,
-                                          style: const TextStyle(fontSize: 16),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Text('${materialList[index].price}円'),
-                                ],
-                              ),
-                            );
-                          }),
-
-                      // const SizedBox(
-                      //   height: 20.0,
-                      // ),
-                      // SizedBox(
-                      //   width: 300,
-                      //   child: TextFormField(
-                      //     keyboardType: TextInputType.text,
-                      //     validator: (String? value) {
-                      //       if (value == null || value.isEmpty) {
-                      //         return '材料名を入力してください';
-                      //       }
-                      //       return null;
-                      //     },
-                      //     controller: materialController,
-                      //     decoration: const InputDecoration(border: OutlineInputBorder(), labelText: '材料'),
-                      //   ),
-                      // ),
-                      // Padding(
-                      //   padding: const EdgeInsets.symmetric(vertical: 20.0),
-                      //   child: SizedBox(
-                      //     width: 300,
-                      //     child: TextFormField(
-                      //       keyboardType: TextInputType.number,
-                      //       validator: (String? value) {
-                      //         if (value == null || value.isEmpty) {
-                      //           return '金額を入力してください';
-                      //         } else {
-                      //           return null;
+                      // StreamBuilder<QuerySnapshot>(
+                      //   stream: PostFirestore.menus.orderBy('created_time', descending: true).snapshots(),
+                      //   builder: (context, snapshot) {
+                      //     if (snapshot.hasData) {
+                      //       // TODO:userIdを取得
+                      //       List<String> postUserIds = [];
+                      //       snapshot.data!.docs.forEach((doc) {
+                      //         Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+                      //         // TODO: postUserIdsに登録されていなければ新規登録
+                      //         if (!postUserIds.contains(data['user_id'])) {
+                      //           postUserIds.add(data['user_id']);
                       //         }
-                      //       },
-                      //       controller: unitPriceController,
-                      //       inputFormatters: [
-                      //         FilteringTextInputFormatter.digitsOnly,
-                      //         FilteringTextInputFormatter.deny(RegExp(r'^0+'))
-                      //       ],
-                      //       decoration:
-                      //           const InputDecoration(labelText: '金額', border: OutlineInputBorder(), suffix: Text('円')),
-                      //       onChanged: (text) {
-                      //         if (text.isNotEmpty) {
-                      //           var sumPrice = int.parse(text) * selectedUsedCount;
-                      //           priceController.text = sumPrice.round().toString();
-                      //         } else {
-                      //           priceController.text = '0';
-                      //           dropdownValue = '1';
-                      //         }
-                      //       },
-                      //     ),
-                      //   ),
-                      // ),
-                      // SizedBox(
-                      //   width: 300,
-                      //   // child: DropdownMenu(
-                      //   //   controller: usedCountController,
-                      //   //   label: const Text('使った量'),
-                      //   //   dropdownMenuEntries: usedCountEntries,
-                      //   //   onSelected: (count) {
-                      //   //     setState(() {
-                      //   //       selectedUsedCount = count;
-                      //   //     });
-                      //   //     if (unitPriceController.text.isNotEmpty) {
-                      //   //       var price = int.parse(unitPriceController.text);
-                      //   //       var sumPrice = count * price;
-                      //   //       priceController.text = sumPrice.round().toString();
-                      //   //     }
-                      //   //   },
-                      //   // )
-                      //   child: DropdownButtonFormField(
-                      //     validator: (String? value) {
-                      //       if (value == null || value.isEmpty) {
-                      //         return '選択してください';
-                      //       }
-                      //       return null;
-                      //     },
-                      //     value: dropdownValue,
-                      //     // items: list.map<DropdownMenuItem<String>>((String value) {
-                      //     //   return DropdownMenuItem<String>(
-                      //     //       value: value,
-                      //     //       child: Text(value)
-                      //     //   );
-                      //     // }).toList(),
-                      //     items: const [
-                      //       DropdownMenuItem(value: '1', child: Text('全部')),
-                      //       DropdownMenuItem(value: '0.5', child: Text('半分')),
-                      //       DropdownMenuItem(value: '0.33', child: Text('1/3')),
-                      //       DropdownMenuItem(value: '0.25', child: Text('1/4')),
-                      //       DropdownMenuItem(value: '0.125', child: Text('1/8')),
-                      //     ],
-                      //     onChanged: (String? value) {
-                      //       setState(() {
-                      //         dropdownValue = value!;
                       //       });
-                      //       if (unitPriceController.text.isNotEmpty) {
-                      //         var price = int.parse(unitPriceController.text);
-                      //         var sumPrice = double.parse(value!) * price;
-                      //         priceController.text = sumPrice.round().toString();
-                      //       }
-                      //     },
-                      //     decoration: const InputDecoration(labelText: '使った量', border: OutlineInputBorder()),
-                      //   ),
+                      //     }
+                      //     return ListView.builder(
+                      //         shrinkWrap: true,
+                      //         physics: const NeverScrollableScrollPhysics(),
+                      //         itemCount: materialList.length,
+                      //         itemBuilder: (context, index) {
+                      //           return Padding(
+                      //             padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 1.0),
+                      //             child: Row(
+                      //               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      //               children: [
+                      //                 Row(
+                      //                   children: [
+                      //                     IconButton(
+                      //                         onPressed: () {
+                      //                           setState(() {
+                      //                             var totalPrice =
+                      //                                 int.parse(totalPriceController.text) - materialList[index].price;
+                      //                             totalPriceController.text = totalPrice.toString();
+                      //                             materialList.removeAt(index);
+                      //                           });
+                      //                         },
+                      //                         icon: const Icon(Icons.delete_forever)),
+                      //                     Text((index + 1).toString()),
+                      //                     Padding(
+                      //                       padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      //                       child: Text(
+                      //                         materialList[index].name,
+                      //                         style: const TextStyle(fontSize: 16),
+                      //                       ),
+                      //                     ),
+                      //                   ],
+                      //                 ),
+                      //                 Text('${materialList[index].price}円'),
+                      //               ],
+                      //             ),
+                      //           );
+                      //         });
+                      //   }
                       // ),
-                      // Padding(
-                      //   padding: const EdgeInsets.symmetric(vertical: 20.0),
-                      //   child: SizedBox(
-                      //     width: 300,
-                      //     child: TextFormField(
-                      //       readOnly: true,
-                      //       controller: priceController,
-                      //       decoration: const InputDecoration(
-                      //         labelText: '合計',
-                      //         border: OutlineInputBorder(),
-                      //         suffix: Text('円'),
-                      //       ),
-                      //     ),
-                      //   ),
-                      // ),
-                      // const SizedBox(
-                      //   height: 10,
-                      // ),
+                    ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: foodList.length,
+                        itemBuilder: (context, index) {
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 1.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  children: [
+                                    IconButton(
+                                        onPressed: () {
+                                          setState(() {
+                                            var totalPrice =
+                                                int.parse(totalPriceController.text) - foodList[index].price;
+                                            totalPriceController.text = totalPrice.toString();
+                                            foodList.removeAt(index);
+                                          });
+                                        },
+                                        icon: const Icon(Icons.delete_forever)),
+                                    Text((index + 1).toString()),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                                      child: Text(
+                                        foodList[index].name,
+                                        style: const TextStyle(fontSize: 16),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Text('${foodList[index].price}円'),
+                              ],
+                            ),
+                          );
+                        }),
                       ElevatedButton.icon(
-                        onPressed: isEnabled
-                            ? () {
-                                Navigator.push(
-                                    context, MaterialPageRoute(builder: (context) => const CreateFoodPage()));
-                              }
-                            : null,
+                        onPressed: () async{
+                          if (_formKey.currentState!.validate()) {
+                            setState(() {
+                              _isLoading = true;
+                            });
+                            Menu newMenu = Menu(
+                              name: menuNameController.text,
+                              userId: Authentication.myAccount!.id,
+                            );
+                            var result = await PostFirestore.addMenu(newMenu);
+                            if (result is String) {
+                              // ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('success')));
+                             final foodList =  await Navigator.of(context).push(MaterialPageRoute(builder: (context) => CreateFoodPage(menuId: result,)));
+                             if (foodList != null) {
+                               setState(() {
+                                 foodList.add(foodList);
+                               });
+                             }
+                            }
+                            setState(() {
+                              _isLoading = false;
+                            });
+                          }
+                        },
                         style: ElevatedButton.styleFrom(foregroundColor: Colors.white, backgroundColor: Colors.amber),
                         icon: const Icon(Icons.add),
                         label: const Text(
@@ -270,35 +220,42 @@ class _CreateCostPageState extends State<CreateCostPage> {
                       const SizedBox(
                         height: 20,
                       ),
-                      Align(
-                        alignment: Alignment.bottomCenter,
-                        child: ElevatedButton(
-                          onPressed: isEnabled
-                              ? () {
-                                  if (_formKey.currentState!.validate()) {
-                                    ScaffoldMessenger.of(context)
-                                        .showSnackBar(const SnackBar(content: Text('Processing Data')));
-                                  }
-                                  Navigator.push(
-                                      context, MaterialPageRoute(builder: (context) => const CalendarPage()));
-                                }
-                              : null,
-                          style: ElevatedButton.styleFrom(
-                              minimumSize: const Size(150, 50),
-                              foregroundColor: Colors.white,
-                              backgroundColor: Colors.green),
-                          child: const Text(
-                            '登録する',
-                            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                          ),
+                      ElevatedButton(
+                        onPressed: () {
+                          if (_formKey.currentState!.validate()) {
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(const SnackBar(content: Text('Processing Data')));
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                            minimumSize: const Size(150, 50),
+                            foregroundColor: Colors.white,
+                            backgroundColor: Colors.green),
+                        child: const Text(
+                          '登録する',
+                          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                         ),
-                      )
+                      ),
                     ],
                   ),
                 ),
               ),
             ),
-          ]),
+                WidgetUtils.loadingStack(_isLoading)
+                // if (_isLoading)
+                //   const Opacity(
+                //     opacity: 0.8,
+                //     child: ModalBarrier(
+                //         dismissible: false,
+                //         color: Colors.white
+                //     ),
+                //   ),
+                // if (_isLoading)
+                //   Center(
+                //     child: LoadingAnimationWidget.stretchedDots(color: Colors.blue, size: 70),
+                //   ),
+          ]
+          ),
         ),
       ),
     );

@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:foodcost/model/food.dart';
-import 'package:foodcost/utils/firestore/post_material.dart';
+import 'package:foodcost/utils/firestore/posts.dart';
 
 class CreateFoodPage extends StatefulWidget {
-  const CreateFoodPage({super.key});
+  final String menuId;
+  const CreateFoodPage({
+    super.key,
+    required this.menuId
+  });
 
   @override
   State<CreateFoodPage> createState() => _CreateFoodPageState();
@@ -15,10 +19,13 @@ class _CreateFoodPageState extends State<CreateFoodPage> {
   // TextEditingController costCountController = TextEditingController();
   TextEditingController priceController = TextEditingController();
 
-  // static var menuItemValues = [
-  //   Count('Alice'),
-  //   Count('bob')
-  // ];
+  late String menuId;
+
+  @override
+  void initState() {
+    super.initState();
+    menuId = widget.menuId;
+  }
 
   static List<Count> menuItemValues = [
     Count(
@@ -44,6 +51,7 @@ class _CreateFoodPageState extends State<CreateFoodPage> {
   ];
 
   Count _selected = menuItemValues[0];
+  // TODO:menu_pageに送る用のFood変数を作る
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +63,6 @@ class _CreateFoodPageState extends State<CreateFoodPage> {
           style: TextStyle(color: Colors.black),
         ),
       ),
-      //   TODO: 追加する項目を作成
       body: Padding(
         padding: const EdgeInsets.all(40.0),
         child: Center(
@@ -131,11 +138,14 @@ class _CreateFoodPageState extends State<CreateFoodPage> {
                         name: nameController.text,
                         unitPrice: int.parse(unitPriceController.text),
                         costCount: _selected.name,
-                        price: int.parse(priceController.text)
+                        price: int.parse(priceController.text),
+                        menuId: menuId
                       );
-                      var result = await FoodsFirestore.addFood(newFood);
+                      var result = await PostFirestore.addFood(newFood);
                       if (result == true) {
-                        Navigator.pop(context);
+                        // TODO: 戻った時に取得するtimelinepageのように
+                        // TODO: Food変数を送る
+                        Navigator.of(context).pop(nameController.text);
                       }
                     } else {
                       null;

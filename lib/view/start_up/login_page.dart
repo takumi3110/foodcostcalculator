@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:foodcost/utils/authentication.dart';
 import 'package:foodcost/utils/firestore/users.dart';
+import 'package:foodcost/utils/widget_utils.dart';
 import 'package:foodcost/view/calendar/calendar_page.dart';
 import 'package:foodcost/view/start_up/create_account_page.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -143,18 +144,7 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ),
       ),
-        if (_isLoading)
-          const Opacity(
-            opacity: 0.8,
-            child: ModalBarrier(
-              dismissible: false,
-              color: Colors.white
-            ),
-          ),
-        if (_isLoading)
-          Center(
-            child: LoadingAnimationWidget.stretchedDots(color: Colors.blue, size: 70),
-          ),
+        WidgetUtils.loadingStack(_isLoading)
     ]
     );
   }

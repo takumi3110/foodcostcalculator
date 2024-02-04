@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:foodcost/model/Account.dart';
+import 'package:foodcost/model/menu.dart';
 import 'package:foodcost/utils/authentication.dart';
 
 class UserFirestore {
@@ -43,6 +44,28 @@ class UserFirestore {
     } on FirebaseException catch (e) {
       print('ユーザー取得エラー: $e');
       return false;
+    }
+  }
+
+  static Future<Map<String, Account>?> getPostUserMap(String userId) async{
+    Map<String, Account> map = {};
+    try {
+      var doc = await users.doc(userId).get();
+      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+      Account postAccount = Account(
+        id: userId,
+        name: data['name'],
+        email: data['email'],
+        imagePath: data['image_path'],
+        createdTime: data['created_time'],
+        updatedTime: data['updated_time']
+      );
+      map[userId] = postAccount;
+      print('投稿ユーザーの取得完了');
+      return map;
+    } on FirebaseException catch (e) {
+      print('投稿ユーザー取得エラー: $e');
+      return null;
     }
   }
 }
