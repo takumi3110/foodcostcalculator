@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:foodcost/model/menu.dart';
+import 'package:foodcost/utils/firestore/gets.dart';
 import 'package:foodcost/utils/firestore/posts.dart';
 import 'package:foodcost/view/create/create_menu_page.dart';
 import 'package:intl/intl.dart';
@@ -16,10 +17,12 @@ class CalendarPage extends StatefulWidget {
 
 class _CalendarPageState extends State<CalendarPage> {
   late final ValueNotifier<List<Event>> _selectedEvents;
+
   // CalendarFormat _calendarFormat = CalendarFormat.month;
   // RangeSelectionMode _rangeSelectionMode = RangeSelectionMode.toggledOff;
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
+
   // DateTime? _rangeStart;
   // DateTime? _rangeEnd;
 
@@ -128,9 +131,7 @@ class _CalendarPageState extends State<CalendarPage> {
                 _focusedDay = focusedDay;
               },
               // format buttonを消す
-              headerStyle: const HeaderStyle(
-                  formatButtonVisible: false
-              ),
+              headerStyle: const HeaderStyle(formatButtonVisible: false),
               calendarBuilders: CalendarBuilders(dowBuilder: (_, day) {
                 final text = DateFormat.E('ja').format(day);
                 if (day.weekday == DateTime.sunday) {
@@ -154,12 +155,13 @@ class _CalendarPageState extends State<CalendarPage> {
             const Divider(),
             Expanded(
                 child: ValueListenableBuilder<List<Event>>(
-                  valueListenable: _selectedEvents,
-                  builder: (context, value, _) {
-                    return FutureBuilder<List<Menu>?>(
-                      // TODO: selectした日付でメニューを取得？
-                      future: PostFirestore.getPostMenuMap(_selectedDay),
-                      builder: (context, snapshot) {
+              valueListenable: _selectedEvents,
+              builder: (context, value, _) {
+                return FutureBuilder<List<Menu>?>(
+                    // TODO: selectした日付でメニューを取得？
+                    future: GetFirestore.getMenuList(_selectedDay),
+                    builder: (context, snapshot) {
+                      if (snapshot.data != null) {
                         return ListView.builder(
                             itemCount: snapshot.data!.length,
                             itemBuilder: (context, index) {
@@ -172,16 +174,18 @@ class _CalendarPageState extends State<CalendarPage> {
                                   child: ListTile(
                                     onTap: () => {
                                       // とりあえず
-                                      Navigator.push(context, MaterialPageRoute(builder: (context) => const CreateMenuPage()))
+                                      Navigator.push(
+                                          context, MaterialPageRoute(builder: (context) => const CreateMenuPage()))
                                     },
                                     title: Text(snapshot.data![index].name),
                                   ));
                             });
+                      } else {
+                        return Container();
                       }
-
-                    );
-                  },
-                ))
+                    });
+              },
+            ))
           ],
         ),
       ),
