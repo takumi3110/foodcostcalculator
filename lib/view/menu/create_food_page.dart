@@ -140,13 +140,11 @@ class _CreateFoodPageState extends State<CreateFoodPage> {
                         price: int.parse(priceController.text),
                         menuId: menuId
                       );
-                      // var result = await PostFirestore.addFood(newFood);
-                      // if (result == true) {
-                      //   // TODO: 戻った時に取得するtimelinepageのように
-                      //   // TODO: Food変数を送る
-                      //   // Navigator.of(context).pop(nameController.text);
-                      //
-                      // }
+                      var result = await PostFirestore.addFood(newFood);
+                      if (result == true) {
+                        // TODO: 戻った時に取得するtimelinepageのように
+                        Navigator.pop(context);
+                      }
                     } else {
                       null;
                     }

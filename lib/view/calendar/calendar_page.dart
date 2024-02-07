@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:foodcost/model/menu.dart';
 import 'package:foodcost/utils/firestore/gets.dart';
 import 'package:foodcost/utils/firestore/posts.dart';
-import 'package:foodcost/view/create/create_menu_page.dart';
+import 'package:foodcost/view/menu/create_menu_page.dart';
+import 'package:foodcost/view/menu/edit_food_page.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:foodcost/utils/widget_utils.dart';
@@ -175,7 +176,9 @@ class _CalendarPageState extends State<CalendarPage> {
                                     onTap: () => {
                                       // とりあえず
                                       Navigator.push(
-                                          context, MaterialPageRoute(builder: (context) => const CreateMenuPage()))
+                                          context,
+                                          MaterialPageRoute(builder: (context) => EditMenuPage(menuId: snapshot.data![index].id,))
+                                      )
                                     },
                                     title: Text(snapshot.data![index].name),
                                   ));

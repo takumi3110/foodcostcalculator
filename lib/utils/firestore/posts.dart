@@ -51,4 +51,29 @@ class PostFirestore {
     }
   }
 
+  static Future<List<Food>?> getFoodFromIds(List<String> ids) async {
+    List<Food> foodList = [];
+    try {
+      await Future.forEach(ids, (String id) async {
+        var doc = await foods.doc(id).get();
+        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+        Food food = Food(
+          id: doc.id,
+          menuId: data['menu_id'],
+          name: data['name'],
+          unitPrice: data['unit_price'],
+          costCount: data['cost_count'],
+          price: data['price']
+        );
+        foodList.add(food);
+      });
+      if (foodList.length > 0) {
+        print('food取得完了');
+      }
+      return foodList;
+    } on FirebaseException catch(e) {
+      print('food取得エラー: $e');
+      return null;
+    }
+  }
 }
