@@ -39,7 +39,7 @@ class _LoginPageState extends State<LoginPage> {
                     height: 50,
                   ),
                   const Text(
-                    'まんまのじぇんこ',
+                    'まんまのじぇんこ(仮)',
                     style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(
