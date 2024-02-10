@@ -1,9 +1,17 @@
+import 'dart:io';
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:foodcost/model/food.dart';
+import 'package:foodcost/model/menu.dart';
+import 'package:foodcost/utils/authentication.dart';
+import 'package:foodcost/utils/firestore/posts.dart';
+import 'package:foodcost/utils/functionUtils.dart';
+import 'package:intl/intl.dart';
 
 class CreateMenuPage extends StatefulWidget {
   const CreateMenuPage({super.key});
@@ -16,14 +24,21 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
   // menu
   TextEditingController menuController = TextEditingController();
   TextEditingController totalPriceController = TextEditingController();
+  File? image;
 
   // food
   List<Map<String, TextEditingController>> foodControllers = [
-    {'name': TextEditingController(), 'unitPrice': TextEditingController(), 'price': TextEditingController()}
+    {
+      'name': TextEditingController(),
+      'unitPrice': TextEditingController(),
+      'costCount': TextEditingController(),
+      'price': TextEditingController()
+    }
   ];
 
   int allPrice = 0;
   bool _isLoading = false;
+  final formatter = NumberFormat('#,###');
 
   static List<Count> menuItemValues = [
     Count(name: '全部', count: 1.0),
@@ -47,9 +62,60 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
         elevation: 1,
         actions: [
           ElevatedButton(
-            onPressed: () {
-              print(foodControllers[0]['name']!.text);
-              print(menuController.text);
+            onPressed: () async{
+              setState(() {
+                _isLoading = true;
+              });
+              if (menuController.text.isNotEmpty) {
+                print(menuController.text);
+                String imagePath = '';
+                if (image != null) {
+                  imagePath = await FunctionUtils.uploadImage(Authentication.myAccount!.id, image!);
+                }
+                Menu newMenu = Menu(
+                  name: menuController.text,
+                  userId: Authentication.myAccount!.id,
+                  imagePath: imagePath,
+                  totalAmount: allPrice,
+                  createdTime: Timestamp.now()
+                );
+                var result = await PostFirestore.addMenu(newMenu);
+                if (result != null) {
+                //   TODO: food登録
+                  print(foodControllers[0]['name']!.text.isNotEmpty);
+                  List<Food> newFoods = [];
+                  for (var food in foodControllers) {
+                    if (
+                        food['name']!.text.isNotEmpty
+                        && food['unitPrice']!.text.isNotEmpty
+                        && food['costCount']!.text.isNotEmpty
+                        && food['price']!.text.isNotEmpty
+                    ) {
+                      Food newFood = Food(
+                        name: food['name']!.text,
+                        unitPrice: int.parse(food['unitPrice']!.text),
+                        costCount: food['costCount']!.text,
+                        price: int.parse(food['price']!.text),
+                        menuId: result,
+                      );
+                      newFoods.add(newFood);
+                    }
+                  }
+                  var foodResult = await PostFirestore.addFood(newFoods);
+                  if (foodResult == true) {
+                    Navigator.pop(context);
+                  }
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('登録に失敗しました。'))
+                  );
+                }
+              } else {
+                null;
+              }
+              setState(() {
+                _isLoading = false;
+              });
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
             child: const Text(
@@ -66,19 +132,36 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const SizedBox(
-                  height: 50,
-                ),
-                SizedBox(
-                  width: 300,
-                  child: TextField(
-                    controller: menuController,
-                    decoration: const InputDecoration(hintText: 'メニュー名'),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 10.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      GestureDetector(
+                        onTap: () async{
+                          var result = await FunctionUtils.getImageFromGallery();
+                          if (result != null) {
+                            setState(() {
+                              image = File(result.path);
+                            });
+                          }
+                        },
+                        child: CircleAvatar(
+                          foregroundImage: image == null ? null: FileImage(image!),
+                          radius: 40,
+                          child: const Icon(Icons.add_a_photo_outlined),
+                        ),
+                      ),
+                      const SizedBox(width: 10.0,),
+                      SizedBox(
+                        width: 250,
+                        child: TextField(
+                          controller: menuController,
+                          decoration: const InputDecoration(hintText: 'メニュー名'),
+                        ),
+                      ),
+                    ],
                   ),
-                  //   TODO: 写真ものっけたい
-                ),
-                const SizedBox(
-                  height: 30,
                 ),
                 Container(
                   alignment: Alignment.center,
@@ -102,11 +185,10 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
                         width: 20,
                       ),
                       Text(
-                        allPrice.toString(),
+                        formatter.format(allPrice).toString(),
                         style: const TextStyle(fontSize: 18),
                       ),
                       const Text('円')
-                      // Text('200000 円', style: TextStyle(fontSize: 18),)
                     ],
                   ),
                 ),
@@ -148,7 +230,32 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
                                   keyboardType: TextInputType.number,
                                   decoration: const InputDecoration(hintText: '金額', suffix: Text('円')),
                                   onChanged: (String value) {
-                                    print(value);
+                                    setState(() {
+                                      var price = foodControllers[index]['price'];
+                                      if (value != '') {
+                                        var costCount = foodControllers[index]['costCount'];
+                                        if (costCount != null && costCount.text.isNotEmpty) {
+                                          var sumPrice = (int.parse(value) * double.parse(costCount.text)).round();
+                                          if (price != null) {
+                                            if (price.text.isNotEmpty) {
+                                              if (sumPrice != int.parse(price.text)) {
+                                                allPrice += (sumPrice - int.parse(price.text));
+                                              }
+                                            } else {
+                                              allPrice += sumPrice;
+                                            }
+                                            foodControllers[index]['price']!.text = sumPrice.toString();
+                                            price!.text = sumPrice.toString();
+                                          }
+                                        }
+                                        print(value);
+                                      } else {
+                                        if (price != null && price.text.isNotEmpty) {
+                                          allPrice -= int.parse(price.text);
+                                        }
+                                        price!.text = '0';
+                                      }
+                                    });
                                   },
                                 ),
                               ),
@@ -168,22 +275,29 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
                                   onChanged: (Count? value) {
                                     setState(() {
                                       if (value != null) {
+                                        var costCount = foodControllers[index]['costCount'];
+                                        if (costCount != null) {
+                                          costCount.text = value.count.toString();
+                                        }
+                                        // foodControllers[index]['costCount']!.text = value.count.toString();
                                         var unitPrice = foodControllers[index]['unitPrice'];
                                         // sumPriceとfoodControllers[index]['price']が同じなら何もしない。
                                         // 違ったらallPriceからfoodControllers[index]['price']を引いて、sumPriceを追加
                                         if (unitPrice != null && unitPrice.text.isNotEmpty) {
                                           var sumPrice = (value.count * int.parse(unitPrice.text)).round();
                                           var price = foodControllers[index]['price'];
-                                          if (price != null && price.text.isNotEmpty) {
-                                            if (sumPrice != int.parse(price.text)) {
-                                              // allPrice -= int.parse(price.text);
-                                              // allPrice += sumPrice;
-                                              allPrice += (sumPrice - int.parse(price.text));
+                                          if (price != null) {
+                                            if (price.text.isNotEmpty) {
+                                              if (sumPrice != int.parse(price.text)) {
+                                                // すでに登録されている時は差額を登録
+                                                allPrice += (sumPrice - int.parse(price.text));
+                                              }
+                                            } else {
+                                              // priceに何も登録されてない場合
+                                              allPrice += sumPrice;
                                             }
-                                          } else {
-                                            allPrice += sumPrice;
+                                            foodControllers[index]['price']!.text = sumPrice.toString();
                                           }
-                                          foodControllers[index]['price']!.text = sumPrice.toString();
                                         }
                                       }
                                     });
@@ -206,6 +320,7 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
                 foodControllers.add({
                   'name': TextEditingController(),
                   'unitPrice': TextEditingController(),
+                  'costCount': TextEditingController(),
                   'price': TextEditingController(),
                 });
               });

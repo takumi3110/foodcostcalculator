@@ -98,6 +98,7 @@ class _CalendarPageState extends State<CalendarPage> {
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
+            // TODO: メニューある時だけ印
             TableCalendar(
               locale: 'ja_JP',
               firstDay: kFirstDay,
@@ -159,7 +160,7 @@ class _CalendarPageState extends State<CalendarPage> {
               valueListenable: _selectedEvents,
               builder: (context, value, _) {
                 return FutureBuilder<List<Menu>?>(
-                    // TODO: selectした日付でメニューを取得？
+                    // TODO: StreamBuilderでページ戻った時の変更を取得
                     future: GetFirestore.getMenuList(_selectedDay),
                     builder: (context, snapshot) {
                       if (snapshot.data != null) {

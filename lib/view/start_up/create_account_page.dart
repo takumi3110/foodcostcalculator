@@ -6,7 +6,6 @@ import 'package:foodcost/utils/firestore/users.dart';
 import 'package:foodcost/utils/functionUtils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:foodcost/utils/widget_utils.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'dart:io';
 
 class CreateAccountPage extends StatefulWidget {
