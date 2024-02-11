@@ -5,7 +5,8 @@ class Menu {
   String name;
   String userId;
   int? totalAmount;
+  String? imagePath;
   Timestamp? createdTime;
 
-  Menu({this.id = '', required this.name, this.userId = '', this.totalAmount, this.createdTime});
+  Menu({this.id = '', required this.name, this.userId = '', this.totalAmount, this.createdTime, this.imagePath});
 }

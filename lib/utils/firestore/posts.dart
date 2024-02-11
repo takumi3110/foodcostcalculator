@@ -1,8 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:foodcost/model/food.dart';
 import 'package:foodcost/model/menu.dart';
-import 'package:foodcost/utils/authentication.dart';
-import 'package:intl/intl.dart';
 
 
 class PostFirestore {
@@ -10,21 +8,24 @@ class PostFirestore {
   static final CollectionReference menus = _firestoreInstance.collection('menus');
   static final CollectionReference foods = _firestoreInstance.collection('foods');
 
-  static Future<dynamic> addFood(Food newFood) async {
+  static Future<dynamic> addFood(List<Food> newFoods) async {
     try {
-      final CollectionReference _menu = _firestoreInstance.collection('menus')
-      .doc(newFood.menuId).collection('foods');
-      var result = await foods.add({
-        'name': newFood.name,
-        'unit_price': newFood.unitPrice,
-        'cost_count': newFood.costCount,
-        'price': newFood.price
-      });
-      _menu.doc(result.id).set({
-        'food_id': result.id,
-        'created_time': Timestamp.now()
-      });
-      print('材料を登録しました。');
+      for (var newFood in newFoods) {
+        final CollectionReference _menu = _firestoreInstance.collection('menus')
+            .doc(newFood.menuId).collection('foods');
+
+        var result = await foods.add({
+          'name': newFood.name,
+          'unit_price': newFood.unitPrice,
+          'cost_count': newFood.costCount,
+          'price': newFood.price
+        });
+        _menu.doc(result.id).set({
+          'food_id': result.id,
+          'created_time': Timestamp.now()
+        });
+        print('材料を登録しました。');
+      }
       return true;
     } on FirebaseException catch (e) {
       print('登録エラー: $e');
@@ -39,6 +40,8 @@ class PostFirestore {
       var result = await menus.add({
         'name': newMenu.name,
         'user_id': newMenu.userId,
+        'image_path': newMenu.imagePath,
+        'total_amount': newMenu.totalAmount,
         'created_time': Timestamp.now()
       });
       _userPosts.doc(result.id).set({
@@ -49,34 +52,33 @@ class PostFirestore {
       return result.id;
     } on FirebaseException catch(e) {
       print('メニュー登録エラー: $e');
-      return false;
-    }
-  }
-
-  static Future<List<Menu>?> getPostMenuMap(DateTime? selectedDate) async {
-    List<Menu> menuList = [];
-    String userId = Authentication.myAccount!.id;
-    DateFormat format = DateFormat('yyyy-MM-dd');
-    try {
-      var menus = await _firestoreInstance.collection('menus').where('user_id', isEqualTo: userId).get();
-      for (var menu in menus.docs) {
-        print(menu);
-        Timestamp createdTime = menu.data()['created_time'];
-        var formattedDate = format.format(createdTime.toDate());
-        if (format.format(selectedDate!) == formattedDate) {
-          Menu registeredMenu = Menu(
-              id: menu.id,
-              name: menu.data()['name'],
-              createdTime: menu.data()['created_time']
-          );
-          menuList.add(registeredMenu);
-        }
-      }
-      return menuList;
-    } on FirebaseException catch(e) {
-      print('メニュー取得エラー: $e');
       return null;
     }
   }
 
+  static Future<List<Food>?> getFoodFromIds(List<String> ids) async {
+    List<Food> foodList = [];
+    try {
+      await Future.forEach(ids, (String id) async {
+        var doc = await foods.doc(id).get();
+        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+        Food food = Food(
+          id: doc.id,
+          menuId: data['menu_id'],
+          name: data['name'],
+          unitPrice: data['unit_price'],
+          costCount: data['cost_count'],
+          price: data['price']
+        );
+        foodList.add(food);
+      });
+      if (foodList.length > 0) {
+        print('food取得完了');
+      }
+      return foodList;
+    } on FirebaseException catch(e) {
+      print('food取得エラー: $e');
+      return null;
+    }
+  }
 }

@@ -1,7 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:foodcost/model/menu.dart';
+import 'package:foodcost/utils/authentication.dart';
 import 'package:foodcost/utils/firestore/posts.dart';
-import 'package:foodcost/view/create/create_menu_page.dart';
+import 'package:foodcost/view/menu/create_menu_page.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:foodcost/utils/widget_utils.dart';
@@ -16,10 +18,12 @@ class CalendarPage extends StatefulWidget {
 
 class _CalendarPageState extends State<CalendarPage> {
   late final ValueNotifier<List<Event>> _selectedEvents;
+
   // CalendarFormat _calendarFormat = CalendarFormat.month;
   // RangeSelectionMode _rangeSelectionMode = RangeSelectionMode.toggledOff;
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
+
   // DateTime? _rangeStart;
   // DateTime? _rangeEnd;
 
@@ -83,6 +87,7 @@ class _CalendarPageState extends State<CalendarPage> {
   // }
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+  final formatter = NumberFormat('#,###');
 
   @override
   Widget build(BuildContext context) {
@@ -94,6 +99,7 @@ class _CalendarPageState extends State<CalendarPage> {
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
+            // TODO: メニューある時だけ印
             TableCalendar(
               locale: 'ja_JP',
               firstDay: kFirstDay,
@@ -128,9 +134,7 @@ class _CalendarPageState extends State<CalendarPage> {
                 _focusedDay = focusedDay;
               },
               // format buttonを消す
-              headerStyle: const HeaderStyle(
-                  formatButtonVisible: false
-              ),
+              headerStyle: const HeaderStyle(formatButtonVisible: false),
               calendarBuilders: CalendarBuilders(dowBuilder: (_, day) {
                 final text = DateFormat.E('ja').format(day);
                 if (day.weekday == DateTime.sunday) {
@@ -153,35 +157,72 @@ class _CalendarPageState extends State<CalendarPage> {
             ),
             const Divider(),
             Expanded(
-                child: ValueListenableBuilder<List<Event>>(
-                  valueListenable: _selectedEvents,
-                  builder: (context, value, _) {
-                    return FutureBuilder<List<Menu>?>(
-                      // TODO: selectした日付でメニューを取得？
-                      future: PostFirestore.getPostMenuMap(_selectedDay),
-                      builder: (context, snapshot) {
-                        return ListView.builder(
-                            itemCount: snapshot.data!.length,
-                            itemBuilder: (context, index) {
-                              return Container(
-                                  margin: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(),
-                                    borderRadius: BorderRadius.circular(12.0),
-                                  ),
-                                  child: ListTile(
-                                    onTap: () => {
-                                      // とりあえず
-                                      Navigator.push(context, MaterialPageRoute(builder: (context) => const CreateMenuPage()))
-                                    },
-                                    title: Text(snapshot.data![index].name),
-                                  ));
-                            });
+                child: StreamBuilder<QuerySnapshot>(
+                    stream: PostFirestore.menus.where('user_id', isEqualTo: Authentication.myAccount!.id)
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        num allTotalAmount = 0;
+                        List<Menu> getMenus = [];
+                        DateFormat dateFormat = DateFormat('yyyy-MM-dd');
+                        for (var doc in snapshot.data!.docs) {
+                          Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+                          Menu getMenu = Menu(
+                            // id: data['id'] is null ? data['id']: '',
+                            name: data['name'],
+                            userId: data['user_id'],
+                            totalAmount: data['total_amount'],
+                            imagePath: data['image_path'],
+                            createdTime: data['created_time'],
+                          );
+                          Timestamp createdTime = data['created_time'];
+                          if (dateFormat.format(_selectedDay!) == dateFormat.format(createdTime.toDate())) {
+                            getMenus.add(getMenu);
+                            allTotalAmount += data['total_amount'];
+                          }
+                        }
+                        return Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Container(
+                              alignment: Alignment.centerRight,
+                              padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                              child: Text(
+                                '合計金額: ${formatter.format(allTotalAmount)} 円',
+                                style: const TextStyle(fontSize: 18.0),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                              child: ListView.builder(
+                                shrinkWrap: true,
+                                  itemCount: getMenus.length,
+                                  itemBuilder: (context, index) {
+                                    // Map<String, dynamic> data = snapshot.data!.docs[index].data() as Map<String, dynamic>;
+                                    return Column(
+                                      children: [
+                                        ListTile(
+                                          onTap: () {},
+                                          title: Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text(getMenus[index].name),
+                                              Text('${formatter.format(getMenus[index].totalAmount)} 円')
+                                            ],
+                                          ),
+                                        ),
+                                        // if (index == getMenus.length) const Divider()
+                                        const Divider()
+                                      ],
+                                    );
+                                  }),
+                            ),
+                          ],
+                        );
+                      } else {
+                        return Container();
                       }
-
-                    );
-                  },
-                ))
+                    }))
           ],
         ),
       ),
