@@ -32,22 +32,43 @@ class WidgetUtils {
         child: ListView(
           children: [
             UserAccountsDrawerHeader(
-                accountName: Text(myAccount.name),
-                accountEmail: Text(myAccount.email),
+                accountName: Text(myAccount.name, style: const TextStyle(color: Colors.black),),
+                accountEmail: Text(myAccount.email, style: const TextStyle(color: Colors.black),),
               currentAccountPicture: CircleAvatar(
                 foregroundImage: NetworkImage(myAccount.imagePath),
-                radius: 20,
               ),
               decoration: const BoxDecoration(
-                color: Colors.lightBlueAccent
+                color: Colors.lime
               ),
             ),
             ListTile(
-              title: const Text('マイページ'),
+              title:const Row(
+                children: [
+                  Icon(Icons.bar_chart),
+                  SizedBox(width: 5.0,),
+                  Text('今月の食費'),
+                ],
+              ),
               onTap: () {},
             ),
             ListTile(
-              title: const Text('ログアウト'),
+              title: const Row(
+                children: [
+                  Icon(Icons.account_box),
+                  SizedBox(width: 5.0,),
+                  Text('マイページ'),
+                ],
+              ),
+              onTap: () {},
+            ),
+            ListTile(
+              title: const Row(
+                children: [
+                  Icon(Icons.logout),
+                  SizedBox(width: 5.0,),
+                  Text('ログアウト'),
+                ],
+              ),
               onTap: (){
                 Authentication.signOut();
                 while(Navigator.canPop(context)) {
@@ -55,7 +76,7 @@ class WidgetUtils {
                 }
                 Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginPage()));
               },
-            )
+            ),
           ],
         ),
       ),
