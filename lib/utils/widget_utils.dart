@@ -43,11 +43,33 @@ class WidgetUtils {
               ),
             ),
             ListTile(
-              title: const Text('マイページ'),
+              title:const Row(
+                children: [
+                  Icon(Icons.bar_chart),
+                  SizedBox(width: 5.0,),
+                  Text('今月の食費'),
+                ],
+              ),
               onTap: () {},
             ),
             ListTile(
-              title: const Text('ログアウト'),
+              title: const Row(
+                children: [
+                  Icon(Icons.account_box),
+                  SizedBox(width: 5.0,),
+                  Text('マイページ'),
+                ],
+              ),
+              onTap: () {},
+            ),
+            ListTile(
+              title: const Row(
+                children: [
+                  Icon(Icons.logout),
+                  SizedBox(width: 5.0,),
+                  Text('ログアウト'),
+                ],
+              ),
               onTap: (){
                 Authentication.signOut();
                 while(Navigator.canPop(context)) {
@@ -55,7 +77,7 @@ class WidgetUtils {
                 }
                 Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginPage()));
               },
-            )
+            ),
           ],
         ),
       ),
