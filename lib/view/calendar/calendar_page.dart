@@ -1,9 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:foodcost/model/menu.dart';
-import 'package:foodcost/utils/firestore/gets.dart';
+import 'package:foodcost/utils/authentication.dart';
 import 'package:foodcost/utils/firestore/posts.dart';
 import 'package:foodcost/view/menu/create_menu_page.dart';
-import 'package:foodcost/view/menu/edit_food_page.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:foodcost/utils/widget_utils.dart';
@@ -87,6 +87,7 @@ class _CalendarPageState extends State<CalendarPage> {
   // }
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+  final formatter = NumberFormat('#,###');
 
   @override
   Widget build(BuildContext context) {
@@ -156,40 +157,72 @@ class _CalendarPageState extends State<CalendarPage> {
             ),
             const Divider(),
             Expanded(
-                child: ValueListenableBuilder<List<Event>>(
-              valueListenable: _selectedEvents,
-              builder: (context, value, _) {
-                return FutureBuilder<List<Menu>?>(
-                    // TODO: StreamBuilderでページ戻った時の変更を取得
-                    future: GetFirestore.getMenuList(_selectedDay),
+                child: StreamBuilder<QuerySnapshot>(
+                    stream: PostFirestore.menus.where('user_id', isEqualTo: Authentication.myAccount!.id)
+                        .snapshots(),
                     builder: (context, snapshot) {
-                      if (snapshot.data != null) {
-                        return ListView.builder(
-                            itemCount: snapshot.data!.length,
-                            itemBuilder: (context, index) {
-                              return Container(
-                                  margin: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(),
-                                    borderRadius: BorderRadius.circular(12.0),
-                                  ),
-                                  child: ListTile(
-                                    onTap: () => {
-                                      // とりあえず
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(builder: (context) => EditMenuPage(menuId: snapshot.data![index].id,))
-                                      )
-                                    },
-                                    title: Text(snapshot.data![index].name),
-                                  ));
-                            });
+                      if (snapshot.hasData) {
+                        num allTotalAmount = 0;
+                        List<Menu> getMenus = [];
+                        DateFormat dateFormat = DateFormat('yyyy-MM-dd');
+                        for (var doc in snapshot.data!.docs) {
+                          Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+                          Menu getMenu = Menu(
+                            // id: data['id'] is null ? data['id']: '',
+                            name: data['name'],
+                            userId: data['user_id'],
+                            totalAmount: data['total_amount'],
+                            imagePath: data['image_path'],
+                            createdTime: data['created_time'],
+                          );
+                          Timestamp createdTime = data['created_time'];
+                          if (dateFormat.format(_selectedDay!) == dateFormat.format(createdTime.toDate())) {
+                            getMenus.add(getMenu);
+                            allTotalAmount += data['total_amount'];
+                          }
+                        }
+                        return Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Container(
+                              alignment: Alignment.centerRight,
+                              padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                              child: Text(
+                                '合計金額: ${formatter.format(allTotalAmount)} 円',
+                                style: const TextStyle(fontSize: 18.0),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                              child: ListView.builder(
+                                shrinkWrap: true,
+                                  itemCount: getMenus.length,
+                                  itemBuilder: (context, index) {
+                                    // Map<String, dynamic> data = snapshot.data!.docs[index].data() as Map<String, dynamic>;
+                                    return Column(
+                                      children: [
+                                        ListTile(
+                                          onTap: () {},
+                                          title: Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text(getMenus[index].name),
+                                              Text('${formatter.format(getMenus[index].totalAmount)} 円')
+                                            ],
+                                          ),
+                                        ),
+                                        // if (index == getMenus.length) const Divider()
+                                        const Divider()
+                                      ],
+                                    );
+                                  }),
+                            ),
+                          ],
+                        );
                       } else {
                         return Container();
                       }
-                    });
-              },
-            ))
+                    }))
           ],
         ),
       ),
