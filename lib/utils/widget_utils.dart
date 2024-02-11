@@ -32,14 +32,13 @@ class WidgetUtils {
         child: ListView(
           children: [
             UserAccountsDrawerHeader(
-                accountName: Text(myAccount.name),
-                accountEmail: Text(myAccount.email),
+                accountName: Text(myAccount.name, style: const TextStyle(color: Colors.black),),
+                accountEmail: Text(myAccount.email, style: const TextStyle(color: Colors.black),),
               currentAccountPicture: CircleAvatar(
                 foregroundImage: NetworkImage(myAccount.imagePath),
-                radius: 20,
               ),
               decoration: const BoxDecoration(
-                color: Colors.lightBlueAccent
+                color: Colors.lime
               ),
             ),
             ListTile(
