@@ -81,4 +81,18 @@ class PostFirestore {
       return null;
     }
   }
+
+  static Future<dynamic> deletePosts(String accountId) async {
+    final CollectionReference userMenus = _firestoreInstance.collection('users').doc(accountId).collection('menus');
+    var snapshot = await userMenus.get();
+    snapshot.docs.forEach((doc) async{
+      final CollectionReference selectedFoods = menus.doc(doc.id).collection('foods');
+      var foodSnapshot = await selectedFoods.get();
+      foodSnapshot.docs.forEach((food) async{
+        await foods.doc(food.id).delete();
+      });
+      await menus.doc(doc.id).delete();
+      userMenus.doc(doc.id).delete();
+    });
+  }
 }

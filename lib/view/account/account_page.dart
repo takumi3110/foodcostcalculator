@@ -4,6 +4,7 @@ import 'package:foodcost/model/Account.dart';
 import 'package:foodcost/utils/authentication.dart';
 import 'package:foodcost/utils/firestore/posts.dart';
 import 'package:foodcost/utils/widget_utils.dart';
+import 'package:foodcost/view/account/edit_account_page.dart';
 
 class AccountPage extends StatefulWidget {
   const AccountPage({super.key});
@@ -22,11 +23,12 @@ class _AccountPageState extends State<AccountPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('マイページ', style: TextStyle(color: Colors.black),),
-        elevation: 1,
+        // elevation: 1,
       ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: SizedBox(
+            width: double.infinity,
             height: MediaQuery.of(context).size.height,
             child: Column(
               children: [
@@ -46,7 +48,9 @@ class _AccountPageState extends State<AccountPage> {
                   padding: const EdgeInsets.only(top: 8.0, right: 8.0),
                     alignment: Alignment.centerRight,
                     child: OutlinedButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => const  EditAccountPage()));
+                        },
                         child: const Text('編集')
                     )
                 ),
