@@ -48,8 +48,13 @@ class _AccountPageState extends State<AccountPage> {
                   padding: const EdgeInsets.only(top: 8.0, right: 8.0),
                     alignment: Alignment.centerRight,
                     child: OutlinedButton(
-                        onPressed: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => const  EditAccountPage()));
+                        onPressed: () async {
+                          var result = await Navigator.push(context, MaterialPageRoute(builder: (context) => const  EditAccountPage()));
+                          if (result == true) {
+                            setState(() {
+                              myAccount = Authentication.myAccount!;
+                            });
+                          }
                         },
                         child: const Text('編集')
                     )
@@ -63,7 +68,8 @@ class _AccountPageState extends State<AccountPage> {
                     children: [
                       CircleAvatar(
                         radius: 40,
-                        foregroundImage: NetworkImage(myAccount.imagePath),
+                        foregroundImage: myAccount.imagePath != null ? NetworkImage(myAccount.imagePath!): null,
+                        child: const  Icon(Icons.person, size: 50,),
                       ),
                       const SizedBox(height: 10.0,),
                       Row(

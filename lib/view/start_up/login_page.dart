@@ -90,22 +90,17 @@ class _LoginPageState extends State<LoginPage> {
                           })
                   ])),
                   const SizedBox(
-                    height: 70,
+                    height: 50,
                   ),
-                  if (_isLoginError)
-                    const Center(
-                        child: Text(
-                          '正しいメールアドレスとパスワードを入力してください。', style: TextStyle(color: Colors.red),
-                        )
-                    ),
                   ElevatedButton(
                       onPressed: () async {
                         if (emailController.text.isNotEmpty && passController.text.isNotEmpty) {
                           setState(() {
                             _isLoading = true;
                           });
-                          var result =
-                          await Authentication.emailSignIn(email: emailController.text, password: passController.text);
+                          var result = await Authentication.emailSignIn(
+                              email: emailController.text, password: passController.text
+                          );
                           // resultがUserCredentialタイプだったらtrue
                           if (result is UserCredential) {
                             // if (result.user!.emailVerified == true) {
@@ -138,6 +133,12 @@ class _LoginPageState extends State<LoginPage> {
                       },
                       child: const Text('メールアドレスでログイン')
                   ),
+                  if (_isLoginError)
+                    const Center(
+                        child: Text(
+                          '正しいメールアドレスとパスワードを入力してください。', style: TextStyle(color: Colors.red),
+                        )
+                    ),
                 ],
               ),
             ),

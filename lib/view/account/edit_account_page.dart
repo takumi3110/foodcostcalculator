@@ -30,10 +30,57 @@ class _EditAccountPageState extends State<EditAccountPage> {
 
   ImageProvider getImage() {
     if (image == null) {
-      return NetworkImage(myAccount.imagePath);
+      if (myAccount.imagePath != null) {
+        return NetworkImage(myAccount.imagePath!);
+      } else {
+        return const NetworkImage('');
+      }
     } else {
       return FileImage(image!);
     }
+  }
+
+  void _showAlertDialog() async {
+    var result = await showDialog(
+        context: context,
+        builder: (_) {
+          return AlertDialog(
+            title: const Text('アカウント削除'),
+            content: const Text('本当に削除しますか？'),
+            actions: [
+              ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      _isLoading = true;
+                    });
+                    UserFirestore.deleteUser(myAccount.id);
+                    Authentication.deleteAuth();
+                    while(Navigator.canPop(context)) {
+                      Navigator.pop(context);
+                    }
+                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginPage()));
+                    setState(() {
+                      _isLoading = false;
+                    });
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    foregroundColor: Colors.white
+                  ),
+                  child: const Text('はい', style: TextStyle(fontWeight: FontWeight.bold),)
+              ),
+              ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context, false);
+                  },
+                  child: const Text('いいえ'))
+            ],
+          );
+        }
+    );
+    setState(() {
+
+    });
   }
 
   @override
@@ -62,14 +109,15 @@ class _EditAccountPageState extends State<EditAccountPage> {
                     padding: const EdgeInsets.only(top: 8.0, right: 15.0),
                     alignment: Alignment.centerRight,
                     child: OutlinedButton(
-                        onPressed: () {
-                          UserFirestore.deleteUser(myAccount.id);
-                          Authentication.deleteAuth();
-                          while(Navigator.canPop(context)) {
-                            Navigator.pop(context);
-                          }
-                          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginPage()));
-                        },
+                        // onPressed: () {
+                          // UserFirestore.deleteUser(myAccount.id);
+                          // Authentication.deleteAuth();
+                          // while(Navigator.canPop(context)) {
+                          //   Navigator.pop(context);
+                          // }
+                          // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginPage()));
+                        // },
+                      onPressed: _showAlertDialog,
                         style: OutlinedButton.styleFrom(
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10)
@@ -102,7 +150,7 @@ class _EditAccountPageState extends State<EditAccountPage> {
                           child: CircleAvatar(
                             radius:40,
                             foregroundImage: getImage(),
-                            child: const Icon(Icons.add_a_photo_outlined),
+                            child: const Icon(Icons.add_a_photo_outlined, size: 30,),
                           ),
                         ),
                         const SizedBox(height: 10.0,),
@@ -149,11 +197,12 @@ class _EditAccountPageState extends State<EditAccountPage> {
                   const SizedBox(height: 20.0,),
                   ElevatedButton(
                       onPressed: () async{
+                        setState(() {
+                          _isLoading = true;
+                        });
                         if (nameController.text.isNotEmpty && emailController.text.isNotEmpty){
                           String imagePath = '';
-                          if (image == null) {
-                            imagePath = myAccount.imagePath;
-                          } else {
+                          if (image != null)  {
                             var result = await FunctionUtils.uploadImage(myAccount.id, image!);
                             imagePath = result;
                           }
@@ -169,6 +218,9 @@ class _EditAccountPageState extends State<EditAccountPage> {
                             Navigator.pop(context, true);
                           }
                         }
+                        setState(() {
+                          _isLoading = false;
+                        });
                       },
                       child: const Text('更新')),
                 ],
