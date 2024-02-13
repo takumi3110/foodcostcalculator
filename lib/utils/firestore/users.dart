@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:foodcost/model/Account.dart';
-import 'package:foodcost/model/menu.dart';
 import 'package:foodcost/utils/authentication.dart';
+import 'package:foodcost/utils/firestore/posts.dart';
 
 class UserFirestore {
   static final _firestoreInstance = FirebaseFirestore.instance;
@@ -14,6 +14,7 @@ class UserFirestore {
         'email': newAccount.email,
         'image_path': newAccount.imagePath,
         'created_time': newAccount.createdTime,
+        'updated_time': newAccount.updatedTime
       });
       print('ユーザー登録完了');
       return true;
@@ -67,5 +68,27 @@ class UserFirestore {
       print('投稿ユーザー取得エラー: $e');
       return null;
     }
+  }
+
+  static Future<dynamic> updateUser(Account updateAccount) async{
+    try {
+      await users.doc(updateAccount.id).update({
+        'name': updateAccount.name,
+        'email': updateAccount.email,
+        'image_path': updateAccount.imagePath,
+        'updated_time': Timestamp.now()
+      });
+      print('update成功');
+      return true;
+    } on FirebaseException catch (e) {
+      print('updateエラー: $e');
+      return false;
+    }
+  }
+
+  static Future<dynamic> deleteUser(String accountId) async {
+    // TODO: 関連が消えない
+    await PostFirestore.deletePosts(accountId);
+    users.doc(accountId).delete();
   }
 }

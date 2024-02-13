@@ -28,21 +28,20 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('新規登録')
-      ),
-      body: Stack(
-        children:[
-          SingleChildScrollView(
+      appBar: AppBar(title: const Text('新規登録')),
+      body: Stack(children: [
+        SingleChildScrollView(
           child: Container(
             width: double.infinity,
             child: Padding(
               padding: const EdgeInsets.all(20.0),
               child: Column(
                 children: [
-                  const SizedBox(height: 50,),
+                  const SizedBox(
+                    height: 50,
+                  ),
                   GestureDetector(
-                    onTap: () async{
+                    onTap: () async {
                       var result = await FunctionUtils.getImageFromGallery();
                       if (result != null) {
                         setState(() {
@@ -51,7 +50,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                       }
                     },
                     child: CircleAvatar(
-                      foregroundImage: image == null ? null: FileImage(image!),
+                      foregroundImage: image == null ? null : FileImage(image!),
                       radius: 40,
                       child: const Icon(Icons.add),
                     ),
@@ -62,9 +61,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                       width: 300,
                       child: TextField(
                         controller: nameController,
-                        decoration: const InputDecoration(
-                          hintText: '名前'
-                        ),
+                        decoration: const InputDecoration(hintText: '名前'),
                       ),
                     ),
                   ),
@@ -74,9 +71,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                       width: 300,
                       child: TextField(
                         controller: emailController,
-                        decoration: const InputDecoration(
-                          hintText: 'メールアドレス'
-                        ),
+                        decoration: const InputDecoration(hintText: 'メールアドレス'),
                       ),
                     ),
                   ),
@@ -94,24 +89,25 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                                     _isObscure = !_isObscure;
                                   });
                                 },
-                                icon: Icon(
-                                    _isObscure ? Icons.visibility_off: Icons.visibility
-                                )
-                            )
-                        ),
+                                icon: Icon(_isObscure ? Icons.visibility_off : Icons.visibility))),
                         obscureText: _isObscure,
                       ),
                     ),
                   ),
-                  const SizedBox(height: 50,),
+                  const SizedBox(
+                    height: 50,
+                  ),
                   ElevatedButton(
-                      onPressed: () async{
+                      onPressed: () async {
                         // 入力されてない時は作動しない
-                        if (nameController.text.isNotEmpty && emailController.text.isNotEmpty && passController.text.isNotEmpty && image !=null) {
+                        if (nameController.text.isNotEmpty &&
+                            emailController.text.isNotEmpty &&
+                            passController.text.isNotEmpty) {
                           setState(() {
                             _isLoading = true;
                           });
-                          var result = await Authentication.signUp(email: emailController.text, pass: passController.text);
+                          var result =
+                              await Authentication.signUp(email: emailController.text, pass: passController.text);
                           if (result is UserCredential) {
                             var _result = await createAccount(result.user!.uid);
                             if (_result == true) {
@@ -129,27 +125,30 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
             ),
           ),
         ),
-       WidgetUtils.loadingStack(_isLoading)
-    ]
-      ),
+        WidgetUtils.loadingStack(_isLoading)
+      ]),
     );
   }
+
   Future<dynamic> createAccount(String uid) async {
-    String imagePath = await FunctionUtils.uploadImage(uid, image!);
-    if (imagePath != '') {
+    try {
+      String? imagePath;
+      if (image != null) {
+        var result = await FunctionUtils.uploadImage(uid, image!);
+        imagePath = result;
+      }
       Account newAccount = Account(
           id: uid,
           name: nameController.text,
           email: emailController.text,
           imagePath: imagePath,
           createdTime: Timestamp.now(),
-          updatedTime: Timestamp.now()
-      );
-      var _result = await UserFirestore.setUser(newAccount);
-      return _result;
+          updatedTime: Timestamp.now());
+      var result = await UserFirestore.setUser(newAccount);
+      return result;
+    } on FirebaseException catch (e) {
+      print('アカウント作成エラー: $e');
+      return false;
     }
-
   }
 }
-
-

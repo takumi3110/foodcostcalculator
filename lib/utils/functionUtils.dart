@@ -18,7 +18,7 @@ class FunctionUtils {
       return downloadUrl;
     } on FirebaseException catch (e) {
       print(e);
-      return false;
+      return null;
     }
 
   }

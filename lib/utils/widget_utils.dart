@@ -4,6 +4,7 @@ import 'package:foodcost/model/Account.dart';
 import 'package:foodcost/model/menu.dart';
 import 'package:foodcost/utils/authentication.dart';
 import 'package:foodcost/view/account/account_page.dart';
+import 'package:foodcost/view/calendar/calendar_page.dart';
 import 'package:foodcost/view/start_up/login_page.dart';
 import 'package:intl/intl.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -22,7 +23,8 @@ class WidgetUtils {
       ),
       leading: IconButton(
         icon: CircleAvatar(
-          foregroundImage: NetworkImage(myAccount.imagePath),
+          foregroundImage: myAccount.imagePath != null ? NetworkImage(myAccount.imagePath!): null,
+          child: const Icon(Icons.person),
         ),
         onPressed: () {
           key.currentState!.openDrawer();
@@ -50,9 +52,24 @@ class WidgetUtils {
                   style: const TextStyle(color: Colors.black),
                 ),
                 currentAccountPicture: CircleAvatar(
-                  foregroundImage: NetworkImage(myAccount.imagePath),
+                  foregroundImage: myAccount.imagePath != null ? NetworkImage(myAccount.imagePath!): null,
+                  child: const Icon(Icons.person, size: 50,),
                 ),
                 decoration: const BoxDecoration(color: Colors.white),
+              ),
+              ListTile(
+                title: const Row(
+                  children: [
+                    Icon(Icons.calendar_month),
+                    SizedBox(
+                      width: 10.0,
+                    ),
+                    Text('カレンダー')
+                  ],
+                ),
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const CalendarPage()));
+                },
               ),
               ListTile(
                 title: const Row(
