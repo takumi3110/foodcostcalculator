@@ -28,12 +28,12 @@ class _EditAccountPageState extends State<EditAccountPage> {
   bool _isLoading = false;
   // bool _isObscure = true;
 
-  ImageProvider getImage() {
+  ImageProvider? getImage() {
     if (image == null) {
       if (myAccount.imagePath != null) {
         return NetworkImage(myAccount.imagePath!);
       } else {
-        return const NetworkImage('');
+        return null;
       }
     } else {
       return FileImage(image!);
@@ -41,7 +41,7 @@ class _EditAccountPageState extends State<EditAccountPage> {
   }
 
   void _showAlertDialog() async {
-    var result = await showDialog(
+    await showDialog(
         context: context,
         builder: (_) {
           return AlertDialog(

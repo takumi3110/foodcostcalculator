@@ -1,7 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:foodcost/model/Account.dart';
-import 'package:foodcost/model/menu.dart';
 import 'package:foodcost/utils/authentication.dart';
 import 'package:foodcost/utils/firestore/posts.dart';
 
@@ -89,7 +87,8 @@ class UserFirestore {
   }
 
   static Future<dynamic> deleteUser(String accountId) async {
-    PostFirestore.deletePosts(accountId);
+    // TODO: 関連が消えない
+    await PostFirestore.deletePosts(accountId);
     users.doc(accountId).delete();
   }
 }
