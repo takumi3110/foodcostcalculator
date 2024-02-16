@@ -102,7 +102,7 @@ class _AccountPageState extends State<AccountPage> {
                   width: double.infinity,
                   decoration: const BoxDecoration(border: Border(top: BorderSide(color: Colors.grey))),
                   child: const Text(
-                    '登録したメニュー(最新5件)'
+                    '最近登録したメニュー'
                   ),
                 ),
                 const SizedBox(height: 10.0,),

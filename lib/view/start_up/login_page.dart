@@ -112,11 +112,17 @@ class _LoginPageState extends State<LoginPage> {
                             // } else {
                             //   print('メール認証できませんでした。');
                             // }
+                            if (result.user != null) {
                               var _result = await UserFirestore.getUser(result.user!.uid);
                               if (_result == true) {
                                 Navigator.pushReplacement(
                                     context, MaterialPageRoute(builder: (context) => const CalendarPage()));
                               }
+                            } else {
+                              setState(() {
+                                _isLoginError = true;
+                              });
+                            }
                             // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const CalendarPage()));
                           } else {
                             setState(() {

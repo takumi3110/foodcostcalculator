@@ -10,8 +10,10 @@ import 'package:intl/intl.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class WidgetUtils {
+  static Account myAccount = Authentication.myAccount!;
+
   static AppBar createAppBar(String title, GlobalKey<ScaffoldState> key) {
-    Account myAccount = Authentication.myAccount!;
+    // Account myAccount = Authentication.myAccount!;
 
     return AppBar(
       backgroundColor: Colors.transparent,
@@ -34,7 +36,6 @@ class WidgetUtils {
   }
 
   static SizedBox sideMenuDrawer(BuildContext context) {
-    Account myAccount = Authentication.myAccount!;
     return SizedBox(
       width: 250,
       child: Drawer(
