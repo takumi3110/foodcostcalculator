@@ -157,6 +157,7 @@ class _CalendarPageState extends State<CalendarPage> {
               height: 8.0,
             ),
             const Divider(),
+            if (Authentication.myAccount != null)
             Expanded(
                 child: ValueListenableBuilder<List<Event>>(
                     // Eventは{title: ''}
