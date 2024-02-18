@@ -1,10 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:foodcost/model/Account.dart';
+import 'package:foodcost/model/menu.dart';
 import 'package:foodcost/utils/authentication.dart';
 import 'package:foodcost/utils/firestore/posts.dart';
 import 'package:foodcost/utils/widget_utils.dart';
 import 'package:foodcost/view/account/edit_account_page.dart';
+import 'package:intl/intl.dart';
 
 class AccountPage extends StatefulWidget {
   const AccountPage({super.key});
@@ -111,7 +113,23 @@ class _AccountPageState extends State<AccountPage> {
                       stream: PostFirestore.menus.where('user_id', isEqualTo: myAccount.id).snapshots(),
                       builder: (context, snapshot) {
                         if (snapshot.hasData) {
-                          return WidgetUtils.menuListTile(snapshot, null);
+                          List<Menu> getMenus = [];
+                          var docs = snapshot.data!.docs;
+                          var length = docs.length < 6 ? docs.length: 5;
+                          for (var i = 0; i < length; i++) {
+                            Map<String, dynamic> data = docs[i].data() as Map<String, dynamic>;
+                            Menu getMenu = Menu(
+                              // id: data['id'] is null ? data['id']: '',
+                              name: data['name'],
+                              userId: data['user_id'],
+                              totalAmount: data['total_amount'],
+                              imagePath: data['image_path'],
+                              createdTime: data['created_time'],
+                            );
+                            getMenus.add(getMenu);
+                          }
+
+                          return WidgetUtils.menuListTile(getMenus, null);
                         } else {
                           return Container();
                         }
