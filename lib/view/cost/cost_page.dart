@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:foodcost/model/Account.dart';
 import 'package:foodcost/model/menu.dart';
 import 'package:foodcost/utils/authentication.dart';
-import 'package:foodcost/utils/firestore/posts.dart';
+import 'package:foodcost/utils/firestore/foods.dart';
 import 'package:foodcost/utils/widget_utils.dart';
 import 'package:intl/intl.dart';
 
@@ -33,6 +33,14 @@ class _CostPageState extends State<CostPage> {
       x * 10
   )
   ).toList();
+
+  // TODO: initState?
+  @override
+  void initState() {
+    super.initState();
+
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -84,7 +92,7 @@ class _CostPageState extends State<CostPage> {
 
               ),
               StreamBuilder<QuerySnapshot>(
-                stream: PostFirestore.menus.where('user_id', isEqualTo: myAccount.id).snapshots(),
+                stream: FoodFirestore.menus.where('user_id', isEqualTo: myAccount.id).snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     List<Menu> menus = [];

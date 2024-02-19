@@ -8,7 +8,8 @@ import 'package:flutter/widgets.dart';
 import 'package:foodcost/model/food.dart';
 import 'package:foodcost/model/menu.dart';
 import 'package:foodcost/utils/authentication.dart';
-import 'package:foodcost/utils/firestore/posts.dart';
+import 'package:foodcost/utils/firestore/foods.dart';
+import 'package:foodcost/utils/firestore/menus.dart';
 import 'package:foodcost/utils/functionUtils.dart';
 import 'package:foodcost/utils/widget_utils.dart';
 import 'package:intl/intl.dart';
@@ -81,7 +82,7 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
                   totalAmount: allPrice,
                   createdTime: Timestamp.now()
                 );
-                var result = await PostFirestore.addMenu(newMenu);
+                var result = await MenuFirestore.addMenu(newMenu);
                 if (result != null) {
                 // food登録
                   List<Food> newFoods = [];
@@ -102,7 +103,7 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
                       newFoods.add(newFood);
                     }
                   }
-                  var foodResult = await PostFirestore.addFood(newFoods);
+                  var foodResult = await FoodFirestore.addFood(newFoods);
                   if (foodResult == true) {
                     Navigator.pop(context);
                   }
