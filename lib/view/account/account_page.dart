@@ -3,10 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:foodcost/model/Account.dart';
 import 'package:foodcost/model/menu.dart';
 import 'package:foodcost/utils/authentication.dart';
-import 'package:foodcost/utils/firestore/foods.dart';
+import 'package:foodcost/utils/firestore/menus.dart';
 import 'package:foodcost/utils/widget_utils.dart';
 import 'package:foodcost/view/account/edit_account_page.dart';
-import 'package:intl/intl.dart';
 
 class AccountPage extends StatefulWidget {
   const AccountPage({super.key});
@@ -110,7 +109,7 @@ class _AccountPageState extends State<AccountPage> {
                 const SizedBox(height: 10.0,),
                 Expanded(
                     child: StreamBuilder<QuerySnapshot>(
-                      stream: FoodFirestore.menus.where('user_id', isEqualTo: myAccount.id).snapshots(),
+                      stream: MenuFirestore.menus.where('user_id', isEqualTo: myAccount.id).snapshots(),
                       builder: (context, snapshot) {
                         if (snapshot.hasData) {
                           List<Menu> getMenus = [];

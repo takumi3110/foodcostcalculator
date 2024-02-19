@@ -3,7 +3,6 @@ import 'package:foodcost/model/food.dart';
 
 class FoodFirestore {
   static final _firestoreInstance = FirebaseFirestore.instance;
-  static final CollectionReference menus = _firestoreInstance.collection('menus');
   static final CollectionReference foods = _firestoreInstance.collection('foods');
 
   static Future<dynamic> addFood(List<Food> newFoods) async {

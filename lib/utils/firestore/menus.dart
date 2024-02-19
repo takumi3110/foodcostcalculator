@@ -29,6 +29,35 @@ class MenuFirestore {
     }
   }
 
+  static Future<dynamic> getMenus(String accountId) async {
+    try {
+      DateTime now = DateTime.now();
+     var  currentMonth = now.month;
+      List<Menu> menuList = [];
+      var snapshot = await menus.where('user_id', isEqualTo: accountId).get();
+      snapshot.docs.forEach((doc) {
+        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+        if (currentMonth == data['created_time'].toDate().month) {
+          Menu menu = Menu(
+              name: data['name'],
+              userId: data['user_id'],
+              imagePath: data['image_path'],
+              totalAmount: data['total_amount'],
+              createdTime: data['created_time']
+          );
+          menuList.add(menu);
+        }
+      });
+      if (menuList.isNotEmpty) {
+        print('メニュー取得完了');
+      }
+      return menuList;
+    } on FirebaseException catch (e) {
+      print('メニュー取得エラー: $e');
+      return null;
+    }
+  }
+
   static Future<dynamic> deleteMenus(String accountId) async {
     final CollectionReference userMenus = _firestoreInstance.collection('users').doc(accountId).collection('my_menus');
     var snapshot = await userMenus.get();

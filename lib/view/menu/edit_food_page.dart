@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:foodcost/utils/firestore/foods.dart';
-import 'package:foodcost/utils/widget_utils.dart';
+import 'package:foodcost/utils/firestore/menus.dart';
 
 class EditMenuPage extends StatefulWidget {
   final String menuId;
@@ -66,7 +66,7 @@ class _EditMenuPageState extends State<EditMenuPage> {
                   child: Text('材料'),
                 ),
                 Expanded(child: StreamBuilder<QuerySnapshot>(
-                    stream: FoodFirestore.menus
+                    stream: MenuFirestore.menus
                         .doc(_menuId)
                         .collection('foods')
                         .orderBy('created_at', descending: true)
