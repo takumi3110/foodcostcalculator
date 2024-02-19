@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:foodcost/model/menu.dart';
 import 'package:foodcost/utils/authentication.dart';
-import 'package:foodcost/utils/firestore/posts.dart';
+import 'package:foodcost/utils/firestore/menus.dart';
 import 'package:foodcost/view/menu/create_menu_page.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -158,147 +158,43 @@ class _CalendarPageState extends State<CalendarPage> {
             ),
             const Divider(),
             if (Authentication.myAccount != null)
-            Expanded(
-                child: ValueListenableBuilder<List<Event>>(
-                    // Eventは{title: ''}
-                    // Eventがvalueに入ってくる
-                    // _selectedEventsでvalueを指定
-                    valueListenable: _selectedEvents,
-                    builder: (context, value, _) {
-                      return StreamBuilder<QuerySnapshot>(
-                          stream:
-                              PostFirestore.menus.where('user_id', isEqualTo: Authentication.myAccount!.id).snapshots(),
-                          builder: (context, snapshot) {
-                            if (snapshot.hasData) {
-                              num allTotalAmount = 0;
-                              List<Menu> getMenus = [];
-                              DateFormat dateFormat = DateFormat('yyyy-MM-dd');
-                              for (var doc in snapshot.data!.docs) {
-                                Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-                                Menu getMenu = Menu(
-                                  // id: data['id'] is null ? data['id']: '',
-                                  name: data['name'],
-                                  userId: data['user_id'],
-                                  totalAmount: data['total_amount'],
-                                  imagePath: data['image_path'],
-                                  createdTime: data['created_time'],
-                                );
-                                Timestamp createdTime = data['created_time'];
-                                if (dateFormat.format(_selectedDay!) == dateFormat.format(createdTime.toDate())) {
-                                  getMenus.add(getMenu);
-                                  allTotalAmount += data['total_amount'];
+              Expanded(
+                  child: ValueListenableBuilder<List<Event>>(
+                      // Eventは{title: ''}
+                      // Eventがvalueに入ってくる
+                      // _selectedEventsでvalueを指定
+                      valueListenable: _selectedEvents,
+                      builder: (context, value, _) {
+                        return StreamBuilder<QuerySnapshot>(
+                            stream: MenuFirestore.menus
+                                .where('user_id', isEqualTo: Authentication.myAccount!.id)
+                                .snapshots(),
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData) {
+                                num allTotalAmount = 0;
+                                List<Menu> getMenus = [];
+                                DateFormat dateFormat = DateFormat('yyyy-MM-dd');
+                                for (var doc in snapshot.data!.docs) {
+                                  Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+                                  Menu getMenu = Menu(
+                                    name: data['name'],
+                                    userId: data['user_id'],
+                                    totalAmount: data['total_amount'],
+                                    imagePath: data['image_path'],
+                                    createdTime: data['created_time'],
+                                  );
+                                  Timestamp createdTime = data['created_time'];
+                                  if (dateFormat.format(_selectedDay!) == dateFormat.format(createdTime.toDate())) {
+                                    getMenus.add(getMenu);
+                                    allTotalAmount += data['total_amount'];
+                                  }
                                 }
+                                return WidgetUtils.menuListTile(getMenus, allTotalAmount);
+                              } else {
+                                return Container();
                               }
-                              return Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  Container(
-                                    alignment: Alignment.centerRight,
-                                    padding: const EdgeInsets.symmetric(horizontal: 5.0),
-                                    child: Text(
-                                      '合計金額: ${formatter.format(allTotalAmount)} 円',
-                                      style: const TextStyle(fontSize: 18.0),
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                                    child: ListView.builder(
-                                        shrinkWrap: true,
-                                        itemCount: getMenus.length,
-                                        itemBuilder: (context, index) {
-                                          // Map<String, dynamic> data = snapshot.data!.docs[index].data() as Map<String, dynamic>;
-                                          return Column(
-                                            children: [
-                                              ListTile(
-                                                onTap: () {},
-                                                title: Row(
-                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                  children: [
-                                                    Text(getMenus[index].name),
-                                                    Text('${formatter.format(getMenus[index].totalAmount)} 円')
-                                                  ],
-                                                ),
-                                              ),
-                                              // if (index == getMenus.length) const Divider()
-                                              const Divider()
-                                            ],
-                                          );
-                                        }),
-                                  ),
-                                ],
-                              );
-                            } else {
-                              return Container();
-                            }
-                          });
-                    }
-                    // child: StreamBuilder<QuerySnapshot>(
-                    //     stream: PostFirestore.menus.where('user_id', isEqualTo: Authentication.myAccount!.id)
-                    //         .snapshots(),
-                    //     builder: (context, snapshot) {
-                    //       if (snapshot.hasData) {
-                    //         num allTotalAmount = 0;
-                    //         List<Menu> getMenus = [];
-                    //         DateFormat dateFormat = DateFormat('yyyy-MM-dd');
-                    //         for (var doc in snapshot.data!.docs) {
-                    //           Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-                    //           Menu getMenu = Menu(
-                    //             // id: data['id'] is null ? data['id']: '',
-                    //             name: data['name'],
-                    //             userId: data['user_id'],
-                    //             totalAmount: data['total_amount'],
-                    //             imagePath: data['image_path'],
-                    //             createdTime: data['created_time'],
-                    //           );
-                    //           Timestamp createdTime = data['created_time'];
-                    //           if (dateFormat.format(_selectedDay!) == dateFormat.format(createdTime.toDate())) {
-                    //             getMenus.add(getMenu);
-                    //             allTotalAmount += data['total_amount'];
-                    //           }
-                    //         }
-                    //         return Column(
-                    //           mainAxisAlignment: MainAxisAlignment.start,
-                    //           children: [
-                    //             Container(
-                    //               alignment: Alignment.centerRight,
-                    //               padding: const EdgeInsets.symmetric(horizontal: 5.0),
-                    //               child: Text(
-                    //                 '合計金額: ${formatter.format(allTotalAmount)} 円',
-                    //                 style: const TextStyle(fontSize: 18.0),
-                    //               ),
-                    //             ),
-                    //             Padding(
-                    //               padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                    //               child: ListView.builder(
-                    //                 shrinkWrap: true,
-                    //                   itemCount: getMenus.length,
-                    //                   itemBuilder: (context, index) {
-                    //                     // Map<String, dynamic> data = snapshot.data!.docs[index].data() as Map<String, dynamic>;
-                    //                     return Column(
-                    //                       children: [
-                    //                         ListTile(
-                    //                           onTap: () {},
-                    //                           title: Row(
-                    //                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    //                             children: [
-                    //                               Text(getMenus[index].name),
-                    //                               Text('${formatter.format(getMenus[index].totalAmount)} 円')
-                    //                             ],
-                    //                           ),
-                    //                         ),
-                    //                         // if (index == getMenus.length) const Divider()
-                    //                         const Divider()
-                    //                       ],
-                    //                     );
-                    //                   }),
-                    //             ),
-                    //           ],
-                    //         );
-                    //       } else {
-                    //         return Container();
-                    //       }
-                    //     }),
-                    ))
+                            });
+                      }))
           ],
         ),
       ),

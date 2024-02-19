@@ -1,11 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:foodcost/model/food.dart';
-import 'package:foodcost/model/menu.dart';
 
-
-class PostFirestore {
+class FoodFirestore {
   static final _firestoreInstance = FirebaseFirestore.instance;
-  static final CollectionReference menus = _firestoreInstance.collection('menus');
   static final CollectionReference foods = _firestoreInstance.collection('foods');
 
   static Future<dynamic> addFood(List<Food> newFoods) async {
@@ -30,29 +27,6 @@ class PostFirestore {
     } on FirebaseException catch (e) {
       print('登録エラー: $e');
       return false;
-    }
-  }
-
-  static Future<dynamic> addMenu(Menu newMenu) async {
-    try {
-      final CollectionReference userPosts = _firestoreInstance.collection('users')
-      .doc(newMenu.userId).collection('my_menus');
-      var result = await menus.add({
-        'name': newMenu.name,
-        'user_id': newMenu.userId,
-        'image_path': newMenu.imagePath,
-        'total_amount': newMenu.totalAmount,
-        'created_time': Timestamp.now()
-      });
-      userPosts.doc(result.id).set({
-        'menu_id': result.id,
-        'created_time': Timestamp.now()
-      });
-      print('メニュー登録完了');
-      return result.id;
-    } on FirebaseException catch(e) {
-      print('メニュー登録エラー: $e');
-      return null;
     }
   }
 
@@ -82,19 +56,26 @@ class PostFirestore {
     }
   }
 
-  static Future<dynamic> deletePosts(String accountId) async {
-    final CollectionReference userMenus = _firestoreInstance.collection('users').doc(accountId).collection('my_menus');
-    var snapshot = await userMenus.get();
+  // static Future<dynamic> deleteMenus(String accountId) async {
+  //   final CollectionReference userMenus = _firestoreInstance.collection('users').doc(accountId).collection('my_menus');
+  //   var snapshot = await userMenus.get();
+  //   snapshot.docs.forEach((doc) async{
+  //     final CollectionReference selectedFoods = menus.doc(doc.id).collection('foods');
+  //     var foodSnapshot = await selectedFoods.get();
+  //     foodSnapshot.docs.forEach((foodDoc) async{
+  //       await foods.doc(foodDoc.id).delete();
+  //       await selectedFoods.doc(foodDoc.id).delete();
+  //     });
+  //     await menus.doc(doc.id).delete();
+  //     await userMenus.doc(doc.id).delete();
+  //   });
+  // }
+
+  static Future<dynamic> deleteFoods(CollectionReference foods) async {
+    var snapshot = await foods.get();
     snapshot.docs.forEach((doc) async{
-      final CollectionReference selectedFoods = menus.doc(doc.id).collection('foods');
-      var foodSnapshot = await selectedFoods.get();
-      // TODO: menus消えない
-      foodSnapshot.docs.forEach((foodDoc) async{
-        await foods.doc(foodDoc.id).delete();
-        await selectedFoods.doc(foodDoc.id).delete();
-      });
-      await menus.doc(doc.id).delete();
-      await userMenus.doc(doc.id).delete();
+      await foods.doc(doc.id).delete();
+      await foods.doc(doc.id).delete();
     });
   }
 }

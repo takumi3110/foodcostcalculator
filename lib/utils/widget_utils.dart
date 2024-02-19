@@ -1,10 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:foodcost/model/Account.dart';
 import 'package:foodcost/model/menu.dart';
+import 'package:foodcost/presentation/resources/app_colors.dart';
 import 'package:foodcost/utils/authentication.dart';
 import 'package:foodcost/view/account/account_page.dart';
 import 'package:foodcost/view/calendar/calendar_page.dart';
+import 'package:foodcost/view/cost/cost_page.dart';
 import 'package:foodcost/view/start_up/login_page.dart';
 import 'package:intl/intl.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -82,7 +86,9 @@ class WidgetUtils {
                     Text('今月の食費'),
                   ],
                 ),
-                onTap: () {},
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const CostPage()));
+                },
               ),
               ListTile(
                 title: const Row(
@@ -139,36 +145,13 @@ class WidgetUtils {
     );
   }
 
-  static Column menuListTile(snapshot, selectedDay) {
+  static Column menuListTile(menus, allTotalAmount) {
     final formatter = NumberFormat('#,###');
-    num allTotalAmount = 0;
-    List<Menu> getMenus = [];
-    DateFormat dateFormat = DateFormat('yyyy-MM-dd');
-    for (var doc in snapshot.data!.docs) {
-      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-      Menu getMenu = Menu(
-        // id: data['id'] is null ? data['id']: '',
-        name: data['name'],
-        userId: data['user_id'],
-        totalAmount: data['total_amount'],
-        imagePath: data['image_path'],
-        createdTime: data['created_time'],
-      );
-      if (selectedDay != null) {
-        Timestamp createdTime = data['created_time'];
-        if (dateFormat.format(selectedDay!) == dateFormat.format(createdTime.toDate())) {
-          getMenus.add(getMenu);
-          allTotalAmount += data['total_amount'];
-        }
-      } else {
-        getMenus.add(getMenu);
-        allTotalAmount += data['total_amount'];
-      }
-    }
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        if (selectedDay != null)
+        if (allTotalAmount != null)
         Container(
           alignment: Alignment.centerRight,
           padding: const EdgeInsets.symmetric(horizontal: 5.0),
@@ -183,7 +166,7 @@ class WidgetUtils {
             children: [
               ListView.builder(
                   shrinkWrap: true,
-                  itemCount: getMenus.length < 6 ? getMenus.length: 5,
+                  itemCount: menus.length,
                   itemBuilder: (context, index) {
                     // Map<String, dynamic> data = snapshot.data!.docs[index].data() as Map<String, dynamic>;
                     return Column(
@@ -193,8 +176,8 @@ class WidgetUtils {
                           title: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(getMenus[index].name),
-                              Text('${formatter.format(getMenus[index].totalAmount)} 円')
+                              Text(menus[index].name),
+                              Text('${formatter.format(menus[index].totalAmount)} 円')
                             ],
                           ),
                         ),
@@ -203,7 +186,7 @@ class WidgetUtils {
                       ],
                     );
                   }),
-              if (selectedDay == null && getMenus.length > 6)
+              if (allTotalAmount == null && menus.length > 6)
                 Container(
                     alignment: Alignment.centerRight,
                     child: const Text('and more...')
@@ -215,4 +198,5 @@ class WidgetUtils {
       ],
     );
   }
+
 }

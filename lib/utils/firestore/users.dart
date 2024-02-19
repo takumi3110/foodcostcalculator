@@ -1,7 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:foodcost/model/Account.dart';
 import 'package:foodcost/utils/authentication.dart';
-import 'package:foodcost/utils/firestore/posts.dart';
+import 'package:foodcost/utils/firestore/foods.dart';
+import 'package:foodcost/utils/firestore/menus.dart';
 
 class UserFirestore {
   static final _firestoreInstance = FirebaseFirestore.instance;
@@ -87,8 +88,7 @@ class UserFirestore {
   }
 
   static Future<dynamic> deleteUser(String accountId) async {
-    // TODO: 関連が消えない
-    await PostFirestore.deletePosts(accountId);
+    await MenuFirestore.deleteMenus(accountId);
     users.doc(accountId).delete();
   }
 }
