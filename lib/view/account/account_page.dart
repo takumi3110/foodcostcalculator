@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:foodcost/model/Account.dart';
+import 'package:foodcost/model/account.dart';
 import 'package:foodcost/model/menu.dart';
 import 'package:foodcost/utils/authentication.dart';
 import 'package:foodcost/utils/firestore/menus.dart';
@@ -62,7 +62,7 @@ class _AccountPageState extends State<AccountPage> {
                 ),
                 Container(
                   // color: Colors.red,
-                  padding: const EdgeInsets.only(left: 40.0, right: 40.0, bottom: 15.0),
+                  padding: const EdgeInsets.only(left: 50.0, right: 50.0, bottom: 15.0),
                   // height: 200,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -80,7 +80,7 @@ class _AccountPageState extends State<AccountPage> {
                             width: 60.0,
                               child: Text('名前', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0))),
                           const SizedBox(width: 30.0,),
-                          Text(myAccount.name, style: const TextStyle(fontSize: 18.0))
+                          Text('${myAccount.name}さん', style: const TextStyle(fontSize: 18.0))
                         ],
                       ),
                       const SizedBox(height: 10.0,),

@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:foodcost/model/Account.dart';
+import 'package:foodcost/model/account.dart';
 import 'package:foodcost/utils/authentication.dart';
 import 'package:foodcost/utils/firestore/users.dart';
 import 'package:foodcost/utils/functionUtils.dart';

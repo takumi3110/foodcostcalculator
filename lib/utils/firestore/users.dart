@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:foodcost/model/Account.dart';
+import 'package:foodcost/model/account.dart';
 import 'package:foodcost/utils/authentication.dart';
 import 'package:foodcost/utils/firestore/foods.dart';
 import 'package:foodcost/utils/firestore/menus.dart';
