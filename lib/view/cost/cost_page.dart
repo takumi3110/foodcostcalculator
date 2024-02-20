@@ -21,25 +21,28 @@ class CostPage extends StatefulWidget {
 class _CostPageState extends State<CostPage> {
   Account myAccount = Authentication.myAccount!;
   List menus = [];
+  // グラフの色
   List<Color> gradientColors = [
     AppColors.contentColorCyan,
     AppColors.contentColorBlue,
   ];
 
-  // TODO: 1日の目標金額
+  // 目標金額
   double targetDayAmount = 0;
   int targetMonthAmount = 0;
+  TextEditingController targetDayAmountController = TextEditingController();
+  TextEditingController targetMonthAmountController = TextEditingController();
 
   // 当月の最終日を取得
   int currentMonthLastDay = 0;
   num allTotalAmount = 0;
+  num maxDayAmount = 0;
   List<FlSpot> flSpots = [];
+
+  // 金額の桁区切り
   final formatter = NumberFormat('#,###');
-  final cutOfYValue = 300.0;
 
-  TextEditingController targetDayAmountController = TextEditingController();
-  TextEditingController targetMonthAmountController = TextEditingController();
-
+  // グラフの数値を作成
   void createSpots() async {
     final results = await MenuFirestore.getMenus(myAccount.id);
     if (results != null) {
@@ -48,6 +51,7 @@ class _CostPageState extends State<CostPage> {
         int lastDay = DateTime(now.year, (now.month + 1), 0).day;
         currentMonthLastDay = lastDay;
         List<FlSpot> spots = [];
+        List<num> amounts = [];
         menus = results;
         for (var i = 1; i <= lastDay; i++) {
           num totalAmount = 0;
@@ -59,13 +63,21 @@ class _CostPageState extends State<CostPage> {
               allTotalAmount += result.totalAmount;
             }
           });
+          // 日毎の合計金額をリストへ
+          amounts.add(totalAmount);
+          // spotを追加
           spots.add(FlSpot(i.toDouble(), totalAmount.toDouble()));
         }
         flSpots = spots;
+        // リスト化した日毎の合計金額を大きい順にソート
+        amounts.sort((a, b) => b.compareTo(a));
+        // 最大の金額を設定
+        maxDayAmount = amounts[0];
       });
     }
   }
 
+  // 目標金額を取得
   void getTarget() async {
     final result = await TargetFirestore.getTargets(myAccount.id);
     if (result != null) {
@@ -97,7 +109,6 @@ class _CostPageState extends State<CostPage> {
               actions: [
                 ElevatedButton(
                     onPressed: () async {
-                      // TODO: 保存どうするか
                       if (targetMonthAmountController.text.isNotEmpty && targetDayAmountController.text.isNotEmpty) {
                         setState(() {
                           targetDayAmount = double.parse(targetDayAmountController.text);
@@ -241,7 +252,7 @@ class _CostPageState extends State<CostPage> {
                         // 食費によってmaxを変える
                         minY: 0,
                         // プラス100を区切りよく。一回100で割って小数点を消してまた100をかけてキリよく
-                        maxY: double.parse(((allTotalAmount + 100) / 100).toStringAsFixed(0)) * 100,
+                        maxY: double.parse(((maxDayAmount + 100) / 100).toStringAsFixed(0)) * 100,
                         lineBarsData: [
                           LineChartBarData(
                               spots: flSpots,
@@ -294,7 +305,11 @@ class _CostPageState extends State<CostPage> {
                       ],
                     ),
                   ),
-                  WidgetUtils.menuListTile(menus, null),
+                  // TODO:メニューいるかな？
+                  SizedBox(
+                    height: MediaQuery.sizeOf(context).height * 0.4,
+                      child: WidgetUtils.menuListTile(menus, null)
+                  ),
                 ],
               )
             ],

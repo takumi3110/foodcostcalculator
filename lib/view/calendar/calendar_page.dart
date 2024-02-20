@@ -200,7 +200,7 @@ class _CalendarPageState extends State<CalendarPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => const CreateMenuPage()));
+          Navigator.push(context, MaterialPageRoute(builder: (context) => CreateMenuPage(selectedDay: _selectedDay,)));
         },
         child: const Icon(Icons.add_outlined),
       ),

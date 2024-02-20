@@ -13,19 +13,48 @@ class MenuFirestore {
       var result = await menus.add({
         'name': newMenu.name,
         'user_id': newMenu.userId,
-        'image_path': newMenu.imagePath,
+        // 'image_path': newMenu.imagePath,
         'total_amount': newMenu.totalAmount,
-        'created_time': Timestamp.now()
+        'created_time': newMenu.createdTime
       });
       await userMenus.doc(result.id).set({
         'menu_id': result.id,
-        'created_time': Timestamp.now()
+        'created_time': newMenu.createdTime
       });
       print('メニュー登録完了');
       return result.id;
     } on FirebaseException catch(e) {
       print('メニュー登録エラー: $e');
       return null;
+    }
+  }
+
+  static Future<dynamic> setMenu(Menu newMenu) async {
+    try {
+      await menus.doc(newMenu.id).set({
+        'name': newMenu.name,
+        'user_id': newMenu.userId,
+        'image_path': newMenu.imagePath,
+        'total_amount': newMenu.totalAmount,
+      });
+      print('メニュー更新完了');
+      return true;
+    } on FirebaseException catch (e) {
+      print('メニュー更新エラー: $e');
+      return false;
+    }
+  }
+
+  static Future<dynamic> updateMenuImage(String menuId, String imagePath) async {
+    try {
+      await menus.doc(menuId).update({
+        'image_path': imagePath
+      });
+      print('メニュー画像登録完了');
+      return true;
+    } on FirebaseException catch (e) {
+      print('メニュー画像登録エラー: $e');
+      return false;
     }
   }
 

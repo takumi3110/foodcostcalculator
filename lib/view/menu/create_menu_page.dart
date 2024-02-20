@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -15,7 +14,8 @@ import 'package:foodcost/utils/widget_utils.dart';
 import 'package:intl/intl.dart';
 
 class CreateMenuPage extends StatefulWidget {
-  const CreateMenuPage({super.key});
+  final DateTime? selectedDay;
+  const CreateMenuPage({super.key, this.selectedDay});
 
   @override
   State<CreateMenuPage> createState() => _CreateMenuPageState();
@@ -40,6 +40,7 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
   int allPrice = 0;
   bool _isLoading = false;
   final formatter = NumberFormat('#,###');
+  final dateFormatter = DateFormat('yyyy-MM-dd');
 
   static List<Count> menuItemValues = [
     Count(name: '全部', count: 1.0),
@@ -54,36 +55,47 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
     Count(name: '1/10', count: 0.01)
   ];
 
+  late DateTime _selectedDay;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.selectedDay != null) {
+      _selectedDay = widget.selectedDay!;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          '食費計算',
+          'メニュー登録',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
+        // title: Text(Timestamp.now().toDate().toString()),
         // backgroundColor: ,
         elevation: 1,
         actions: [
           ElevatedButton(
             onPressed: () async{
-              setState(() {
-                _isLoading = true;
-              });
               if (menuController.text.isNotEmpty) {
-                String imagePath = '';
-                if (image != null) {
-                  imagePath = await FunctionUtils.uploadImage(Authentication.myAccount!.id, image!);
-                }
+                setState(() {
+                  _isLoading = true;
+                });
                 Menu newMenu = Menu(
                   name: menuController.text,
                   userId: Authentication.myAccount!.id,
-                  imagePath: imagePath,
                   totalAmount: allPrice,
-                  createdTime: Timestamp.now()
+                  createdTime: Timestamp.fromDate(_selectedDay)
                 );
                 var result = await MenuFirestore.addMenu(newMenu);
                 if (result != null) {
+                //   imageあれば登録
+                  if (image != null) {
+                    String imagePath = await FunctionUtils.uploadImage(result, image!);
+                    await MenuFirestore.updateMenuImage(result, imagePath);
+                  }
                 // food登録
                   List<Food> newFoods = [];
                   for (var food in foodControllers) {
@@ -112,12 +124,12 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
                       const SnackBar(content: Text('登録に失敗しました。'))
                   );
                 }
+                setState(() {
+                  _isLoading = false;
+                });
               } else {
                 null;
               }
-              setState(() {
-                _isLoading = false;
-              });
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
             child: const Text(
@@ -136,10 +148,12 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  const SizedBox(height: 10,),
+                  Text(dateFormatter.format(_selectedDay).toString(), style: const TextStyle(fontSize: 18),),
                   Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 10.0),
+                    padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         GestureDetector(
                           onTap: () async{
@@ -156,12 +170,22 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
                             child: const Icon(Icons.add_a_photo_outlined),
                           ),
                         ),
-                        const SizedBox(width: 10.0,),
+                        // const SizedBox(width: 10.0,),
                         SizedBox(
-                          width: 250,
-                          child: TextField(
-                            controller: menuController,
-                            decoration: const InputDecoration(hintText: 'メニュー名'),
+                          width: 220,
+                          child: Column(
+                            children: [
+                              TextField(
+                                controller: menuController,
+                                decoration: const InputDecoration(hintText: 'メニュー名'),
+                              ),
+                              // TextField(
+                              //   keyboardType: TextInputType.number,
+                              //   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                              //   decoration: const InputDecoration(hintText: '日付'),
+                              // )
+
+                            ],
                           ),
                         ),
                       ],

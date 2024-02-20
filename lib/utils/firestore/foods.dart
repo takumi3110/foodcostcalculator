@@ -15,7 +15,8 @@ class FoodFirestore {
           'name': newFood.name,
           'unit_price': newFood.unitPrice,
           'cost_count': newFood.costCount,
-          'price': newFood.price
+          'price': newFood.price,
+          'menu_id': newFood.menuId
         });
         menu.doc(result.id).set({
           'food_id': result.id,

@@ -9,12 +9,12 @@ class FunctionUtils {
     return pickedFile;
   }
 
-  static Future<dynamic> uploadImage(String uid, File image) async {
+  static Future<dynamic> uploadImage(String id, File image) async {
     try {
       final FirebaseStorage storageInstance = FirebaseStorage.instance;
       final Reference ref = storageInstance.ref();
-      await ref.child(uid).putFile(image);
-      String downloadUrl = await storageInstance.ref(uid).getDownloadURL();
+      await ref.child(id).putFile(image);
+      String downloadUrl = await storageInstance.ref(id).getDownloadURL();
       return downloadUrl;
     } on FirebaseException catch (e) {
       print(e);
