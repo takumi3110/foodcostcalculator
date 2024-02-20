@@ -1,10 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:foodcost/model/Account.dart';
-import 'package:foodcost/model/menu.dart';
-import 'package:foodcost/presentation/resources/app_colors.dart';
+import 'package:foodcost/model/account.dart';
 import 'package:foodcost/utils/authentication.dart';
 import 'package:foodcost/view/account/account_page.dart';
 import 'package:foodcost/view/calendar/calendar_page.dart';

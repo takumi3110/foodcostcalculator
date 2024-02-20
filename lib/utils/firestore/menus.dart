@@ -8,7 +8,7 @@ class MenuFirestore {
 
   static Future<dynamic> addMenu(Menu newMenu) async {
     try {
-      final CollectionReference userPosts = _firestoreInstance.collection('users')
+      final CollectionReference userMenus = _firestoreInstance.collection('users')
           .doc(newMenu.userId).collection('my_menus');
       var result = await menus.add({
         'name': newMenu.name,
@@ -17,7 +17,7 @@ class MenuFirestore {
         'total_amount': newMenu.totalAmount,
         'created_time': Timestamp.now()
       });
-      userPosts.doc(result.id).set({
+      await userMenus.doc(result.id).set({
         'menu_id': result.id,
         'created_time': Timestamp.now()
       });
@@ -37,6 +37,7 @@ class MenuFirestore {
       var snapshot = await menus.where('user_id', isEqualTo: accountId).get();
       snapshot.docs.forEach((doc) {
         Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+        // 今の月と同じものを取得
         if (currentMonth == data['created_time'].toDate().month) {
           Menu menu = Menu(
               name: data['name'],

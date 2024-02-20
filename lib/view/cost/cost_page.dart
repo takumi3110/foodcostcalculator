@@ -1,10 +1,13 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:foodcost/model/Account.dart';
+import 'package:flutter/services.dart';
+import 'package:foodcost/model/account.dart';
+import 'package:foodcost/model/target.dart';
 import 'package:foodcost/presentation/resources/app_colors.dart';
 import 'package:foodcost/utils/authentication.dart';
 import 'package:foodcost/utils/chart_utils.dart';
 import 'package:foodcost/utils/firestore/menus.dart';
+import 'package:foodcost/utils/firestore/target.dart';
 import 'package:foodcost/utils/widget_utils.dart';
 import 'package:intl/intl.dart';
 
@@ -19,11 +22,14 @@ class _CostPageState extends State<CostPage> {
   Account myAccount = Authentication.myAccount!;
   List menus = [];
   List<Color> gradientColors = [
-    AppColors.contentColorGreen,
+    AppColors.contentColorCyan,
     AppColors.contentColorBlue,
   ];
 
   // TODO: 1日の目標金額
+  double targetDayAmount = 0;
+  int targetMonthAmount = 0;
+
   // 当月の最終日を取得
   int currentMonthLastDay = 0;
   num allTotalAmount = 0;
@@ -31,7 +37,10 @@ class _CostPageState extends State<CostPage> {
   final formatter = NumberFormat('#,###');
   final cutOfYValue = 300.0;
 
-  void getMenus() async {
+  TextEditingController targetDayAmountController = TextEditingController();
+  TextEditingController targetMonthAmountController = TextEditingController();
+
+  void createSpots() async {
     final results = await MenuFirestore.getMenus(myAccount.id);
     if (results != null) {
       setState(() {
@@ -57,14 +66,91 @@ class _CostPageState extends State<CostPage> {
     }
   }
 
+  void getTarget() async {
+    final result = await TargetFirestore.getTargets(myAccount.id);
+    if (result != null) {
+      setState(() {
+        targetDayAmountController.text = result.dayAmount.toString();
+        targetMonthAmountController.text = result.monthAmount.toString();
+        targetDayAmount = result.dayAmount.toDouble();
+        targetMonthAmount = result.monthAmount;
+      });
+    }
+  }
+
   @override
   void initState() {
     super.initState();
-    getMenus();
+    createSpots();
+    getTarget();
   }
 
   @override
   Widget build(BuildContext context) {
+    final double deviceHeight = MediaQuery.of(context).size.height;
+    void showTargetDialog() async {
+      await showDialog(
+          context: context,
+          builder: (_) {
+            return AlertDialog(
+              title: const Text('目標金額の設定'),
+              actions: [
+                ElevatedButton(
+                    onPressed: () async {
+                      // TODO: 保存どうするか
+                      if (targetMonthAmountController.text.isNotEmpty && targetDayAmountController.text.isNotEmpty) {
+                        setState(() {
+                          targetDayAmount = double.parse(targetDayAmountController.text);
+                          targetMonthAmount = int.parse(targetMonthAmountController.text);
+                        });
+                        Target newTarget = Target(
+                            monthAmount: int.parse(targetMonthAmountController.text),
+                            dayAmount: int.parse(targetDayAmountController.text),
+                            userId: myAccount.id
+                        );
+                        var result = await TargetFirestore.addTarget(newTarget);
+                        if (result == true) {
+                          Navigator.pop(context);
+                        }
+                      }
+                    },
+                    child: const Text('保存')),
+                ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: const Text('キャンセル'))
+              ],
+              content: SizedBox(
+                height: deviceHeight * 0.2,
+                child: Column(
+                  children: [
+                    TextField(
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      controller: targetDayAmountController,
+                      decoration: const InputDecoration(labelText: '1日の金額', suffix: Text('円')),
+                      onChanged: (String value) {
+                        if (value.isNotEmpty) {
+                          setState(() {
+                            targetMonthAmountController.text = (int.parse(value) * currentMonthLastDay).toString();
+                          });
+                        }
+                      },
+                    ),
+                    TextField(
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      controller: targetMonthAmountController,
+                      decoration: const InputDecoration(labelText: '今月', suffix: Text('円')),
+                    )
+                  ],
+                ),
+              ),
+            );
+          });
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('今月の食費'),
@@ -73,17 +159,15 @@ class _CostPageState extends State<CostPage> {
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              ElevatedButton(onPressed: showTargetDialog, child: const Text('目標金額を設定')),
               Stack(children: [
                 AspectRatio(
                   // 表示してるグラフ全体のサイズ
                   aspectRatio: 1.7,
                   child: Padding(
-                    padding: const EdgeInsets.only(
-                        right: 18,
-                        // left: 12,
-                        top: 20,
-                        bottom: 12),
+                    padding: const EdgeInsets.only(right: 18, left: 10, top: 20, bottom: 12),
                     // child: LineChart(ChartUtils.chartMainData(flSpots)),
                     child: LineChart(LineChartData(
                         lineTouchData: LineTouchData(
@@ -151,10 +235,10 @@ class _CostPageState extends State<CostPage> {
                           ),
                         ),
                         borderData: FlBorderData(show: true, border: Border.all(color: const Color(0xff37433d))),
-                        // TODO: 日付によって変える
+                        // 日付によって変える
                         minX: 1,
                         maxX: currentMonthLastDay.toDouble(),
-                        //   TODO:　食費によってmaxを変える
+                        // 食費によってmaxを変える
                         minY: 0,
                         // プラス100を区切りよく。一回100で割って小数点を消してまた100をかけてキリよく
                         maxY: double.parse(((allTotalAmount + 100) / 100).toStringAsFixed(0)) * 100,
@@ -171,7 +255,7 @@ class _CostPageState extends State<CostPage> {
                               dotData: const FlDotData(show: false),
                               belowBarData: BarAreaData(
                                   show: true,
-                                  cutOffY: cutOfYValue,
+                                  cutOffY: targetDayAmount,
                                   applyCutOffY: true,
                                   // gradient: LinearGradient(
                                   //   colors: gradientColors.map((color) => color.withOpacity(0.2)).toList()
@@ -182,7 +266,7 @@ class _CostPageState extends State<CostPage> {
                                   gradient: LinearGradient(
                                       colors: gradientColors.map((color) => color.withOpacity(0.2)).toList()),
                                   // color: AppColors.contentColorGreen.withOpacity(0.7),
-                                  cutOffY: cutOfYValue,
+                                  cutOffY: targetDayAmount,
                                   applyCutOffY: true))
                         ])),
                   ),
@@ -193,9 +277,21 @@ class _CostPageState extends State<CostPage> {
                   Container(
                     alignment: Alignment.center,
                     padding: const EdgeInsets.symmetric(horizontal: 5.0),
-                    child: Text(
-                      '合計金額: ${formatter.format(allTotalAmount)} 円',
-                      style: const TextStyle(fontSize: 20.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          '合計金額: ${formatter.format(allTotalAmount)} 円',
+                          style: const TextStyle(fontSize: 20.0),
+                        ),
+                        const SizedBox(
+                          width: 10.0,
+                        ),
+                        Text(
+                          '今月はあと${formatter.format(targetMonthAmount - allTotalAmount)}円',
+                          style: const TextStyle(color: Colors.red),
+                        )
+                      ],
                     ),
                   ),
                   WidgetUtils.menuListTile(menus, null),

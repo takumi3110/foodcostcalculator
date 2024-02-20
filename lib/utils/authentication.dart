@@ -1,5 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:foodcost/model/Account.dart';
+import 'package:foodcost/model/account.dart';
 import 'package:foodcost/utils/functionUtils.dart';
 
 class Authentication {

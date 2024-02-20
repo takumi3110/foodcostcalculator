@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:foodcost/model/Account.dart';
+import 'package:foodcost/model/account.dart';
 import 'package:foodcost/utils/authentication.dart';
 import 'package:foodcost/utils/firestore/users.dart';
 import 'package:foodcost/utils/functionUtils.dart';

@@ -63,7 +63,7 @@ class _EditMenuPageState extends State<EditMenuPage> {
                       color: Colors.orange, width: 3
                     ))
                   ),
-                  child: Text('材料'),
+                  child: const Text('材料'),
                 ),
                 Expanded(child: StreamBuilder<QuerySnapshot>(
                     stream: MenuFirestore.menus
