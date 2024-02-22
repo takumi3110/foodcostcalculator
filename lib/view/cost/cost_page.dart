@@ -222,183 +222,185 @@ class _CostPageTrialState extends State<CostPageTrial> {
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              ElevatedButton(onPressed: showTargetDialog, child: const Text('目標金額を設定')),
-              AspectRatio(
-                aspectRatio: 1.66,
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 16, left: 12, right: 12),
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      // final barsSpace = 8.0 * constraints.maxWidth / 400;
-                      final barsSpace = 5.0 * constraints.maxWidth / 100;
-                      // final barsSpace = 15.0;
-                      final barsWidth = 9.0 * constraints.maxWidth / 100;
-                      return BarChart(
-                        BarChartData(
-                          alignment: BarChartAlignment.center,
-                          barTouchData: BarTouchData(
-                              enabled: true,
-                              touchTooltipData: BarTouchTooltipData(
-                                  maxContentWidth: 100,
-                                  tooltipBgColor: Colors.orangeAccent,
-                                  getTooltipItem: (group, groupIndex, rod, rodIndex) {
-                                    return BarTooltipItem(
-                                      '${group.x}日 ',
-                                      const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 12,
-                                      ),
-                                      children: <TextSpan>[
-                                        TextSpan(
-                                          // text: (rod.toY - 1).toString(),
-                                          text: '${(rod.toY.toStringAsFixed(0)).toString()}円',
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold,
-                                          ),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                ElevatedButton(onPressed: showTargetDialog, child: const Text('目標金額を設定')),
+                AspectRatio(
+                  aspectRatio: 1.66,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 16, left: 12, right: 12),
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        // final barsSpace = 8.0 * constraints.maxWidth / 400;
+                        final barsSpace = 5.0 * constraints.maxWidth / 100;
+                        // final barsSpace = 15.0;
+                        final barsWidth = 9.0 * constraints.maxWidth / 100;
+                        return BarChart(
+                          BarChartData(
+                            alignment: BarChartAlignment.center,
+                            barTouchData: BarTouchData(
+                                enabled: true,
+                                touchTooltipData: BarTouchTooltipData(
+                                    maxContentWidth: 100,
+                                    tooltipBgColor: Colors.orangeAccent,
+                                    getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                                      return BarTooltipItem(
+                                        '${group.x}日 ',
+                                        const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 12,
                                         ),
-                                      ],
-                                    );
-                                  })),
-                          titlesData: FlTitlesData(
-                            show: true,
-                            bottomTitles: AxisTitles(
-                              sideTitles: SideTitles(
-                                showTitles: true,
-                                reservedSize: 28,
-                                getTitlesWidget: bottomTitleWidgets,
+                                        children: <TextSpan>[
+                                          TextSpan(
+                                            // text: (rod.toY - 1).toString(),
+                                            text: '${(rod.toY.toStringAsFixed(0)).toString()}円',
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      );
+                                    })),
+                            titlesData: FlTitlesData(
+                              show: true,
+                              bottomTitles: AxisTitles(
+                                sideTitles: SideTitles(
+                                  showTitles: true,
+                                  reservedSize: 28,
+                                  getTitlesWidget: bottomTitleWidgets,
+                                ),
+                              ),
+                              leftTitles: const AxisTitles(
+                                sideTitles: SideTitles(
+                                  showTitles: true,
+                                  reservedSize: 40,
+                                  getTitlesWidget: ChartUtils.leftTitleWidgets,
+                                ),
+                              ),
+                              topTitles: const AxisTitles(
+                                sideTitles: SideTitles(showTitles: false),
+                              ),
+                              rightTitles: const AxisTitles(
+                                sideTitles: SideTitles(showTitles: false),
                               ),
                             ),
-                            leftTitles: const AxisTitles(
-                              sideTitles: SideTitles(
-                                showTitles: true,
-                                reservedSize: 40,
-                                getTitlesWidget: ChartUtils.leftTitleWidgets,
-                              ),
+                            gridData: FlGridData(
+                              show: true,
+                              horizontalInterval: 1,
+                              checkToShowHorizontalLine: (value) => value == targetDayAmount,
+                              // getDrawingHorizontalLine: (value) => FlLine(
+                              //   color: AppColors.borderColor.withOpacity(0.1),
+                              //   strokeWidth: 1,
+                              // ),
+                              drawVerticalLine: false,
                             ),
-                            topTitles: const AxisTitles(
-                              sideTitles: SideTitles(showTitles: false),
-                            ),
-                            rightTitles: const AxisTitles(
-                              sideTitles: SideTitles(showTitles: false),
-                            ),
-                          ),
-                          gridData: FlGridData(
-                            show: true,
-                            horizontalInterval: 1,
-                            checkToShowHorizontalLine: (value) => value == targetDayAmount,
-                            // getDrawingHorizontalLine: (value) => FlLine(
-                            //   color: AppColors.borderColor.withOpacity(0.1),
-                            //   strokeWidth: 1,
+                            // borderData: FlBorderData(
+                            //   show: true,
+                            //   border: Border.all(color: const Color(0xff78857e))
                             // ),
-                            drawVerticalLine: false,
+                            borderData: FlBorderData(show: false),
+                            groupsSpace: barsSpace,
+                            barGroups: getData(barsWidth, barsSpace),
+                            minY: 0,
+                            // プラス100を区切りよく。一回100で割って小数点を消してまた100をかけてキリよく
+                            maxY: double.parse(((maxDayAmount + 100) / 100).toStringAsFixed(0)) * 100,
                           ),
-                          // borderData: FlBorderData(
-                          //   show: true,
-                          //   border: Border.all(color: const Color(0xff78857e))
-                          // ),
-                          borderData: FlBorderData(show: false),
-                          groupsSpace: barsSpace,
-                          barGroups: getData(barsWidth, barsSpace),
-                          minY: 0,
-                          // プラス100を区切りよく。一回100で割って小数点を消してまた100をかけてキリよく
-                          maxY: double.parse(((maxDayAmount + 100) / 100).toStringAsFixed(0)) * 100,
-                        ),
-                      );
-                    },
+                        );
+                      },
+                    ),
                   ),
                 ),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  if (weekStartDay > 0)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    if (weekStartDay > 0)
+                      SizedBox(
+                        // width: 90,
+                        height: 40,
+                        child: TextButton(
+                            onPressed: () {
+                              // 週初めの日にちが1より大きくないと動作しないように
+                              if (weekStartDay > 0) {
+                                // 前週の月曜
+                                final prevWeekStartDay = weekStartDay - 7;
+                                setState(() {
+                                  // 前週の月曜が1より小さい場合
+                                  createDayList(prevWeekStartDay);
+                                  weekStartDay = prevWeekStartDay;
+                                });
+                              }
+                            },
+                            child: const Text('前週')),
+                      ),
+                    if (weekStartDay <= 0) const SizedBox(height: 40, width: 60,),
                     SizedBox(
                       // width: 90,
                       height: 40,
                       child: TextButton(
                           onPressed: () {
-                            // 週初めの日にちが1より大きくないと動作しないように
-                            if (weekStartDay > 0) {
-                              // 前週の月曜
-                              final prevWeekStartDay = weekStartDay - 7;
-                              setState(() {
-                                // 前週の月曜が1より小さい場合
-                                createDayList(prevWeekStartDay);
-                                weekStartDay = prevWeekStartDay;
-                              });
-                            }
+                          //   当日がある週に戻る
+                            setState(() {
+                              final monday = getCurrentMonday();
+                              createDayList(monday);
+                              weekStartDay = monday;
+                            });
                           },
-                          child: const Text('前週')),
+                          child: const Text('当日')),
                     ),
-                  if (weekStartDay <= 0) const SizedBox(height: 40, width: 60,),
-                  SizedBox(
-                    // width: 90,
-                    height: 40,
-                    child: TextButton(
-                        onPressed: () {
-                        //   当日がある週に戻る
-                          setState(() {
-                            final monday = getCurrentMonday();
-                            createDayList(monday);
-                            weekStartDay = monday;
-                          });
-                        },
-                        child: const Text('当日')),
-                  ),
-                  if (weekStartDay + 7 <= currentMonthLastDay)
+                    if (weekStartDay + 7 <= currentMonthLastDay)
+                      SizedBox(
+                          // width: 90,
+                          height: 40,
+                          child: TextButton(
+                              onPressed: () {
+                                final nextWeekStartDay = weekStartDay + 7;
+                                if (nextWeekStartDay <= currentMonthLastDay) {
+                                  setState(() {
+                                    createDayList(nextWeekStartDay);
+                                    weekStartDay = nextWeekStartDay;
+                                  });
+                                }
+                              },
+                              child: const Text('次週'))
+                      ),
+                    if (weekStartDay + 7 >= currentMonthLastDay)
+                      const SizedBox(height: 40, width: 60,),
+                  ],
+                ),
+                Column(
+                  children: [
+                    Container(
+                      alignment: Alignment.center,
+                      padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            '合計金額: ${formatter.format(allTotalAmount)} 円',
+                            style: const TextStyle(fontSize: 20.0),
+                          ),
+                          const SizedBox(
+                            width: 10.0,
+                          ),
+                          Text(
+                            '今月はあと${formatter.format(targetMonthAmount - allTotalAmount)}円',
+                            style: const TextStyle(color: Colors.red),
+                          )
+                        ],
+                      ),
+                    ),
+                    // TODO:メニューいるかな？
+                    // 金額高い日付順にリスト欲しいかも
                     SizedBox(
-                        // width: 90,
-                        height: 40,
-                        child: TextButton(
-                            onPressed: () {
-                              final nextWeekStartDay = weekStartDay + 7;
-                              if (nextWeekStartDay <= currentMonthLastDay) {
-                                setState(() {
-                                  createDayList(nextWeekStartDay);
-                                  weekStartDay = nextWeekStartDay;
-                                });
-                              }
-                            },
-                            child: const Text('次週'))
-                    ),
-                  if (weekStartDay + 7 >= currentMonthLastDay)
-                    const SizedBox(height: 40, width: 60,),
-                ],
-              ),
-              Column(
-                children: [
-                  Container(
-                    alignment: Alignment.center,
-                    padding: const EdgeInsets.symmetric(horizontal: 5.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          '合計金額: ${formatter.format(allTotalAmount)} 円',
-                          style: const TextStyle(fontSize: 20.0),
-                        ),
-                        const SizedBox(
-                          width: 10.0,
-                        ),
-                        Text(
-                          '今月はあと${formatter.format(targetMonthAmount - allTotalAmount)}円',
-                          style: const TextStyle(color: Colors.red),
-                        )
-                      ],
-                    ),
-                  ),
-                  // TODO:メニューいるかな？
-                  // 金額高い日付順にリスト欲しいかも
-                  SizedBox(
-                      height: MediaQuery.sizeOf(context).height * 0.4, child: WidgetUtils.menuListTile(menus, null)),
-                ],
-              )
-            ],
+                        height: MediaQuery.sizeOf(context).height * 0.4, child: WidgetUtils.menuListTile(menus, null)),
+                  ],
+                )
+              ],
+            ),
           ),
         ),
       ),
