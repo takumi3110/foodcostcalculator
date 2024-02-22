@@ -28,7 +28,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('新規登録')),
+      appBar: AppBar(title: const Text('新規登録'), elevation: 1,),
       body: Stack(children: [
         SingleChildScrollView(
           child: Container(

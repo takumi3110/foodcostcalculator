@@ -18,7 +18,7 @@ class WidgetUtils {
 
     return AppBar(
       backgroundColor: Colors.transparent,
-      elevation: 0,
+      elevation: 1,
       iconTheme: const IconThemeData(color: Colors.black),
       title: Text(
         title,

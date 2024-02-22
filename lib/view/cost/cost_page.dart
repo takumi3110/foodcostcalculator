@@ -217,6 +217,7 @@ class _CostPageTrialState extends State<CostPageTrial> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('今月の食費'),
+        elevation: 1,
       ),
       body: SafeArea(
         child: Padding(

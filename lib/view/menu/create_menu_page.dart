@@ -68,10 +68,10 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: const Text(
           'メニュー登録',
-          style: TextStyle(fontWeight: FontWeight.bold),
         ),
         // title: Text(Timestamp.now().toDate().toString()),
         // backgroundColor: ,
@@ -139,229 +139,232 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
           )
         ],
       ),
-      body: Stack(
-        children: [
-          Column(mainAxisAlignment: MainAxisAlignment.start, children: [
-          SingleChildScrollView(
-            child: SizedBox(
-              width: double.infinity,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const SizedBox(height: 10,),
-                  Text(dateFormatter.format(_selectedDay).toString(), style: const TextStyle(fontSize: 18),),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        GestureDetector(
-                          onTap: () async{
-                            var result = await FunctionUtils.getImageFromGallery();
-                            if (result != null) {
-                              setState(() {
-                                image = File(result.path);
-                              });
-                            }
-                          },
-                          child: CircleAvatar(
-                            foregroundImage: image == null ? null: FileImage(image!),
-                            radius: 40,
-                            child: const Icon(Icons.add_a_photo_outlined),
+      body: SafeArea(
+        child: Stack(
+          children: [
+            Column(mainAxisAlignment: MainAxisAlignment.start, children: [
+            SingleChildScrollView(
+              reverse: true,
+              child: SizedBox(
+                width: double.infinity,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const SizedBox(height: 10,),
+                    Text(dateFormatter.format(_selectedDay).toString(), style: const TextStyle(fontSize: 18),),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          GestureDetector(
+                            onTap: () async{
+                              var result = await FunctionUtils.getImageFromGallery();
+                              if (result != null) {
+                                setState(() {
+                                  image = File(result.path);
+                                });
+                              }
+                            },
+                            child: CircleAvatar(
+                              foregroundImage: image == null ? null: FileImage(image!),
+                              radius: 40,
+                              child: const Icon(Icons.add_a_photo_outlined),
+                            ),
                           ),
-                        ),
-                        // const SizedBox(width: 10.0,),
-                        SizedBox(
-                          width: 220,
-                          child: Column(
-                            children: [
-                              TextField(
-                                controller: menuController,
-                                decoration: const InputDecoration(hintText: 'メニュー名'),
-                              ),
-                              // TextField(
-                              //   keyboardType: TextInputType.number,
-                              //   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                              //   decoration: const InputDecoration(hintText: '日付'),
-                              // )
-
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    alignment: Alignment.center,
-                    width: double.infinity,
-                    decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: Colors.orange, width: 3))),
-                    child: const Text(
-                      '食材',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        const Text('合計金額'),
-                        const SizedBox(
-                          width: 20,
-                        ),
-                        Text(
-                          formatter.format(allPrice).toString(),
-                          style: const TextStyle(fontSize: 18),
-                        ),
-                        const Text('円')
-                      ],
-                    ),
-                  ),
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.5,
-                    child: ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: foodControllers.length,
-                      itemBuilder: (context, index) {
-                        return Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              IconButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      var price = foodControllers[index]['price'];
-                                      if (price != null && price.text.isNotEmpty) {
-                                        allPrice -= int.parse(price.text);
-                                      }
-                                    });
-                                    foodControllers.removeAt(index);
-                                  },
-                                  icon: const Icon(Icons.remove_circle_outline_outlined)),
-                              SizedBox(
-                                width: 110,
-                                child: TextField(
-                                  controller: foodControllers[index]['name'],
-                                  decoration: const InputDecoration(hintText: '名前'),
+                          // const SizedBox(width: 10.0,),
+                          SizedBox(
+                            width: 220,
+                            child: Column(
+                              children: [
+                                TextField(
+                                  controller: menuController,
+                                  decoration: const InputDecoration(hintText: 'メニュー名'),
                                 ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                                child: SizedBox(
-                                  width: 70,
-                                  child: TextField(
-                                    controller: foodControllers[index]['unitPrice'],
-                                    keyboardType: TextInputType.number,
-                                    decoration: const InputDecoration(hintText: '金額', suffix: Text('円')),
-                                    onChanged: (String value) {
+                                // TextField(
+                                //   keyboardType: TextInputType.number,
+                                //   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                                //   decoration: const InputDecoration(hintText: '日付'),
+                                // )
+
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      alignment: Alignment.center,
+                      width: double.infinity,
+                      decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: Colors.orange, width: 3))),
+                      child: const Text(
+                        '食材',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          const Text('合計金額'),
+                          const SizedBox(
+                            width: 20,
+                          ),
+                          Text(
+                            formatter.format(allPrice).toString(),
+                            style: const TextStyle(fontSize: 18),
+                          ),
+                          const Text('円')
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.5,
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: foodControllers.length,
+                        itemBuilder: (context, index) {
+                          return Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                IconButton(
+                                    onPressed: () {
                                       setState(() {
                                         var price = foodControllers[index]['price'];
-                                        if (value != '') {
-                                          var costCount = foodControllers[index]['costCount'];
-                                          if (costCount != null && costCount.text.isNotEmpty) {
-                                            var sumPrice = (int.parse(value) * double.parse(costCount.text)).round();
-                                            if (price != null) {
-                                              if (price.text.isNotEmpty) {
-                                                if (sumPrice != int.parse(price.text)) {
-                                                  allPrice += (sumPrice - int.parse(price.text));
-                                                }
-                                              } else {
-                                                allPrice += sumPrice;
-                                              }
-                                              foodControllers[index]['price']!.text = sumPrice.toString();
-                                              price.text = sumPrice.toString();
-                                            }
-                                          }
-                                        } else {
-                                          if (price != null && price.text.isNotEmpty) {
-                                            allPrice -= int.parse(price.text);
-                                          }
-                                          price!.text = '0';
+                                        if (price != null && price.text.isNotEmpty) {
+                                          allPrice -= int.parse(price.text);
                                         }
                                       });
+                                      foodControllers.removeAt(index);
                                     },
+                                    icon: const Icon(Icons.remove_circle_outline_outlined)),
+                                SizedBox(
+                                  width: 110,
+                                  child: TextField(
+                                    controller: foodControllers[index]['name'],
+                                    decoration: const InputDecoration(hintText: '名前'),
                                   ),
                                 ),
-                              ),
-                              SizedBox(
-                                width: 90,
-                                child: DropdownButtonFormField(
-                                    // decoration: const InputDecoration(labelText: '使った量', ),
-                                    decoration: const InputDecoration(hintText: '量'),
-                                    // value: _selected,
-                                    items: menuItemValues.map((value) {
-                                      return DropdownMenuItem(
-                                        value: value,
-                                        child: Text(value.name),
-                                      );
-                                    }).toList(),
-                                    onChanged: (Count? value) {
-                                      setState(() {
-                                        if (value != null) {
-                                          var costCount = foodControllers[index]['costCount'];
-                                          if (costCount != null) {
-                                            costCount.text = value.count.toString();
-                                          }
-                                          // foodControllers[index]['costCount']!.text = value.count.toString();
-                                          var unitPrice = foodControllers[index]['unitPrice'];
-                                          // sumPriceとfoodControllers[index]['price']が同じなら何もしない。
-                                          // 違ったらallPriceからfoodControllers[index]['price']を引いて、sumPriceを追加
-                                          if (unitPrice != null && unitPrice.text.isNotEmpty) {
-                                            var sumPrice = (value.count * int.parse(unitPrice.text)).round();
-                                            var price = foodControllers[index]['price'];
-                                            if (price != null) {
-                                              if (price.text.isNotEmpty) {
-                                                if (sumPrice != int.parse(price.text)) {
-                                                  // すでに登録されている時は差額を登録
-                                                  allPrice += (sumPrice - int.parse(price.text));
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                                  child: SizedBox(
+                                    width: 70,
+                                    child: TextField(
+                                      controller: foodControllers[index]['unitPrice'],
+                                      keyboardType: TextInputType.number,
+                                      decoration: const InputDecoration(hintText: '金額', suffix: Text('円')),
+                                      onChanged: (String value) {
+                                        setState(() {
+                                          var price = foodControllers[index]['price'];
+                                          if (value != '') {
+                                            var costCount = foodControllers[index]['costCount'];
+                                            if (costCount != null && costCount.text.isNotEmpty) {
+                                              var sumPrice = (int.parse(value) * double.parse(costCount.text)).round();
+                                              if (price != null) {
+                                                if (price.text.isNotEmpty) {
+                                                  if (sumPrice != int.parse(price.text)) {
+                                                    allPrice += (sumPrice - int.parse(price.text));
+                                                  }
+                                                } else {
+                                                  allPrice += sumPrice;
                                                 }
-                                              } else {
-                                                // priceに何も登録されてない場合
-                                                allPrice += sumPrice;
+                                                foodControllers[index]['price']!.text = sumPrice.toString();
+                                                price.text = sumPrice.toString();
                                               }
-                                              foodControllers[index]['price']!.text = sumPrice.toString();
+                                            }
+                                          } else {
+                                            if (price != null && price.text.isNotEmpty) {
+                                              allPrice -= int.parse(price.text);
+                                            }
+                                            price!.text = '0';
+                                          }
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 90,
+                                  child: DropdownButtonFormField(
+                                      // decoration: const InputDecoration(labelText: '使った量', ),
+                                      decoration: const InputDecoration(hintText: '量'),
+                                      // value: _selected,
+                                      items: menuItemValues.map((value) {
+                                        return DropdownMenuItem(
+                                          value: value,
+                                          child: Text(value.name),
+                                        );
+                                      }).toList(),
+                                      onChanged: (Count? value) {
+                                        setState(() {
+                                          if (value != null) {
+                                            var costCount = foodControllers[index]['costCount'];
+                                            if (costCount != null) {
+                                              costCount.text = value.count.toString();
+                                            }
+                                            // foodControllers[index]['costCount']!.text = value.count.toString();
+                                            var unitPrice = foodControllers[index]['unitPrice'];
+                                            // sumPriceとfoodControllers[index]['price']が同じなら何もしない。
+                                            // 違ったらallPriceからfoodControllers[index]['price']を引いて、sumPriceを追加
+                                            if (unitPrice != null && unitPrice.text.isNotEmpty) {
+                                              var sumPrice = (value.count * int.parse(unitPrice.text)).round();
+                                              var price = foodControllers[index]['price'];
+                                              if (price != null) {
+                                                if (price.text.isNotEmpty) {
+                                                  if (sumPrice != int.parse(price.text)) {
+                                                    // すでに登録されている時は差額を登録
+                                                    allPrice += (sumPrice - int.parse(price.text));
+                                                  }
+                                                } else {
+                                                  // priceに何も登録されてない場合
+                                                  allPrice += sumPrice;
+                                                }
+                                                foodControllers[index]['price']!.text = sumPrice.toString();
+                                              }
                                             }
                                           }
-                                        }
-                                      });
-                                    }),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
+                                        });
+                                      }),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 10,),
-          ElevatedButton.icon(
-              onPressed: () {
-                setState(() {
-                  foodControllers.add({
-                    'name': TextEditingController(),
-                    'unitPrice': TextEditingController(),
-                    'costCount': TextEditingController(),
-                    'price': TextEditingController(),
+            const SizedBox(height: 10,),
+            ElevatedButton.icon(
+                onPressed: () {
+                  setState(() {
+                    foodControllers.add({
+                      'name': TextEditingController(),
+                      'unitPrice': TextEditingController(),
+                      'costCount': TextEditingController(),
+                      'price': TextEditingController(),
+                    });
                   });
-                });
-              },
-              style: ElevatedButton.styleFrom(foregroundColor: Colors.black, backgroundColor: Colors.yellow),
-              icon: const Icon(Icons.add),
-              label: const Text('追加')),
-          const SizedBox(
-            width: 10,
-          ),
-        ]
-      ),
-          WidgetUtils.loadingStack(_isLoading)
-        ],
+                },
+                style: ElevatedButton.styleFrom(foregroundColor: Colors.black, backgroundColor: Colors.yellow),
+                icon: const Icon(Icons.add),
+                label: const Text('追加')),
+            const SizedBox(
+              width: 10,
+            ),
+          ]
+        ),
+            WidgetUtils.loadingStack(_isLoading)
+          ],
+        ),
       ),
     );
   }
