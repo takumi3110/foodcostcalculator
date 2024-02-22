@@ -5,6 +5,7 @@ import 'package:foodcost/utils/authentication.dart';
 import 'package:foodcost/view/account/account_page.dart';
 import 'package:foodcost/view/calendar/calendar_page.dart';
 import 'package:foodcost/view/cost/cost_page.dart';
+import 'package:foodcost/view/cost/cost_page.dart';
 import 'package:foodcost/view/start_up/login_page.dart';
 import 'package:intl/intl.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -83,7 +84,8 @@ class WidgetUtils {
                   ],
                 ),
                 onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const CostPage()));
+                  // Navigator.push(context, MaterialPageRoute(builder: (context) => const CostPage()));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const CostPageTrial()));
                 },
               ),
               ListTile(

@@ -2,29 +2,32 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:foodcost/model/account.dart';
+import 'package:foodcost/model/menu.dart';
 import 'package:foodcost/model/target.dart';
 import 'package:foodcost/presentation/resources/app_colors.dart';
 import 'package:foodcost/utils/authentication.dart';
+import 'package:foodcost/utils/calendar_utils.dart';
 import 'package:foodcost/utils/chart_utils.dart';
 import 'package:foodcost/utils/firestore/menus.dart';
 import 'package:foodcost/utils/firestore/target.dart';
 import 'package:foodcost/utils/widget_utils.dart';
 import 'package:intl/intl.dart';
 
-class CostPage extends StatefulWidget {
-  const CostPage({super.key});
+class CostPageTrial extends StatefulWidget {
+  const CostPageTrial({super.key});
 
   @override
-  State<CostPage> createState() => _CostPageState();
+  State<CostPageTrial> createState() => _CostPageTrialState();
 }
 
-class _CostPageState extends State<CostPage> {
+class _CostPageTrialState extends State<CostPageTrial> {
   Account myAccount = Authentication.myAccount!;
   List menus = [];
+
   // グラフの色
   List<Color> gradientColors = [
-    AppColors.contentColorCyan,
     AppColors.contentColorBlue,
+    AppColors.contentColorCyan,
   ];
 
   // 目標金額
@@ -33,42 +36,87 @@ class _CostPageState extends State<CostPage> {
   TextEditingController targetDayAmountController = TextEditingController();
   TextEditingController targetMonthAmountController = TextEditingController();
 
-  // 当月の最終日を取得
-  int currentMonthLastDay = 0;
+  // 週の初めの日
+  int weekStartDay = 1;
+
+  // 週のリスト
+  List<DateTime> dateList = [];
+
+  // 合計金額とその月の最高額
   num allTotalAmount = 0;
   num maxDayAmount = 0;
-  List<FlSpot> flSpots = [];
 
   // 金額の桁区切り
   final formatter = NumberFormat('#,###');
 
+  void createDayList(int startDay) {
+    // 引数dayが0より小さい時は1
+    final day = startDay > 0 ? startDay : 1;
+    // 1日のとき、1日が月曜じゃない場合
+    if (day == 1) {
+      // 先月の最終日
+      final prevMonthLastDate = DateTime(kToday.year, kToday.month, 0);
+      // 1日の曜日取得
+      final firstDate = DateTime(kToday.year, kToday.month, 1);
+      final weekDay = firstDate.weekday;
+      // 月曜じゃないとき
+      if (weekDay != 1) {
+        // 月曜までの差分　月曜は1
+        final differenceOfMonday = startDay - 1;
+        // 先月最終日から先月最終週の月曜を取得
+        final notEnoughDate = prevMonthLastDate.add(Duration(days: differenceOfMonday));
+        // final notEnoughDate = prevMonthLastDate.add(Duration(days: startDay));
+        final prevWeekLength = prevMonthLastDate.day - notEnoughDate.day;
+        // final List<int> prevDates = List.generate(prevWeekLength, (index) => index + 1 + notEnoughDate.day);
+        final List<DateTime> prevDates = List.generate(prevWeekLength,
+            (index) => DateTime(prevMonthLastDate.year, prevMonthLastDate.month, index + 1 + notEnoughDate.day));
+        //   当月1日から日曜日までの距離
+        final weekLength = 7 - weekDay;
+        //   日曜日までのリスト
+        // final List<int> dates = List.generate(weekLength + 1, (index) => index + 1);
+        final List<DateTime> dates =
+            List.generate(weekLength + 1, (index) => DateTime(kToday.year, kToday.month, index + 1));
+        prevDates.addAll(dates);
+        dateList = prevDates;
+        // weekList = prevDates.addAll(dates);
+      }
+    } else {
+      // 基本はこれ
+      // dateList = List.generate(7, (index) => index + day);
+      dateList = List.generate(7, (index) => DateTime(kToday.year, kToday.month, index + day));
+    }
+  }
+
+  static getCurrentMonday() {
+    // 当日がある1週間を取得
+    final weekDay = kToday.weekday;
+    final monday = kToday.add(Duration(days: int.parse('-$weekDay') + 1));
+    return monday.day;
+  }
+
   // グラフの数値を作成
-  void createSpots() async {
+  void createAmounts() async {
     final results = await MenuFirestore.getMenus(myAccount.id);
     if (results != null) {
       setState(() {
-        DateTime now = DateTime.now();
-        int lastDay = DateTime(now.year, (now.month + 1), 0).day;
-        currentMonthLastDay = lastDay;
-        List<FlSpot> spots = [];
         List<num> amounts = [];
         menus = results;
-        for (var i = 1; i <= lastDay; i++) {
+        // 当日がある1週間を取得
+        // final weekDay = kToday.weekday;
+        // final monday = kToday.add(Duration(days: int.parse('-$weekDay') + 1));
+        final monday = getCurrentMonday();
+        weekStartDay = monday;
+        createDayList(monday);
+        for (var i = 1; i <= currentMonthLastDay; i++) {
+          final filterMenu = results.where((result) => result.createdTime.toDate().day == i).toList();
           num totalAmount = 0;
-          results.forEach((result) {
-            DateTime createdTime = result.createdTime.toDate();
-            //
-            if (createdTime.day == i) {
-              totalAmount += result.totalAmount;
-              allTotalAmount += result.totalAmount;
-            }
+          filterMenu.forEach((Menu menu) {
+            totalAmount += menu.totalAmount as num;
+            allTotalAmount += menu.totalAmount as int;
           });
           // 日毎の合計金額をリストへ
           amounts.add(totalAmount);
-          // spotを追加
-          spots.add(FlSpot(i.toDouble(), totalAmount.toDouble()));
         }
-        flSpots = spots;
         // リスト化した日毎の合計金額を大きい順にソート
         amounts.sort((a, b) => b.compareTo(a));
         // 最大の金額を設定
@@ -93,7 +141,7 @@ class _CostPageState extends State<CostPage> {
   @override
   void initState() {
     super.initState();
-    createSpots();
+    createAmounts();
     getTarget();
   }
 
@@ -106,6 +154,7 @@ class _CostPageState extends State<CostPage> {
           builder: (_) {
             return AlertDialog(
               title: const Text('目標金額の設定'),
+              // backgroundColor: Colors.lime,
               actions: [
                 ElevatedButton(
                     onPressed: () async {
@@ -117,14 +166,17 @@ class _CostPageState extends State<CostPage> {
                         Target newTarget = Target(
                             monthAmount: int.parse(targetMonthAmountController.text),
                             dayAmount: int.parse(targetDayAmountController.text),
-                            userId: myAccount.id
-                        );
+                            userId: myAccount.id);
                         var result = await TargetFirestore.addTarget(newTarget);
                         if (result == true) {
                           Navigator.pop(context);
                         }
                       }
                     },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      foregroundColor: Colors.white,
+                    ),
                     child: const Text('保存')),
                 ElevatedButton(
                     onPressed: () {
@@ -173,116 +225,150 @@ class _CostPageState extends State<CostPage> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               ElevatedButton(onPressed: showTargetDialog, child: const Text('目標金額を設定')),
-              Stack(children: [
-                AspectRatio(
-                  // 表示してるグラフ全体のサイズ
-                  aspectRatio: 1.7,
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 18, left: 10, top: 20, bottom: 12),
-                    // child: LineChart(ChartUtils.chartMainData(flSpots)),
-                    child: LineChart(LineChartData(
-                        lineTouchData: LineTouchData(
-                            touchTooltipData: LineTouchTooltipData(
-                                maxContentWidth: 100,
-                                tooltipBgColor: Colors.black,
-                                getTooltipItems: (touchedSpots) {
-                                  return touchedSpots.map((LineBarSpot touchedSpot) {
-                                    final textStyle = TextStyle(
-                                      color: touchedSpot.bar.gradient?.colors[0] ?? touchedSpot.bar.color,
-                                      fontWeight: FontWeight.bold,
-                                      // fontSize: 24
+              AspectRatio(
+                aspectRatio: 1.66,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 16, left: 12, right: 12),
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      // final barsSpace = 8.0 * constraints.maxWidth / 400;
+                      final barsSpace = 5.0 * constraints.maxWidth / 100;
+                      // final barsSpace = 15.0;
+                      final barsWidth = 9.0 * constraints.maxWidth / 100;
+                      return BarChart(
+                        BarChartData(
+                          alignment: BarChartAlignment.center,
+                          barTouchData: BarTouchData(
+                              enabled: true,
+                              touchTooltipData: BarTouchTooltipData(
+                                  maxContentWidth: 100,
+                                  tooltipBgColor: Colors.orangeAccent,
+                                  getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                                    return BarTooltipItem(
+                                      '${group.x}日 ',
+                                      const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 12,
+                                      ),
+                                      children: <TextSpan>[
+                                        TextSpan(
+                                          // text: (rod.toY - 1).toString(),
+                                          text: '${(rod.toY.toStringAsFixed(0)).toString()}円',
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
                                     );
-                                    return LineTooltipItem(
-                                        '${touchedSpot.x.toStringAsFixed(0)}日, ${touchedSpot.y.toStringAsFixed(0)}円',
-                                        textStyle);
-                                  }).toList();
-                                }),
-                            handleBuiltInTouches: true,
-                            getTouchLineStart: (data, index) => 0),
-                        gridData: FlGridData(
-                          show: false,
-                          drawVerticalLine: true,
-                          horizontalInterval: 1.5,
-                          verticalInterval: 5,
-                          // checkToShowHorizontalLine: (value) {
-                          //   return value.toInt() == 0;
-                          // },
-                          // getDrawingHorizontalLine: (_) => FlLine(
-                          //   color: AppColors.contentColorBlue.withOpacity(1),
-                          //   dashArray: [0, 2],
-                          //   strokeWidth: 0.8
-                          // ),
-                          getDrawingHorizontalLine: (value) {
-                            return const FlLine(
-                              color: AppColors.mainGridLineColor,
-                              strokeWidth: 1,
-                            );
-                          },
-                          getDrawingVerticalLine: (value) {
-                            return const FlLine(
-                              color: AppColors.mainGridLineColor,
-                              strokeWidth: 1,
-                            );
-                          },
-                        ),
-                        titlesData: const FlTitlesData(
-                          show: true,
-                          rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                          topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                          bottomTitles: AxisTitles(
-                            sideTitles: SideTitles(
-                              showTitles: true,
-                              reservedSize: 30,
-                              interval: 8,
-                              getTitlesWidget: ChartUtils.bottomTitleWidgets,
+                                  })),
+                          titlesData: FlTitlesData(
+                            show: true,
+                            bottomTitles: AxisTitles(
+                              sideTitles: SideTitles(
+                                showTitles: true,
+                                reservedSize: 28,
+                                getTitlesWidget: bottomTitleWidgets,
+                              ),
+                            ),
+                            leftTitles: const AxisTitles(
+                              sideTitles: SideTitles(
+                                showTitles: true,
+                                reservedSize: 40,
+                                getTitlesWidget: ChartUtils.leftTitleWidgets,
+                              ),
+                            ),
+                            topTitles: const AxisTitles(
+                              sideTitles: SideTitles(showTitles: false),
+                            ),
+                            rightTitles: const AxisTitles(
+                              sideTitles: SideTitles(showTitles: false),
                             ),
                           ),
-                          leftTitles: AxisTitles(
-                            sideTitles: SideTitles(
-                                showTitles: true,
-                                interval: 100,
-                                getTitlesWidget: ChartUtils.leftTitleWidgets,
-                                reservedSize: 42),
+                          gridData: FlGridData(
+                            show: true,
+                            horizontalInterval: 1,
+                            checkToShowHorizontalLine: (value) => value == targetDayAmount,
+                            // getDrawingHorizontalLine: (value) => FlLine(
+                            //   color: AppColors.borderColor.withOpacity(0.1),
+                            //   strokeWidth: 1,
+                            // ),
+                            drawVerticalLine: false,
                           ),
+                          // borderData: FlBorderData(
+                          //   show: true,
+                          //   border: Border.all(color: const Color(0xff78857e))
+                          // ),
+                          borderData: FlBorderData(show: false),
+                          groupsSpace: barsSpace,
+                          barGroups: getData(barsWidth, barsSpace),
+                          minY: 0,
+                          // プラス100を区切りよく。一回100で割って小数点を消してまた100をかけてキリよく
+                          maxY: double.parse(((maxDayAmount + 100) / 100).toStringAsFixed(0)) * 100,
                         ),
-                        borderData: FlBorderData(show: true, border: Border.all(color: const Color(0xff37433d))),
-                        // 日付によって変える
-                        minX: 1,
-                        maxX: currentMonthLastDay.toDouble(),
-                        // 食費によってmaxを変える
-                        minY: 0,
-                        // プラス100を区切りよく。一回100で割って小数点を消してまた100をかけてキリよく
-                        maxY: double.parse(((maxDayAmount + 100) / 100).toStringAsFixed(0)) * 100,
-                        lineBarsData: [
-                          LineChartBarData(
-                              spots: flSpots,
-                              isCurved: true,
-                              // gradient: LinearGradient(
-                              //   colors: gradientColors,
-                              // ),
-                              color: Colors.deepOrangeAccent,
-                              barWidth: 2,
-                              isStrokeCapRound: true,
-                              dotData: const FlDotData(show: false),
-                              belowBarData: BarAreaData(
-                                  show: true,
-                                  cutOffY: targetDayAmount,
-                                  applyCutOffY: true,
-                                  // gradient: LinearGradient(
-                                  //   colors: gradientColors.map((color) => color.withOpacity(0.2)).toList()
-                                  // )
-                                  color: AppColors.contentColorRed.withOpacity(0.7)),
-                              aboveBarData: BarAreaData(
-                                  show: true,
-                                  gradient: LinearGradient(
-                                      colors: gradientColors.map((color) => color.withOpacity(0.2)).toList()),
-                                  // color: AppColors.contentColorGreen.withOpacity(0.7),
-                                  cutOffY: targetDayAmount,
-                                  applyCutOffY: true))
-                        ])),
+                      );
+                    },
                   ),
                 ),
-              ]),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  if (weekStartDay > 0)
+                    SizedBox(
+                      // width: 90,
+                      height: 40,
+                      child: TextButton(
+                          onPressed: () {
+                            // 週初めの日にちが1より大きくないと動作しないように
+                            if (weekStartDay > 0) {
+                              // 前週の月曜
+                              final prevWeekStartDay = weekStartDay - 7;
+                              setState(() {
+                                // 前週の月曜が1より小さい場合
+                                createDayList(prevWeekStartDay);
+                                weekStartDay = prevWeekStartDay;
+                              });
+                            }
+                          },
+                          child: const Text('前週')),
+                    ),
+                  if (weekStartDay <= 0) const SizedBox(height: 40, width: 60,),
+                  SizedBox(
+                    // width: 90,
+                    height: 40,
+                    child: TextButton(
+                        onPressed: () {
+                        //   当日がある週に戻る
+                          setState(() {
+                            final monday = getCurrentMonday();
+                            createDayList(monday);
+                            weekStartDay = monday;
+                          });
+                        },
+                        child: const Text('当日')),
+                  ),
+                  if (weekStartDay + 7 <= currentMonthLastDay)
+                    SizedBox(
+                        // width: 90,
+                        height: 40,
+                        child: TextButton(
+                            onPressed: () {
+                              final nextWeekStartDay = weekStartDay + 7;
+                              if (nextWeekStartDay <= currentMonthLastDay) {
+                                setState(() {
+                                  createDayList(nextWeekStartDay);
+                                  weekStartDay = nextWeekStartDay;
+                                });
+                              }
+                            },
+                            child: const Text('次週'))
+                    ),
+                  if (weekStartDay + 7 >= currentMonthLastDay)
+                    const SizedBox(height: 40, width: 60,),
+                ],
+              ),
               Column(
                 children: [
                   Container(
@@ -306,10 +392,9 @@ class _CostPageState extends State<CostPage> {
                     ),
                   ),
                   // TODO:メニューいるかな？
+                  // 金額高い日付順にリスト欲しいかも
                   SizedBox(
-                    height: MediaQuery.sizeOf(context).height * 0.4,
-                      child: WidgetUtils.menuListTile(menus, null)
-                  ),
+                      height: MediaQuery.sizeOf(context).height * 0.4, child: WidgetUtils.menuListTile(menus, null)),
                 ],
               )
             ],
@@ -317,5 +402,162 @@ class _CostPageState extends State<CostPage> {
         ),
       ),
     );
+  }
+
+  List<BarChartGroupData> getData(double barsWidth, double barsSpace) {
+    List<BarChartGroupData> barGroups = [];
+    for (var date in dateList) {
+      final filterMenus = menus.where((menu) => menu.createdTime.toDate().day == date.day).toList();
+      double dayAmount = 0;
+      for (var menu in filterMenus) {
+        dayAmount += menu.totalAmount;
+      }
+      BarChartRodData barRod;
+      if (targetDayAmount <= dayAmount) {
+        barRod = BarChartRodData(
+            // 1日の金額
+            toY: dayAmount,
+            // gradient: LinearGradient(
+            //     colors: gradientColors.map((color) => color.withOpacity(0.8)).toList()
+            // ),
+            color: AppColors.contentColorCyan,
+            width: barsWidth,
+            rodStackItems: [
+              // 1日の目標金額から1日の金額まで
+              BarChartRodStackItem(targetDayAmount, dayAmount, AppColors.contentColorRed)
+              // BarChartRodStackItem(200, dayAmount, AppColors.contentColorRed)
+            ],
+            borderRadius: BorderRadius.circular(8));
+      } else {
+        barRod = BarChartRodData(
+            // 1日の金額
+            toY: dayAmount,
+            width: barsWidth,
+            // gradient: LinearGradient(
+            //     colors: gradientColors.map((color) => color.withOpacity(0.7)).toList()
+            // ),
+            color: AppColors.contentColorCyan,
+            borderRadius: BorderRadius.circular(8));
+      }
+
+      barGroups.add(BarChartGroupData(
+        x: date.day,
+        barsSpace: barsSpace,
+        barRods: [barRod],
+      ));
+    }
+
+    return barGroups;
+  }
+
+  Widget bottomTitleWidgets(double value, TitleMeta meta) {
+    // 当日は太字、土日は色つける
+
+    // const today = DateTime.now();
+    //
+    // TextStyle style;
+    // switch (value.toInt()) {
+    //   case today:
+    //     style = const TextStyle(
+    //       color: Colors.deepOrangeAccent,
+    //       fontWeight: FontWeight.bold
+    //     );
+    //     break;
+    //   default:
+    //     style = const TextStyle(
+    //       color: Colors.black
+    //     );
+    // }
+    String text;
+    final weekday = dateList.indexWhere((date) => date.day == value.toInt());
+    switch (weekday + 1) {
+      case 1:
+        text = '${meta.formattedValue} 月';
+        break;
+      case 2:
+        text = '${meta.formattedValue} 火';
+        break;
+      case 3:
+        text = '${meta.formattedValue} 水';
+        break;
+      case 4:
+        text = '${meta.formattedValue} 木';
+        break;
+      case 5:
+        text = '${meta.formattedValue} 金';
+        break;
+      case 6:
+        text = '${meta.formattedValue} 土';
+        break;
+      case 7:
+        text = '${meta.formattedValue} 日';
+        break;
+      default:
+        text = meta.formattedValue;
+        break;
+    }
+
+
+    final isToday = dateList.any((date) => value.toInt() == date.day && date.day == kToday.day);
+    final isSaturday = dateList.any((date) => value.toInt() == date.day && date.weekday == 6);
+    final isSunday = dateList.any((date) => value.toInt() == date.day && date.weekday == 7);
+    // 当月じゃないものは灰色
+    final isCurrentMonth = dateList.any((date) => value.toInt() == date.day && date.month == kToday.month);
+
+    if (isToday) {
+      return SideTitleWidget(
+          axisSide: meta.axisSide,
+          child: Text(
+            text,
+            style: const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold, fontSize: 12),
+          ));
+    } else if (!isCurrentMonth) {
+      return SideTitleWidget(
+          axisSide: meta.axisSide,
+          child: Text(
+            text,
+            style: const TextStyle(
+              color: Colors.grey,
+                fontSize: 12
+            ),
+          ));
+    } else if (isSaturday) {
+      return SideTitleWidget(
+          axisSide: meta.axisSide,
+          child: Text(
+            text,
+            style: const TextStyle(color: Colors.blueAccent, fontWeight: FontWeight.bold, fontSize: 12),
+          ));
+    } else if (isSunday) {
+      return SideTitleWidget(
+          axisSide: meta.axisSide,
+          child: Text(
+            text,
+            style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 12),
+          ));
+    } else {
+      return SideTitleWidget(
+          axisSide: meta.axisSide,
+          child: Text(
+            text,
+            style: const TextStyle(
+              color: Colors.black,
+              fontSize: 12
+            ),
+          ));
+    }
+
+    // return SideTitleWidget(axisSide: meta.axisSide, child: text);
+    // return SideTitleWidget(
+    //     axisSide: meta.axisSide,
+    //     child: Column(
+    //       children: [
+    //         Text(
+    //           '${meta.formattedValue}日',
+    //           style: style,
+    //         ),
+    //       ],
+    //     )
+    // );
   }
 }

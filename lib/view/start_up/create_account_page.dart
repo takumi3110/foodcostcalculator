@@ -111,6 +111,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                           if (result is UserCredential) {
                             var _result = await createAccount(result.user!.uid);
                             if (_result == true) {
+                              // TODO: 戻ったらメールアドレスとパスワードに入力したものが反映されて欲しい
                               Navigator.pop(context);
                             }
                           }

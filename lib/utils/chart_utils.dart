@@ -1,22 +1,35 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:foodcost/presentation/resources/app_colors.dart';
+import 'package:foodcost/utils/calendar_utils.dart';
 
 class ChartUtils {
-
-
 
   static Widget bottomTitleWidgets(double value, TitleMeta meta) {
     // if (value % 1 != 0) {
     //   return Container();
     // }
 
-    const style = TextStyle(
-      color: AppColors.contentColorBlue,
-      // fontWeight: FontWeight.bold,
-    );
+    // const style = TextStyle(
+    //   // color: AppColors.contentColorBlue,
+    //   color: Colors.black,
+    //   fontWeight: FontWeight.bold,
+    // );
 
-    // TODO: 当月の日付を取得
+    // TODO: 当日は太字、土日は色つける
+    TextStyle style;
+    switch (value.toInt()) {
+      case 22:
+        style = const TextStyle(
+          color: AppColors.contentColorBlue,
+          fontWeight: FontWeight.bold,
+        );
+        break;
+      default:
+        style = const TextStyle(
+          color: Colors.black,
+        );
+    }
     // Widget text;
     // switch (value.toInt()) {
     //   case 0:
@@ -34,12 +47,14 @@ class ChartUtils {
     // }
 
     // return SideTitleWidget(axisSide: meta.axisSide, child: text);
-    return SideTitleWidget(axisSide: meta.axisSide, child: Text(meta.formattedValue, style: style,));
+    return SideTitleWidget(axisSide: meta.axisSide, child: Text('${meta.formattedValue}日', style: style,));
   }
 
   static Widget leftTitleWidgets(double value, TitleMeta meta) {
     const style = TextStyle(
-      fontWeight: FontWeight.bold,
+      // color: Colors.grey,
+      fontSize: 14
+      // fontWeight: FontWeight.bold,
       // fontSize: 15,
     );
 
@@ -194,3 +209,9 @@ class ChartUtils {
   // }
 
 }
+
+// 当月の最終日を取得
+final currentMonthLastDay = DateTime(kToday.year, kToday.month + 1, 0).day;
+
+
+
