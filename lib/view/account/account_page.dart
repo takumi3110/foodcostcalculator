@@ -24,7 +24,7 @@ class _AccountPageState extends State<AccountPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('マイページ', style: TextStyle(color: Colors.black),),
-        // elevation: 1,
+        elevation: 1,
       ),
       body: SafeArea(
         child: SingleChildScrollView(

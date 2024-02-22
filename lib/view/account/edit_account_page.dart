@@ -99,135 +99,137 @@ class _EditAccountPageState extends State<EditAccountPage> {
         // elevation: 1,
       ),
       body: SafeArea(
-        child: Stack(
-          children: [
-            SizedBox(
-              width: double.infinity,
-              child: Column(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.only(top: 8.0, right: 15.0),
-                    alignment: Alignment.centerRight,
-                    child: OutlinedButton(
-                        // onPressed: () {
-                          // UserFirestore.deleteUser(myAccount.id);
-                          // Authentication.deleteAuth();
-                          // while(Navigator.canPop(context)) {
-                          //   Navigator.pop(context);
-                          // }
-                          // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginPage()));
-                        // },
-                      onPressed: _showAlertDialog,
-                        style: OutlinedButton.styleFrom(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10)
+        child: SingleChildScrollView(
+          child: Stack(
+            children: [
+              SizedBox(
+                width: double.infinity,
+                child: Column(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.only(top: 8.0, right: 15.0),
+                      alignment: Alignment.centerRight,
+                      child: OutlinedButton(
+                          // onPressed: () {
+                            // UserFirestore.deleteUser(myAccount.id);
+                            // Authentication.deleteAuth();
+                            // while(Navigator.canPop(context)) {
+                            //   Navigator.pop(context);
+                            // }
+                            // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginPage()));
+                          // },
+                        onPressed: _showAlertDialog,
+                          style: OutlinedButton.styleFrom(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10)
+                            ),
+                            foregroundColor: Colors.red,
+                            side: const BorderSide(
+                              color: Colors.red,
+                              // width: 4
+                            )
                           ),
-                          foregroundColor: Colors.red,
-                          side: const BorderSide(
-                            color: Colors.red,
-                            // width: 4
-                          )
-                        ),
-                        child: const Text('削除', style: TextStyle(fontWeight: FontWeight.bold),)
+                          child: const Text('削除', style: TextStyle(fontWeight: FontWeight.bold),)
+                      ),
                     ),
-                  ),
-                  Container(
-                    width: double.infinity,
-                    height: 300,
-                    padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 20.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        GestureDetector(
-                          onTap: () async{
-                            var result = await FunctionUtils.getImageFromGallery();
-                            if (result != null) {
-                              setState(() {
-                                image = File(result.path);
-                              });
+                    Container(
+                      width: double.infinity,
+                      height: 300,
+                      padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 20.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          GestureDetector(
+                            onTap: () async{
+                              var result = await FunctionUtils.getImageFromGallery();
+                              if (result != null) {
+                                setState(() {
+                                  image = File(result.path);
+                                });
+                              }
+                            },
+                            child: CircleAvatar(
+                              radius:40,
+                              foregroundImage: getImage(),
+                              child: const Icon(Icons.add_a_photo_outlined, size: 30,),
+                            ),
+                          ),
+                          const SizedBox(height: 10.0,),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              const SizedBox(
+                                width: 60.0,
+                                child: Text('名前',
+                                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)
+                                ),
+                              ),
+                              const SizedBox(width: 30.0),
+                              SizedBox(
+                                width: 200,
+                                child: TextField(
+                                  controller: nameController,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 20.0,),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              const SizedBox(
+                                width: 60.0,
+                                child: Text('メール',
+                                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)
+                                ),
+                              ),
+                              const SizedBox(width: 30.0),
+                              SizedBox(
+                                width: 200,
+                                child: TextField(
+                                  controller: emailController,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 20.0,),
+                    ElevatedButton(
+                        onPressed: () async{
+                          setState(() {
+                            _isLoading = true;
+                          });
+                          if (nameController.text.isNotEmpty && emailController.text.isNotEmpty){
+                            String imagePath = '';
+                            if (image != null)  {
+                              var result = await FunctionUtils.uploadImage(myAccount.id, image!);
+                              imagePath = result;
                             }
-                          },
-                          child: CircleAvatar(
-                            radius:40,
-                            foregroundImage: getImage(),
-                            child: const Icon(Icons.add_a_photo_outlined, size: 30,),
-                          ),
-                        ),
-                        const SizedBox(height: 10.0,),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            const SizedBox(
-                              width: 60.0,
-                              child: Text('名前',
-                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)
-                              ),
-                            ),
-                            const SizedBox(width: 30.0),
-                            SizedBox(
-                              width: 200,
-                              child: TextField(
-                                controller: nameController,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 20.0,),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            const SizedBox(
-                              width: 60.0,
-                              child: Text('メール',
-                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)
-                              ),
-                            ),
-                            const SizedBox(width: 30.0),
-                            SizedBox(
-                              width: 200,
-                              child: TextField(
-                                controller: emailController,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 20.0,),
-                  ElevatedButton(
-                      onPressed: () async{
-                        setState(() {
-                          _isLoading = true;
-                        });
-                        if (nameController.text.isNotEmpty && emailController.text.isNotEmpty){
-                          String imagePath = '';
-                          if (image != null)  {
-                            var result = await FunctionUtils.uploadImage(myAccount.id, image!);
-                            imagePath = result;
+                            Account updateAccount = Account(
+                              id: myAccount.id,
+                              name: nameController.text,
+                              email: emailController.text,
+                              imagePath: imagePath
+                            );
+                            Authentication.myAccount = updateAccount;
+                            var result = await UserFirestore.updateUser(updateAccount);
+                            if (result == true) {
+                              Navigator.pop(context, true);
+                            }
                           }
-                          Account updateAccount = Account(
-                            id: myAccount.id,
-                            name: nameController.text,
-                            email: emailController.text,
-                            imagePath: imagePath
-                          );
-                          Authentication.myAccount = updateAccount;
-                          var result = await UserFirestore.updateUser(updateAccount);
-                          if (result == true) {
-                            Navigator.pop(context, true);
-                          }
-                        }
-                        setState(() {
-                          _isLoading = false;
-                        });
-                      },
-                      child: const Text('更新')),
-                ],
+                          setState(() {
+                            _isLoading = false;
+                          });
+                        },
+                        child: const Text('更新')),
+                  ],
+                ),
               ),
-            ),
-            WidgetUtils.loadingStack(_isLoading)
-          ]
+              WidgetUtils.loadingStack(_isLoading)
+            ]
+          ),
         ),
       ),
     );
