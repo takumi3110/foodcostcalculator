@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:foodcost/model/account.dart';
+import 'package:foodcost/model/menu.dart';
 import 'package:foodcost/utils/authentication.dart';
 import 'package:foodcost/view/account/account_page.dart';
 import 'package:foodcost/view/calendar/calendar_page.dart';
@@ -127,7 +128,7 @@ class WidgetUtils {
     );
   }
 
-  static Stack loadingStack(isLoading) {
+  static Stack loadingStack(bool isLoading) {
     return Stack(
       children: [
         if (isLoading)
@@ -143,60 +144,34 @@ class WidgetUtils {
     );
   }
 
-  static SingleChildScrollView menuListTile(menus, allTotalAmount) {
+  static ListView menuListTile(List<Menu> menus) {
     final formatter = NumberFormat('#,###');
 
-    return SingleChildScrollView(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          if (allTotalAmount != null)
-          Container(
-            alignment: Alignment.centerRight,
-            padding: const EdgeInsets.symmetric(horizontal: 5.0),
-            child: Text(
-              '合計金額: ${formatter.format(allTotalAmount)} 円',
-              style: const TextStyle(fontSize: 18.0),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0),
-            child: Column(
-              children: [
-                ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: menus.length,
-                    itemBuilder: (context, index) {
-                      // Map<String, dynamic> data = snapshot.data!.docs[index].data() as Map<String, dynamic>;
-                      return Column(
-                        children: [
-                          ListTile(
-                            onTap: () {},
-                            title: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(menus[index].name),
-                                Text('${formatter.format(menus[index].totalAmount)} 円')
-                              ],
-                            ),
-                          ),
-                          // if (index == getMenus.length) const Divider()
-                          const Divider(),
-                        ],
-                      );
-                    }),
-                if (allTotalAmount == null && menus.length > 6)
-                  Container(
-                      alignment: Alignment.centerRight,
-                      child: const Text('and more...')
-                  )
-      
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
+    return ListView.builder(
+        shrinkWrap: true,
+        itemCount: menus.length,
+        itemBuilder: (context, index) {
+          // Map<String, dynamic> data = snapshot.data!.docs[index].data() as Map<String, dynamic>;
+          return Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: ListTile(
+                  onTap: () {},
+                  title: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(menus[index].name),
+                      Text('${formatter.format(menus[index].totalAmount)} 円')
+                    ],
+                  ),
+                ),
+              ),
+              // if (index == getMenus.length) const Divider()
+              const Divider(),
+            ],
+          );
+        });
   }
 
 }
