@@ -10,7 +10,7 @@ import 'package:foodcost/utils/calendar_utils.dart';
 import 'package:foodcost/utils/chart_utils.dart';
 import 'package:foodcost/utils/firestore/menus.dart';
 import 'package:foodcost/utils/firestore/target.dart';
-import 'package:foodcost/utils/widget_utils.dart';
+import 'package:foodcost/view/calendar/calendar_page.dart';
 import 'package:intl/intl.dart';
 
 class CostPageTrial extends StatefulWidget {
@@ -22,7 +22,8 @@ class CostPageTrial extends StatefulWidget {
 
 class _CostPageTrialState extends State<CostPageTrial> {
   Account myAccount = Authentication.myAccount!;
-  List menus = [];
+  List<Menu> menus = [];
+  List<Map<String, dynamic>> menuRankings = [];
 
   // グラフの色
   List<Color> gradientColors = [
@@ -47,7 +48,10 @@ class _CostPageTrialState extends State<CostPageTrial> {
   num maxDayAmount = 0;
 
   // 金額の桁区切り
-  final formatter = NumberFormat('#,###');
+  final numberFormatter = NumberFormat('#,###');
+
+  // 日付のフォーマット
+  final dateFormatter = DateFormat('M月dd日');
 
   void createDayList(int startDay) {
     // 引数dayが0より小さい時は1
@@ -101,6 +105,8 @@ class _CostPageTrialState extends State<CostPageTrial> {
       setState(() {
         List<num> amounts = [];
         menus = results;
+        // List<Map<String, dynamic>> rankings = [];
+        // Map<String, int> ranking = {};
         // 当日がある1週間を取得
         // final weekDay = kToday.weekday;
         // final monday = kToday.add(Duration(days: int.parse('-$weekDay') + 1));
@@ -114,11 +120,19 @@ class _CostPageTrialState extends State<CostPageTrial> {
             totalAmount += menu.totalAmount as num;
             allTotalAmount += menu.totalAmount as int;
           });
+          // rankingを作成
+          menuRankings.add({
+            'dateTime': DateTime(kToday.year, kToday.month, i),
+            'totalAmount': totalAmount,
+          });
           // 日毎の合計金額をリストへ
           amounts.add(totalAmount);
         }
         // リスト化した日毎の合計金額を大きい順にソート
         amounts.sort((a, b) => b.compareTo(a));
+        // rankingを金額順にソート
+        menuRankings.sort((a, b) => b['totalAmount'].compareTo(a['totalAmount']));
+
         // 最大の金額を設定
         maxDayAmount = amounts[0];
       });
@@ -221,7 +235,7 @@ class _CostPageTrialState extends State<CostPageTrial> {
       ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.only(top: 8.0, left: 8.0, right: 8.0, bottom: 40.0),
           child: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -336,13 +350,17 @@ class _CostPageTrialState extends State<CostPageTrial> {
                             },
                             child: const Text('前週')),
                       ),
-                    if (weekStartDay <= 0) const SizedBox(height: 40, width: 60,),
+                    if (weekStartDay <= 0)
+                      const SizedBox(
+                        height: 40,
+                        width: 60,
+                      ),
                     SizedBox(
                       // width: 90,
                       height: 40,
                       child: TextButton(
                           onPressed: () {
-                          //   当日がある週に戻る
+                            //   当日がある週に戻る
                             setState(() {
                               final monday = getCurrentMonday();
                               createDayList(monday);
@@ -365,39 +383,109 @@ class _CostPageTrialState extends State<CostPageTrial> {
                                   });
                                 }
                               },
-                              child: const Text('次週'))
-                      ),
+                              child: const Text('次週'))),
                     if (weekStartDay + 7 >= currentMonthLastDay)
-                      const SizedBox(height: 40, width: 60,),
+                      const SizedBox(
+                        height: 40,
+                        width: 60,
+                      ),
                   ],
                 ),
-                Column(
-                  children: [
-                    Container(
-                      alignment: Alignment.center,
-                      padding: const EdgeInsets.symmetric(horizontal: 5.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            '合計金額: ${formatter.format(allTotalAmount)} 円',
-                            style: const TextStyle(fontSize: 20.0),
-                          ),
-                          const SizedBox(
-                            width: 10.0,
-                          ),
-                          Text(
-                            '今月はあと${formatter.format(targetMonthAmount - allTotalAmount)}円',
-                            style: const TextStyle(color: Colors.red),
-                          )
-                        ],
+                Padding(
+                  padding: const EdgeInsets.only(top: 10.0),
+                  child: Column(
+                    children: [
+                      Container(
+                        alignment: Alignment.center,
+                        padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              '合計金額: ${numberFormatter.format(allTotalAmount)} 円',
+                              style: const TextStyle(fontSize: 20.0),
+                            ),
+                            const SizedBox(
+                              width: 10.0,
+                            ),
+                            Text(
+                              '今月はあと${numberFormatter.format(targetMonthAmount - allTotalAmount)}円',
+                              style: const TextStyle(color: Colors.red),
+                            )
+                          ],
+                        ),
                       ),
-                    ),
-                    // TODO:メニューいるかな？
-                    // 金額高い日付順にリスト欲しいかも
-                    SizedBox(
-                        height: MediaQuery.sizeOf(context).height * 0.4, child: WidgetUtils.menuListTile(menus, null)),
-                  ],
+                      // 金額高い日付順にリスト欲しいかも
+                      ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: menuRankings.length > 6 ? 5 : menuRankings.length,
+                          itemBuilder: (context, index) {
+                            final dateTime = menuRankings[index]['dateTime'];
+                            final totalAmount = menuRankings[index]['totalAmount'];
+                            final isOver = totalAmount >= targetDayAmount;
+                            return Column(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 8.0),
+                                  child: ListTile(
+                                    onTap: () {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) => CalendarPage(
+                                                    selectedDay: dateTime,
+                                                  )));
+                                    },
+                                    title: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Row(
+                                          // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text((index + 1).toString()),
+                                            const SizedBox(
+                                              width: 30,
+                                            ),
+                                            Text(dateFormatter.format(dateTime)),
+                                          ],
+                                        ),
+                                        SizedBox(
+                                          width: 120,
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text('${numberFormatter.format(totalAmount)} 円'),
+                                              // const SizedBox(width: 10,),
+                                              Row(
+                                                mainAxisAlignment: MainAxisAlignment.end,
+                                                children: [
+                                                  Icon(
+                                                    isOver ? Icons.arrow_drop_up : Icons.arrow_drop_down,
+                                                    color: isOver ? Colors.red : Colors.blue,
+                                                  ),
+                                                  Text(
+                                                    numberFormatter.format(totalAmount - targetDayAmount),
+                                                    style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: isOver ? Colors.red : Colors.blue,
+                                                    ),
+                                                  )
+                                                ],
+                                              ),
+                                              // Text('${formatter.format(menuRankings[index]['diffAmount'])}')
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                const Divider(),
+                              ],
+                            );
+                          })
+                    ],
+                  ),
                 )
               ],
             ),
@@ -410,43 +498,35 @@ class _CostPageTrialState extends State<CostPageTrial> {
   List<BarChartGroupData> getData(double barsWidth, double barsSpace) {
     List<BarChartGroupData> barGroups = [];
     for (var date in dateList) {
-      final filterMenus = menus.where((menu) => menu.createdTime.toDate().day == date.day).toList();
+      final filterMenus =
+          menus.where((menu) => menu.createdTime != null && menu.createdTime!.toDate().day == date.day).toList();
       double dayAmount = 0;
       for (var menu in filterMenus) {
-        dayAmount += menu.totalAmount;
+        if (menu.totalAmount != null) {
+          dayAmount += menu.totalAmount!.toInt();
+        }
       }
-      BarChartRodData barRod;
+      List<BarChartRodStackItem> rodStackItems = [];
       if (targetDayAmount <= dayAmount) {
-        barRod = BarChartRodData(
-            // 1日の金額
-            toY: dayAmount,
-            // gradient: LinearGradient(
-            //     colors: gradientColors.map((color) => color.withOpacity(0.8)).toList()
-            // ),
-            color: AppColors.contentColorCyan,
-            width: barsWidth,
-            rodStackItems: [
-              // 1日の目標金額から1日の金額まで
-              BarChartRodStackItem(targetDayAmount, dayAmount, AppColors.contentColorRed)
-              // BarChartRodStackItem(200, dayAmount, AppColors.contentColorRed)
-            ],
-            borderRadius: BorderRadius.circular(8));
-      } else {
-        barRod = BarChartRodData(
-            // 1日の金額
-            toY: dayAmount,
-            width: barsWidth,
-            // gradient: LinearGradient(
-            //     colors: gradientColors.map((color) => color.withOpacity(0.7)).toList()
-            // ),
-            color: AppColors.contentColorCyan,
-            borderRadius: BorderRadius.circular(8));
+        // 1日の目標金額から1日の金額まで
+        rodStackItems.add(BarChartRodStackItem(targetDayAmount, dayAmount, AppColors.contentColorRed));
       }
 
       barGroups.add(BarChartGroupData(
         x: date.day,
         barsSpace: barsSpace,
-        barRods: [barRod],
+        barRods: [
+          BarChartRodData(
+              // 1日の金額
+              toY: dayAmount,
+              // gradient: LinearGradient(
+              //     colors: gradientColors.map((color) => color.withOpacity(0.8)).toList()
+              // ),
+              color: AppColors.contentColorCyan,
+              width: barsWidth,
+              rodStackItems: rodStackItems,
+              borderRadius: BorderRadius.circular(8))
+        ],
       ));
     }
 
@@ -455,22 +535,6 @@ class _CostPageTrialState extends State<CostPageTrial> {
 
   Widget bottomTitleWidgets(double value, TitleMeta meta) {
     // 当日は太字、土日は色つける
-
-    // const today = DateTime.now();
-    //
-    // TextStyle style;
-    // switch (value.toInt()) {
-    //   case today:
-    //     style = const TextStyle(
-    //       color: Colors.deepOrangeAccent,
-    //       fontWeight: FontWeight.bold
-    //     );
-    //     break;
-    //   default:
-    //     style = const TextStyle(
-    //       color: Colors.black
-    //     );
-    // }
     String text;
     final weekday = dateList.indexWhere((date) => date.day == value.toInt());
     switch (weekday + 1) {
@@ -500,67 +564,52 @@ class _CostPageTrialState extends State<CostPageTrial> {
         break;
     }
 
-
     final isToday = dateList.any((date) => value.toInt() == date.day && date.day == kToday.day);
     final isSaturday = dateList.any((date) => value.toInt() == date.day && date.weekday == 6);
     final isSunday = dateList.any((date) => value.toInt() == date.day && date.weekday == 7);
     // 当月じゃないものは灰色
     final isCurrentMonth = dateList.any((date) => value.toInt() == date.day && date.month == kToday.month);
 
-    if (isToday) {
+    // 当日ならオレンジの下線つける
+    BoxDecoration? boxDecoration =
+        isToday ? const BoxDecoration(border: Border(bottom: BorderSide(color: Colors.orangeAccent, width: 4))) : null;
+    if (!isCurrentMonth) {
       return SideTitleWidget(
           axisSide: meta.axisSide,
           child: Text(
             text,
-            style: const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold, fontSize: 12),
-          ));
-    } else if (!isCurrentMonth) {
-      return SideTitleWidget(
-          axisSide: meta.axisSide,
-          child: Text(
-            text,
-            style: const TextStyle(
-              color: Colors.grey,
-                fontSize: 12
-            ),
+            style: const TextStyle(color: Colors.grey, fontSize: 12),
           ));
     } else if (isSaturday) {
       return SideTitleWidget(
           axisSide: meta.axisSide,
-          child: Text(
-            text,
-            style: const TextStyle(color: Colors.blueAccent, fontWeight: FontWeight.bold, fontSize: 12),
+          child: Container(
+            decoration: boxDecoration,
+            child: Text(
+              text,
+              style: const TextStyle(color: Colors.blueAccent, fontWeight: FontWeight.bold, fontSize: 12),
+            ),
           ));
     } else if (isSunday) {
       return SideTitleWidget(
           axisSide: meta.axisSide,
-          child: Text(
-            text,
-            style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 12),
+          child: Container(
+            decoration: boxDecoration,
+            child: Text(
+              text,
+              style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 12),
+            ),
           ));
     } else {
       return SideTitleWidget(
           axisSide: meta.axisSide,
-          child: Text(
-            text,
-            style: const TextStyle(
-              color: Colors.black,
-              fontSize: 12
+          child: Container(
+            decoration: boxDecoration,
+            child: Text(
+              text,
+              style: const TextStyle(color: Colors.black, fontSize: 12),
             ),
           ));
     }
-
-    // return SideTitleWidget(axisSide: meta.axisSide, child: text);
-    // return SideTitleWidget(
-    //     axisSide: meta.axisSide,
-    //     child: Column(
-    //       children: [
-    //         Text(
-    //           '${meta.formattedValue}日',
-    //           style: style,
-    //         ),
-    //       ],
-    //     )
-    // );
   }
 }

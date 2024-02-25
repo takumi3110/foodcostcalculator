@@ -128,7 +128,7 @@ class _AccountPageState extends State<AccountPage> {
                             getMenus.add(getMenu);
                           }
 
-                          return WidgetUtils.menuListTile(getMenus, null);
+                          return WidgetUtils.menuListTile(getMenus);
                         } else {
                           return Container();
                         }

@@ -10,7 +10,8 @@ import 'package:foodcost/utils/widget_utils.dart';
 import 'package:foodcost/utils/calendar_utils.dart';
 
 class CalendarPage extends StatefulWidget {
-  const CalendarPage({super.key});
+  final DateTime? selectedDay;
+  const CalendarPage({super.key, this.selectedDay});
 
   @override
   State<CalendarPage> createState() => _CalendarPageState();
@@ -30,7 +31,11 @@ class _CalendarPageState extends State<CalendarPage> {
   @override
   void initState() {
     super.initState();
-    _selectedDay = _focusedDay;
+    if (widget.selectedDay != null) {
+      _selectedDay = widget.selectedDay;
+    } else {
+      _selectedDay = _focusedDay;
+    }
     _selectedEvents = ValueNotifier(_getEventsForDay(_selectedDay!));
   }
 
@@ -189,7 +194,21 @@ class _CalendarPageState extends State<CalendarPage> {
                                     allTotalAmount += data['total_amount'];
                                   }
                                 }
-                                return WidgetUtils.menuListTile(getMenus, allTotalAmount);
+                                // return WidgetUtils.menuListTile(getMenus, allTotalAmount);
+                                return Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    Container(
+                                      alignment: Alignment.centerRight,
+                                      padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                                      child: Text(
+                                        '合計金額: ${formatter.format(allTotalAmount)} 円',
+                                        style: const TextStyle(fontSize: 18.0),
+                                      ),
+                                    ),
+                                    WidgetUtils.menuListTile(getMenus)
+                                  ],
+                                );
                               } else {
                                 return Container();
                               }
