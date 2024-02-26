@@ -9,7 +9,7 @@ import 'package:foodcost/utils/authentication.dart';
 import 'package:foodcost/utils/calendar_utils.dart';
 import 'package:foodcost/utils/chart_utils.dart';
 import 'package:foodcost/utils/firestore/menus.dart';
-import 'package:foodcost/utils/firestore/target.dart';
+import 'package:foodcost/utils/firestore/targets.dart';
 import 'package:foodcost/view/calendar/calendar_page.dart';
 import 'package:intl/intl.dart';
 
@@ -32,6 +32,7 @@ class _CostPageTrialState extends State<CostPageTrial> {
   ];
 
   // 目標金額
+  String targetId = '';
   double targetDayAmount = 0;
   int targetMonthAmount = 0;
   TextEditingController targetDayAmountController = TextEditingController();
@@ -140,12 +141,13 @@ class _CostPageTrialState extends State<CostPageTrial> {
   }
 
   // 目標金額を取得
-  void getTarget() async {
-    final result = await TargetFirestore.getTargets(myAccount.id);
+  void getTargetAmounts() async {
+    final result = await TargetFirestore.getTarget(myAccount.id);
     if (result != null) {
       setState(() {
         targetDayAmountController.text = result.dayAmount.toString();
         targetMonthAmountController.text = result.monthAmount.toString();
+        targetId = result.id;
         targetDayAmount = result.dayAmount.toDouble();
         targetMonthAmount = result.monthAmount;
       });
@@ -156,7 +158,7 @@ class _CostPageTrialState extends State<CostPageTrial> {
   void initState() {
     super.initState();
     createAmounts();
-    getTarget();
+    getTargetAmounts();
   }
 
   @override
@@ -172,17 +174,35 @@ class _CostPageTrialState extends State<CostPageTrial> {
               actions: [
                 ElevatedButton(
                     onPressed: () async {
-                      if (targetMonthAmountController.text.isNotEmpty && targetDayAmountController.text.isNotEmpty) {
-                        setState(() {
-                          targetDayAmount = double.parse(targetDayAmountController.text);
-                          targetMonthAmount = int.parse(targetMonthAmountController.text);
-                        });
+                      if (
+                      targetMonthAmountController.text.isNotEmpty
+                          && targetDayAmountController.text.isNotEmpty
+                      && targetDayAmount != double.parse(targetDayAmountController.text)
+                      && targetMonthAmount != int.parse(targetMonthAmountController.text)
+                      ) {
                         Target newTarget = Target(
+                          id: targetId,
                             monthAmount: int.parse(targetMonthAmountController.text),
                             dayAmount: int.parse(targetDayAmountController.text),
                             userId: myAccount.id);
-                        var result = await TargetFirestore.addTarget(newTarget);
+                        // TODO: resultに代入?
+                        bool result = false;
+                        if (targetId.isNotEmpty) {
+                          result = await TargetFirestore.updateTarget(newTarget);
+                        } else {
+                          var getResult = await TargetFirestore.addTarget(newTarget);
+                          setState(() {
+                            if (getResult != null) {
+                              result = true;
+                              targetId = getResult.id;
+                            }
+                          });
+                        }
                         if (result == true) {
+                          setState(() {
+                            targetDayAmount = double.parse(targetDayAmountController.text);
+                            targetMonthAmount = int.parse(targetMonthAmountController.text);
+                          });
                           Navigator.pop(context);
                         }
                       }
