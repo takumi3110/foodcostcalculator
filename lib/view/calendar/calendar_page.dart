@@ -68,7 +68,6 @@ class _CalendarPageState extends State<CalendarPage> {
         // _rangeEnd = null;
         // _rangeSelectionMode = RangeSelectionMode.toggledOff;
       });
-
       _selectedEvents.value = _getEventsForDay(selectedDay);
     }
   }
@@ -105,7 +104,6 @@ class _CalendarPageState extends State<CalendarPage> {
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-            // TODO: メニューある時だけ印
             TableCalendar(
               locale: 'ja_JP',
               firstDay: kFirstDay,
