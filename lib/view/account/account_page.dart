@@ -124,6 +124,7 @@ class _AccountPageState extends State<AccountPage> {
                               totalAmount: data['total_amount'],
                               imagePath: data['image_path'],
                               createdTime: data['created_time'],
+                              foods: data['foods']
                             );
                             getMenus.add(getMenu);
                           }

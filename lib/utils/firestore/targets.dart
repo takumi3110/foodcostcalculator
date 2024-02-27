@@ -29,7 +29,11 @@ class TargetFirestore {
   static Future<dynamic> updateTarget(Target newTarget) async {
     try {
       await targets.doc(newTarget.id).update(
-          {'month_amount': newTarget.monthAmount, 'day_amount': newTarget.dayAmount, 'updated_time': Timestamp.now()});
+          {
+            'month_amount': newTarget.monthAmount,
+            'day_amount': newTarget.dayAmount,
+            'updated_time': Timestamp.now()
+          });
       print('目標金額更新完了');
       return true;
     } on FirebaseException catch (e) {

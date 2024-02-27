@@ -96,7 +96,7 @@ class _EditAccountPageState extends State<EditAccountPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('アカウント編集'),
-        // elevation: 1,
+        elevation: 1,
       ),
       body: SafeArea(
         child: SingleChildScrollView(

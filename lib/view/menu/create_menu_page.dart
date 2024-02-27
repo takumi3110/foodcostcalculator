@@ -1,14 +1,12 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:foodcost/model/food.dart';
 import 'package:foodcost/model/menu.dart';
 import 'package:foodcost/utils/authentication.dart';
-import 'package:foodcost/utils/firestore/foods.dart';
 import 'package:foodcost/utils/firestore/menus.dart';
 import 'package:foodcost/utils/functionUtils.dart';
 import 'package:foodcost/utils/widget_utils.dart';
@@ -16,8 +14,9 @@ import 'package:intl/intl.dart';
 
 class CreateMenuPage extends StatefulWidget {
   final DateTime? selectedDay;
+  final Menu? selectedMenu;
 
-  const CreateMenuPage({super.key, this.selectedDay});
+  const CreateMenuPage({super.key, this.selectedDay, this.selectedMenu});
 
   @override
   State<CreateMenuPage> createState() => _CreateMenuPageState();
@@ -26,25 +25,17 @@ class CreateMenuPage extends StatefulWidget {
 class _CreateMenuPageState extends State<CreateMenuPage> {
   // menu
   TextEditingController menuController = TextEditingController();
-  TextEditingController totalPriceController = TextEditingController();
   File? image;
+  Menu? selectedMenu;
+  String menuId = '';
 
   // food
-  List<Map<String, TextEditingController>> foodControllers = [
-    {
-      'name': TextEditingController(),
-      'unitPrice': TextEditingController(),
-      'costCount': TextEditingController(),
-      'price': TextEditingController()
-    }
-  ];
-
+  List<Map<String, TextEditingController>> foodControllers = [];
   int allPrice = 0;
   bool _isLoading = false;
-  final formatter = NumberFormat('#,###');
-  final dateFormatter = DateFormat('yyyy-MM-dd');
+  final List<Count> _costCounts = [];
 
-  static List<Count> menuItemValues = [
+  final List<Count> menuItemValues = [
     Count(name: '全部', count: 1.0),
     Count(name: '3/4', count: 0.75),
     Count(name: '2/3', count: 0.6),
@@ -59,9 +50,58 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
 
   late DateTime _selectedDay;
 
+  final formatter = NumberFormat('#,###');
+  final dateFormatter = DateFormat('yyyy-MM-dd');
+
+  ImageProvider? getImage() {
+    if (image == null) {
+      if (widget.selectedMenu != null) {
+        if (widget.selectedMenu!.imagePath != null) {
+          return NetworkImage(widget.selectedMenu!.imagePath!);
+        } else {
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } else {
+      return FileImage(image!);
+    }
+  }
+
   @override
   void initState() {
     super.initState();
+    final menu = widget.selectedMenu;
+    if (menu != null) {
+      menuId = menu.id;
+      selectedMenu = menu;
+      menuController.text = menu.name;
+      menu.foods.asMap().forEach((int index, Food food) {
+        foodControllers.add({
+          'name': TextEditingController(),
+          'unitPrice': TextEditingController(),
+          'costCount': TextEditingController(),
+          'price': TextEditingController(),
+        });
+        foodControllers[index]['name']!.text = food.name;
+        foodControllers[index]['unitPrice']!.text = food.unitPrice.toString();
+        foodControllers[index]['costCount']!.text = food.costCount.toString();
+        foodControllers[index]['price']!.text = food.price.toString();
+        allPrice += food.price;
+        final Count count = menuItemValues.firstWhere((Count value) => value.count == double.parse(food.costCount));
+        _costCounts.add(count);
+
+        // _costCount = food.costCount;
+      });
+    } else {
+      foodControllers.add({
+        'name': TextEditingController(),
+        'unitPrice': TextEditingController(),
+        'costCount': TextEditingController(),
+        'price': TextEditingController(),
+      });
+    }
     if (widget.selectedDay != null) {
       _selectedDay = widget.selectedDay!;
     }
@@ -82,50 +122,88 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
         actions: [
           ElevatedButton(
             onPressed: () async {
-              if (menuController.text.isNotEmpty) {
+              // menuにfoodをネストする
+              List<Food> newFoods = [];
+              for (var food in foodControllers) {
+                if (food['name']!.text.isNotEmpty &&
+                    food['unitPrice']!.text.isNotEmpty &&
+                    food['costCount']!.text.isNotEmpty &&
+                    food['price']!.text.isNotEmpty) {
+                  Food newFood = Food(
+                    name: food['name']!.text,
+                    unitPrice: int.parse(food['unitPrice']!.text),
+                    costCount: food['costCount']!.text,
+                    price: int.parse(food['price']!.text),
+                  );
+                  newFoods.add(newFood);
+                }
+              }
+              if (menuController.text.isNotEmpty && newFoods.isNotEmpty) {
                 setState(() {
                   _isLoading = true;
                 });
+                String imagePath = '';
+                if (image != null) {
+                  var result = await FunctionUtils.uploadImage(menuId, image!);
+                  imagePath = result;
+                }
                 Menu newMenu = Menu(
+                  id:menuId,
                     name: menuController.text,
                     userId: Authentication.myAccount!.id,
                     totalAmount: allPrice,
-                    createdTime: Timestamp.fromDate(_selectedDay));
-                var result = await MenuFirestore.addMenu(newMenu);
-                if (result != null) {
-                  //   imageあれば登録
-                  if (image != null) {
-                    String imagePath = await FunctionUtils.uploadImage(result, image!);
-                    await MenuFirestore.updateMenuImage(result, imagePath);
-                  }
-                  // food登録
-                  List<Food> newFoods = [];
-                  for (var food in foodControllers) {
-                    if (food['name']!.text.isNotEmpty &&
-                        food['unitPrice']!.text.isNotEmpty &&
-                        food['costCount']!.text.isNotEmpty &&
-                        food['price']!.text.isNotEmpty) {
-                      Food newFood = Food(
-                        name: food['name']!.text,
-                        unitPrice: int.parse(food['unitPrice']!.text),
-                        costCount: food['costCount']!.text,
-                        price: int.parse(food['price']!.text),
-                        menuId: result,
-                      );
-                      newFoods.add(newFood);
-                    }
-                  }
-                  var foodResult = await FoodFirestore.addFood(newFoods);
-                  if (foodResult == true) {
-                    Navigator.pop(context);
-                  }
+                    createdTime: Timestamp.fromDate(_selectedDay),
+                  imagePath: imagePath,
+                  foods: newFoods
+                );
+                bool result = false;
+                if (menuId.isNotEmpty) {
+                  result = await MenuFirestore.updateMenu(newMenu);
+                } else {
+                  result = await MenuFirestore.addMenu(newMenu);
+                }
+                if (result == true) {
+                  Navigator.pop(context);
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('登録に失敗しました。')));
                 }
+                // if (result != null) {
+                //   //   imageあれば登録
+                //   if (image != null) {
+                //     String imagePath = await FunctionUtils.uploadImage(result, image!);
+                //     await MenuFirestore.updateMenuImage(result, imagePath);
+                //   }
+                //   // food登録
+                //   List<Food> newFoods = [];
+                //   for (var food in foodControllers) {
+                //     if (food['name']!.text.isNotEmpty &&
+                //         food['unitPrice']!.text.isNotEmpty &&
+                //         food['costCount']!.text.isNotEmpty &&
+                //         food['price']!.text.isNotEmpty) {
+                //       Food newFood = Food(
+                //         name: food['name']!.text,
+                //         unitPrice: int.parse(food['unitPrice']!.text),
+                //         costCount: food['costCount']!.text,
+                //         price: int.parse(food['price']!.text),
+                //         menuId: result,
+                //       );
+                //       newFoods.add(newFood);
+                //     }
+                //   }
+                //   var foodResult = await FoodFirestore.addFood(newFoods);
+                //   if (foodResult == true) {
+                //     Navigator.pop(context);
+                //   }
+                // } else {
+                //   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('登録に失敗しました。')));
+                  // }
                 setState(() {
                   _isLoading = false;
                 });
               } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('メニューと1つ以上の食材を登録してください。'))
+                );
                 null;
               }
             },
@@ -170,9 +248,9 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
                                 }
                               },
                               child: CircleAvatar(
-                                foregroundImage: image == null ? null : FileImage(image!),
+                                foregroundImage: getImage(),
                                 radius: 40,
-                                child: const Icon(Icons.add_a_photo_outlined),
+                                child: const Icon(Icons.add_a_photo_outlined, size: 30,),
                               ),
                             ),
                             // const SizedBox(width: 10.0,),
@@ -299,7 +377,7 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
                               child: DropdownButtonFormField(
                                   // decoration: const InputDecoration(labelText: '使った量', ),
                                   decoration: const InputDecoration(hintText: '量'),
-                                  // value: _selected,
+                                  value: _costCounts.isNotEmpty ? _costCounts[index]: null,
                                   items: menuItemValues.map((value) {
                                     return DropdownMenuItem(
                                       value: value,
@@ -359,7 +437,7 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
                         },
                         style: ElevatedButton.styleFrom(foregroundColor: Colors.black, backgroundColor: Colors.yellow),
                         icon: const Icon(Icons.add),
-                        label: const Text('追加')),
+                        label: const Text('食材を追加')),
                   ),
               ]),
             ),
