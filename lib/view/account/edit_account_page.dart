@@ -91,6 +91,8 @@ class _EditAccountPageState extends State<EditAccountPage> {
     // passController = TextEditingController(text: myAccount.pass);
   }
 
+  // TODO: アカウントアイコン削除
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -154,6 +156,19 @@ class _EditAccountPageState extends State<EditAccountPage> {
                               child: const Icon(Icons.add_a_photo_outlined, size: 30,),
                             ),
                           ),
+                          // SizedBox(
+                          //   width: double.maxFinite,
+                          //   child: TextButton(
+                          //       onPressed: () {},
+                          //       child: const Row(
+                          //         mainAxisAlignment: MainAxisAlignment.center,
+                          //         children: [
+                          //           Icon(Icons.cancel_outlined, size: 12,),
+                          //           Text('アイコン削除', style: TextStyle(fontSize: 12),)
+                          //         ],
+                          //       )
+                          //   ),
+                          // ),
                           const SizedBox(height: 10.0,),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.start,
