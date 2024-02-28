@@ -7,6 +7,7 @@ import 'package:foodcost/view/account/account_page.dart';
 import 'package:foodcost/view/calendar/calendar_page.dart';
 import 'package:foodcost/view/cost/cost_page.dart';
 import 'package:foodcost/view/cost/cost_page.dart';
+import 'package:foodcost/view/menu/create_menu_page.dart';
 import 'package:foodcost/view/start_up/login_page.dart';
 import 'package:intl/intl.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -157,7 +158,11 @@ class WidgetUtils {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 child: ListTile(
-                  onTap: () {},
+                  onTap: () {
+                  //   TODO: メニューの更新ページ
+                    final selectedDay = menus[index].createdTime != null ? menus[index].createdTime!.toDate(): DateTime.now();
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => CreateMenuPage(selectedDay:selectedDay, selectedMenu: menus[index],)));
+                  },
                   title: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [

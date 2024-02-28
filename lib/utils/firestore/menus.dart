@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:foodcost/model/food.dart';
 import 'package:foodcost/model/menu.dart';
 import 'package:foodcost/utils/firestore/foods.dart';
 
@@ -8,34 +9,41 @@ class MenuFirestore {
 
   static Future<dynamic> addMenu(Menu newMenu) async {
     try {
-      final CollectionReference userMenus = _firestoreInstance.collection('users')
-          .doc(newMenu.userId).collection('my_menus');
+      final CollectionReference userMenus =
+          _firestoreInstance.collection('users').doc(newMenu.userId).collection('my_menus');
+      List<Map<String, dynamic>> foods = [];
+      for (var food in newMenu.foods) {
+        foods.add({'name': food.name, 'unit_price': food.unitPrice, 'cost_count': food.costCount, 'price': food.price});
+      }
       var result = await menus.add({
         'name': newMenu.name,
         'user_id': newMenu.userId,
-        // 'image_path': newMenu.imagePath,
+        'image_path': newMenu.imagePath,
         'total_amount': newMenu.totalAmount,
-        'created_time': newMenu.createdTime
+        'created_time': newMenu.createdTime,
+        'foods': foods
       });
-      await userMenus.doc(result.id).set({
-        'menu_id': result.id,
-        'created_time': newMenu.createdTime
-      });
+      await userMenus.doc(result.id).set({'menu_id': result.id, 'created_time': newMenu.createdTime});
       print('メニュー登録完了');
-      return result.id;
-    } on FirebaseException catch(e) {
+      // return result.id;
+      return true;
+    } on FirebaseException catch (e) {
       print('メニュー登録エラー: $e');
       return null;
     }
   }
 
-  static Future<dynamic> setMenu(Menu newMenu) async {
+  static Future<dynamic> updateMenu(Menu newMenu) async {
     try {
-      await menus.doc(newMenu.id).set({
+      List<Map<String, dynamic>> foods = [];
+      for (var food in newMenu.foods) {
+        foods.add({'name': food.name, 'unit_price': food.unitPrice, 'cost_count': food.costCount, 'price': food.price});
+      }
+      await menus.doc(newMenu.id).update({
         'name': newMenu.name,
-        'user_id': newMenu.userId,
         'image_path': newMenu.imagePath,
         'total_amount': newMenu.totalAmount,
+        'foods': foods,
       });
       print('メニュー更新完了');
       return true;
@@ -47,9 +55,7 @@ class MenuFirestore {
 
   static Future<dynamic> updateMenuImage(String menuId, String imagePath) async {
     try {
-      await menus.doc(menuId).update({
-        'image_path': imagePath
-      });
+      await menus.doc(menuId).update({'image_path': imagePath});
       print('メニュー画像登録完了');
       return true;
     } on FirebaseException catch (e) {
@@ -61,23 +67,30 @@ class MenuFirestore {
   static Future<dynamic> getMenus(String accountId) async {
     try {
       DateTime now = DateTime.now();
-     var  currentMonth = now.month;
+      var currentMonth = now.month;
       List<Menu> menuList = [];
       var snapshot = await menus.where('user_id', isEqualTo: accountId).get();
-      snapshot.docs.forEach((doc) {
+      for (var doc in snapshot.docs) {
         Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
         // 今の月と同じものを取得
         if (currentMonth == data['created_time'].toDate().month) {
+          List<Food> foods = [];
+          for (var food in data['foods']) {
+            Food getFood = Food(
+                name: food['name'], unitPrice: food['unit_price'], costCount: food['cost_count'], price: food['price']);
+            foods.add(getFood);
+          }
           Menu menu = Menu(
               name: data['name'],
               userId: data['user_id'],
               imagePath: data['image_path'],
               totalAmount: data['total_amount'],
-              createdTime: data['created_time']
+              createdTime: data['created_time'],
+              foods: foods
           );
           menuList.add(menu);
         }
-      });
+      }
       if (menuList.isNotEmpty) {
         print('メニュー取得完了');
       }
@@ -91,13 +104,11 @@ class MenuFirestore {
   static Future<dynamic> deleteMenus(String accountId) async {
     final CollectionReference userMenus = _firestoreInstance.collection('users').doc(accountId).collection('my_menus');
     var snapshot = await userMenus.get();
-    snapshot.docs.forEach((doc) async{
+    snapshot.docs.forEach((doc) async {
       final CollectionReference collectionFoods = menus.doc(doc.id).collection('foods');
       await FoodFirestore.deleteFoods(collectionFoods);
       await menus.doc(doc.id).delete();
       await userMenus.doc(doc.id).delete();
     });
   }
-
-
 }

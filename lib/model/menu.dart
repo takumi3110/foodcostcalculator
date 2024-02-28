@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:foodcost/model/food.dart';
 
 class Menu {
   String id;
@@ -7,6 +8,15 @@ class Menu {
   int? totalAmount;
   String? imagePath;
   Timestamp? createdTime;
+  List<Food> foods;
 
-  Menu({this.id = '', required this.name, this.userId = '', this.totalAmount, this.createdTime, this.imagePath});
+  Menu({
+    this.id = '',
+    required this.name,
+    this.userId = '',
+    this.totalAmount,
+    this.createdTime,
+    this.imagePath,
+    required this.foods
+  });
 }

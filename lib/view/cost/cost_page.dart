@@ -122,10 +122,12 @@ class _CostPageTrialState extends State<CostPageTrial> {
             allTotalAmount += menu.totalAmount as int;
           });
           // rankingを作成
-          menuRankings.add({
-            'dateTime': DateTime(kToday.year, kToday.month, i),
-            'totalAmount': totalAmount,
-          });
+          if (totalAmount > 0) {
+            menuRankings.add({
+              'dateTime': DateTime(kToday.year, kToday.month, i),
+              'totalAmount': totalAmount,
+            });
+          }
           // 日毎の合計金額をリストへ
           amounts.add(totalAmount);
         }
@@ -185,7 +187,7 @@ class _CostPageTrialState extends State<CostPageTrial> {
                             monthAmount: int.parse(targetMonthAmountController.text),
                             dayAmount: int.parse(targetDayAmountController.text),
                             userId: myAccount.id);
-                        // TODO: resultに代入?
+                        // resultに代入
                         bool result = false;
                         if (targetId.isNotEmpty) {
                           result = await TargetFirestore.updateTarget(newTarget);
@@ -204,6 +206,9 @@ class _CostPageTrialState extends State<CostPageTrial> {
                             targetMonthAmount = int.parse(targetMonthAmountController.text);
                           });
                           Navigator.pop(context);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('目標金額を更新しました。'))
+                          );
                         }
                       }
                     },

@@ -8,20 +8,20 @@ class FoodFirestore {
   static Future<dynamic> addFood(List<Food> newFoods) async {
     try {
       for (var newFood in newFoods) {
-        final CollectionReference menu = _firestoreInstance.collection('menus')
-            .doc(newFood.menuId).collection('foods');
-
-        var result = await foods.add({
-          'name': newFood.name,
-          'unit_price': newFood.unitPrice,
-          'cost_count': newFood.costCount,
-          'price': newFood.price,
-          'menu_id': newFood.menuId
-        });
-        menu.doc(result.id).set({
-          'food_id': result.id,
-          'created_time': Timestamp.now()
-        });
+        // final CollectionReference menu = _firestoreInstance.collection('menus')
+        //     .doc(newFood.menuId).collection('foods');
+        //
+        // var result = await foods.add({
+        //   'name': newFood.name,
+        //   'unit_price': newFood.unitPrice,
+        //   'cost_count': newFood.costCount,
+        //   'price': newFood.price,
+        //   'menu_id': newFood.menuId
+        // });
+        // menu.doc(result.id).set({
+        //   'food_id': result.id,
+        //   'created_time': Timestamp.now()
+        // });
         print('材料を登録しました。');
       }
       return true;
@@ -38,8 +38,8 @@ class FoodFirestore {
         var doc = await foods.doc(id).get();
         Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
         Food food = Food(
-          id: doc.id,
-          menuId: data['menu_id'],
+          // id: doc.id,
+          // menuId: data['menu_id'],
           name: data['name'],
           unitPrice: data['unit_price'],
           costCount: data['cost_count'],

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:foodcost/model/account.dart';
+import 'package:foodcost/model/food.dart';
 import 'package:foodcost/model/menu.dart';
 import 'package:foodcost/utils/authentication.dart';
 import 'package:foodcost/utils/firestore/menus.dart';
@@ -108,57 +109,73 @@ class _AccountPageState extends State<AccountPage> {
                 ),
                 const SizedBox(height: 10.0,),
                 Expanded(
-                    child: StreamBuilder<QuerySnapshot>(
-                      stream: MenuFirestore.menus.where('user_id', isEqualTo: myAccount.id).snapshots(),
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData) {
-                          List<Menu> getMenus = [];
-                          var docs = snapshot.data!.docs;
-                          var length = docs.length < 6 ? docs.length: 5;
-                          for (var i = 0; i < length; i++) {
-                            Map<String, dynamic> data = docs[i].data() as Map<String, dynamic>;
-                            Menu getMenu = Menu(
-                              // id: data['id'] is null ? data['id']: '',
-                              name: data['name'],
-                              userId: data['user_id'],
-                              totalAmount: data['total_amount'],
-                              imagePath: data['image_path'],
-                              createdTime: data['created_time'],
-                            );
-                            getMenus.add(getMenu);
-                          }
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: SingleChildScrollView(
+                        child: StreamBuilder<QuerySnapshot>(
+                          stream: MenuFirestore.menus.where('user_id', isEqualTo: myAccount.id).snapshots(),
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              List<Menu> getMenus = [];
+                              var docs = snapshot.data!.docs;
+                              var length = docs.length < 6 ? docs.length: 5;
+                              for (var i = 0; i < length; i++) {
+                                Map<String, dynamic> data = docs[i].data() as Map<String, dynamic>;
+                                List<Food> foods = [];
+                                for (var food in data['foods']) {
+                                  Food getFood = Food(
+                                      name: food['name'],
+                                      unitPrice: food['unit_price'],
+                                      costCount: food['cost_count'],
+                                      price: food['price']
+                                  );
+                                  foods.add(getFood);
+                                }
+                                Menu getMenu = Menu(
+                                  // id: data['id'] is null ? data['id']: '',
+                                  name: data['name'],
+                                  userId: data['user_id'],
+                                  totalAmount: data['total_amount'],
+                                  imagePath: data['image_path'],
+                                  createdTime: data['created_time'],
+                                  foods: foods
+                                );
+                                getMenus.add(getMenu);
+                              }
 
-                          return WidgetUtils.menuListTile(getMenus);
-                        } else {
-                          return Container();
-                        }
+                              return WidgetUtils.menuListTile(getMenus);
+                            } else {
+                              return Container();
+                            }
 
-                        // if (snapshot.hasData) {
-                        //   List<Menu> getMenus =[];
-                        //   for (var doc in snapshot.data!.docs) {
-                        //     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-                        //     Menu getMenu = Menu(
-                        //       name: data['name'],
-                        //       userId: data['user_id'],
-                        //       totalAmount: data['total_amount'],
-                        //       imagePath: data['image_path'],
-                        //       createdTime: data['created_time'],
-                        //     );
-                        //     getMenus.add(getMenu);
-                        //   }
-                        //   return Column(
-                        //     mainAxisAlignment: MainAxisAlignment.center,
-                        //     children: [
-                        //       Container(
-                        //         alignment: Alignment.centerRight,
-                        //
-                        //       )
-                        //     ],
-                        //   );
-                        // } else {
-                        //   return Container();
-                        // }
-                      },
+                            // if (snapshot.hasData) {
+                            //   List<Menu> getMenus =[];
+                            //   for (var doc in snapshot.data!.docs) {
+                            //     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+                            //     Menu getMenu = Menu(
+                            //       name: data['name'],
+                            //       userId: data['user_id'],
+                            //       totalAmount: data['total_amount'],
+                            //       imagePath: data['image_path'],
+                            //       createdTime: data['created_time'],
+                            //     );
+                            //     getMenus.add(getMenu);
+                            //   }
+                            //   return Column(
+                            //     mainAxisAlignment: MainAxisAlignment.center,
+                            //     children: [
+                            //       Container(
+                            //         alignment: Alignment.centerRight,
+                            //
+                            //       )
+                            //     ],
+                            //   );
+                            // } else {
+                            //   return Container();
+                            // }
+                          },
+                        ),
+                      ),
                     )
                 )
               ],
