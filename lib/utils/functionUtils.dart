@@ -20,6 +20,5 @@ class FunctionUtils {
       print(e);
       return null;
     }
-
   }
 }

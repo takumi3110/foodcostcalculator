@@ -26,6 +26,7 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
   // menu
   TextEditingController menuController = TextEditingController();
   File? image;
+  bool isImageEdit = false;
   Menu? selectedMenu;
   String menuId = '';
 
@@ -56,7 +57,7 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
   ImageProvider? getImage() {
     if (image == null) {
       if (widget.selectedMenu != null) {
-        if (widget.selectedMenu!.imagePath != null) {
+        if (widget.selectedMenu!.imagePath != '') {
           return NetworkImage(widget.selectedMenu!.imagePath!);
         } else {
           return null;
@@ -143,19 +144,18 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
                   _isLoading = true;
                 });
                 String imagePath = '';
-                if (image != null) {
+                if (image != null || isImageEdit == true) {
                   var result = await FunctionUtils.uploadImage(menuId, image!);
                   imagePath = result;
                 }
                 Menu newMenu = Menu(
-                  id:menuId,
+                    id: menuId,
                     name: menuController.text,
                     userId: Authentication.myAccount!.id,
                     totalAmount: allPrice,
                     createdTime: Timestamp.fromDate(_selectedDay),
-                  imagePath: imagePath,
-                  foods: newFoods
-                );
+                    imagePath: imagePath,
+                    foods: newFoods);
                 bool result = false;
                 if (menuId.isNotEmpty) {
                   result = await MenuFirestore.updateMenu(newMenu);
@@ -196,14 +196,12 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
                 //   }
                 // } else {
                 //   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('登録に失敗しました。')));
-                  // }
+                // }
                 setState(() {
                   _isLoading = false;
                 });
               } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('メニューと1つ以上の食材を登録してください。'))
-                );
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('メニューと1つ以上の食材を登録してください。')));
                 null;
               }
             },
@@ -241,16 +239,22 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
                             GestureDetector(
                               onTap: () async {
                                 var result = await FunctionUtils.getImageFromGallery();
-                                if (result != null) {
-                                  setState(() {
+                                setState(() {
+                                  isImageEdit = true;
+                                  if (result != null) {
                                     image = File(result.path);
-                                  });
-                                }
+                                  } else {
+                                    isImageEdit = false;
+                                  }
+                                });
                               },
                               child: CircleAvatar(
                                 foregroundImage: getImage(),
                                 radius: 40,
-                                child: const Icon(Icons.add_a_photo_outlined, size: 30,),
+                                child: const Icon(
+                                  Icons.add_a_photo_outlined,
+                                  size: 30,
+                                ),
                               ),
                             ),
                             // const SizedBox(width: 10.0,),
@@ -375,9 +379,9 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
                             SizedBox(
                               width: 90,
                               child: DropdownButtonFormField(
-                                  // decoration: const InputDecoration(labelText: '使った量', ),
                                   decoration: const InputDecoration(hintText: '量'),
-                                  value: _costCounts.isNotEmpty ? _costCounts[index]: null,
+                                  value: foodControllers[index]['costCount']!.text.isNotEmpty ? _costCounts[index] : null,
+                                  // value: _costCounts.length == foodControllers.length ? _costCounts[index] : ,
                                   items: menuItemValues.map((value) {
                                     return DropdownMenuItem(
                                       value: value,
@@ -387,6 +391,7 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
                                   onChanged: (Count? value) {
                                     setState(() {
                                       if (value != null) {
+                                        _costCounts.add(value);
                                         var costCount = foodControllers[index]['costCount'];
                                         if (costCount != null) {
                                           costCount.text = value.count.toString();

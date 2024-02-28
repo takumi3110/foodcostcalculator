@@ -18,7 +18,7 @@ class MenuFirestore {
       var result = await menus.add({
         'name': newMenu.name,
         'user_id': newMenu.userId,
-        // 'image_path': newMenu.imagePath,
+        'image_path': newMenu.imagePath,
         'total_amount': newMenu.totalAmount,
         'created_time': newMenu.createdTime,
         'foods': foods
