@@ -18,13 +18,45 @@ class AccountPage extends StatefulWidget {
 class _AccountPageState extends State<AccountPage> {
   Account myAccount = Authentication.myAccount!;
 
+  //
+  // TextEditingController nameController = TextEditingController();
+  // TextEditingController emailController = TextEditingController();
+  // // TextEditingController passController = TextEditingController();
+  // File? image;
+  //
+  // bool _isLoading = false;
+  // // bool _isObscure = true;
+  //
+  // ImageProvider? getImage() {
+  //   if (image == null) {
+  //     if (myAccount.imagePath != null) {
+  //       return NetworkImage(myAccount.imagePath!);
+  //     } else {
+  //       return null;
+  //     }
+  //   } else {
+  //     return FileImage(image!);
+  //   }
+  // }
+
   final scaffoldKey = GlobalKey<ScaffoldState>();
+
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   nameController = TextEditingController(text: myAccount.name);
+  //   emailController = TextEditingController(text: myAccount.email);
+  //   // passController = TextEditingController(text: myAccount.pass);
+  // }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('マイページ', style: TextStyle(color: Colors.black),),
+        title: const Text(
+          'マイページ',
+          style: TextStyle(color: Colors.black),
+        ),
         elevation: 1,
       ),
       body: SafeArea(
@@ -34,6 +66,80 @@ class _AccountPageState extends State<AccountPage> {
             height: MediaQuery.of(context).size.height,
             child: Column(
               children: [
+                Container(
+                  decoration: BoxDecoration(
+                      image: myAccount.imagePath != null
+                          ? DecorationImage(image: NetworkImage(myAccount.imagePath!), fit: BoxFit.cover, opacity: 0.2)
+                          : null),
+                  child: Column(
+                    children: [
+                      Container(
+                          padding: const EdgeInsets.only(top: 8.0, right: 8.0),
+                          alignment: Alignment.centerRight,
+                          child: ElevatedButton(
+                              onPressed: () {
+                                Navigator.push(
+                                    context, MaterialPageRoute(builder: (context) => const EditAccountPage()));
+                                // _showEditModal(context);
+                              },
+                              child: const Text('編集'))),
+                      Container(
+                        // color: Colors.red,
+                        padding: const EdgeInsets.only(left: 50.0, right: 50.0, bottom: 15.0),
+                        // height: 200,
+                        child: CircleAvatar(
+                          radius: 40,
+                          foregroundImage: myAccount.imagePath != null ? NetworkImage(myAccount.imagePath!) : null,
+                          child: const Icon(
+                            Icons.person,
+                            size: 50,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          const SizedBox(
+                              width: 60.0,
+                              child: Text('名前', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0))),
+                          const SizedBox(
+                            width: 30.0,
+                          ),
+                          Text('${myAccount.name}さん', style: const TextStyle(fontSize: 18.0))
+                        ],
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          const SizedBox(
+                              width: 60.0,
+                              child: Text('メール', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0))),
+                          const SizedBox(
+                            width: 30.0,
+                          ),
+                          Text(myAccount.email, style: const TextStyle(fontSize: 18.0))
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(
+                  height: 10.0,
+                ),
+
                 // Container(
                 //   color: Colors.grey,
                 //   padding: const EdgeInsets.only(left: 20.0, bottom: 8.0),
@@ -46,138 +152,105 @@ class _AccountPageState extends State<AccountPage> {
                 //     ),
                 //   ),
                 // ),
-                Container(
-                  padding: const EdgeInsets.only(top: 8.0, right: 8.0),
-                    alignment: Alignment.centerRight,
-                    child: OutlinedButton(
-                        onPressed: () async {
-                          var result = await Navigator.push(context, MaterialPageRoute(builder: (context) => const  EditAccountPage()));
-                          if (result == true) {
-                            setState(() {
-                              myAccount = Authentication.myAccount!;
-                            });
-                          }
-                        },
-                        child: const Text('編集')
-                    )
-                ),
-                Container(
-                  // color: Colors.red,
-                  padding: const EdgeInsets.only(left: 50.0, right: 50.0, bottom: 15.0),
-                  // height: 200,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      CircleAvatar(
-                        radius: 40,
-                        foregroundImage: myAccount.imagePath != null ? NetworkImage(myAccount.imagePath!): null,
-                        child: const  Icon(Icons.person, size: 50,),
-                      ),
-                      const SizedBox(height: 10.0,),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          const SizedBox(
-                            width: 60.0,
-                              child: Text('名前', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0))),
-                          const SizedBox(width: 30.0,),
-                          Text('${myAccount.name}さん', style: const TextStyle(fontSize: 18.0))
-                        ],
-                      ),
-                      const SizedBox(height: 10.0,),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          const SizedBox(
-                            width: 60.0,
-                              child: Text('メール', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0))),
-                          const SizedBox(width: 30.0,),
-                          Text(myAccount.email, style: const TextStyle(fontSize: 18.0))
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
+                // Container(
+                //   padding: const EdgeInsets.only(top: 8.0, right: 8.0),
+                //     alignment: Alignment.centerRight,
+                //     child: OutlinedButton(
+                //         onPressed: () {
+                //           Navigator.push(context, MaterialPageRoute(builder: (context) => const EditAccountPage()));
+                //           // _showEditModal(context);
+                //         },
+                //         child: const Text('編集')
+                //     )
+                // ),
+                // Container(
+                //   // color: Colors.red,
+                //   padding: const EdgeInsets.only(left: 50.0, right: 50.0, bottom: 15.0),
+                //   // height: 200,
+                //   child: Column(
+                //     crossAxisAlignment: CrossAxisAlignment.center,
+                //     children: [
+                //       CircleAvatar(
+                //         radius: 40,
+                //         foregroundImage: myAccount.imagePath != null ? NetworkImage(myAccount.imagePath!): null,
+                //         child: const  Icon(Icons.person, size: 50,),
+                //       ),
+                //       const SizedBox(height: 10.0,),
+                //       Row(
+                //         mainAxisAlignment: MainAxisAlignment.start,
+                //         children: [
+                //           const SizedBox(
+                //             width: 60.0,
+                //               child: Text('名前', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0))),
+                //           const SizedBox(width: 30.0,),
+                //           Text('${myAccount.name}さん', style: const TextStyle(fontSize: 18.0))
+                //         ],
+                //       ),
+                //       const SizedBox(height: 10.0,),
+                //       Row(
+                //         mainAxisAlignment: MainAxisAlignment.start,
+                //         children: [
+                //           const SizedBox(
+                //             width: 60.0,
+                //               child: Text('メール', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0))),
+                //           const SizedBox(width: 30.0,),
+                //           Text(myAccount.email, style: const TextStyle(fontSize: 18.0))
+                //         ],
+                //       ),
+                //     ],
+                //   ),
+                // ),
                 Container(
                   padding: const EdgeInsets.symmetric(vertical: 10.0),
                   alignment: Alignment.center,
                   width: double.infinity,
                   decoration: const BoxDecoration(border: Border(top: BorderSide(color: Colors.grey))),
-                  child: const Text(
-                    '最近登録したメニュー'
-                  ),
+                  child: const Text('最近登録したメニュー'),
                 ),
-                const SizedBox(height: 10.0,),
+                // const SizedBox(
+                //   height: 10.0,
+                // ),
                 Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: SingleChildScrollView(
-                        child: StreamBuilder<QuerySnapshot>(
-                          stream: MenuFirestore.menus.where('user_id', isEqualTo: myAccount.id).snapshots(),
-                          builder: (context, snapshot) {
-                            if (snapshot.hasData) {
-                              List<Menu> getMenus = [];
-                              var docs = snapshot.data!.docs;
-                              var length = docs.length < 6 ? docs.length: 5;
-                              for (var i = 0; i < length; i++) {
-                                Map<String, dynamic> data = docs[i].data() as Map<String, dynamic>;
-                                List<Food> foods = [];
-                                for (var food in data['foods']) {
-                                  Food getFood = Food(
-                                      name: food['name'],
-                                      unitPrice: food['unit_price'],
-                                      costCount: food['cost_count'],
-                                      price: food['price']
-                                  );
-                                  foods.add(getFood);
-                                }
-                                Menu getMenu = Menu(
-                                  // id: data['id'] is null ? data['id']: '',
-                                  name: data['name'],
-                                  userId: data['user_id'],
-                                  totalAmount: data['total_amount'],
-                                  imagePath: data['image_path'],
-                                  createdTime: data['created_time'],
-                                  foods: foods
-                                );
-                                getMenus.add(getMenu);
-                              }
-
-                              return WidgetUtils.menuListTile(getMenus);
-                            } else {
-                              return Container();
+                  padding: const EdgeInsets.all(8.0),
+                  child: SingleChildScrollView(
+                    child: StreamBuilder<QuerySnapshot>(
+                      stream: MenuFirestore.menus.where('user_id', isEqualTo: myAccount.id).snapshots(),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          List<Menu> getMenus = [];
+                          var docs = snapshot.data!.docs;
+                          var length = docs.length < 6 ? docs.length : 5;
+                          for (var i = 0; i < length; i++) {
+                            Map<String, dynamic> data = docs[i].data() as Map<String, dynamic>;
+                            List<Food> foods = [];
+                            for (var food in data['foods']) {
+                              Food getFood = Food(
+                                  name: food['name'],
+                                  unitPrice: food['unit_price'],
+                                  costCount: food['cost_count'],
+                                  price: food['price']);
+                              foods.add(getFood);
                             }
+                            Menu getMenu = Menu(
+                                // id: data['id'] is null ? data['id']: '',
+                                name: data['name'],
+                                userId: data['user_id'],
+                                totalAmount: data['total_amount'],
+                                imagePath: data['image_path'],
+                                createdTime: data['created_time'],
+                                foods: foods);
+                            getMenus.add(getMenu);
+                          }
 
-                            // if (snapshot.hasData) {
-                            //   List<Menu> getMenus =[];
-                            //   for (var doc in snapshot.data!.docs) {
-                            //     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-                            //     Menu getMenu = Menu(
-                            //       name: data['name'],
-                            //       userId: data['user_id'],
-                            //       totalAmount: data['total_amount'],
-                            //       imagePath: data['image_path'],
-                            //       createdTime: data['created_time'],
-                            //     );
-                            //     getMenus.add(getMenu);
-                            //   }
-                            //   return Column(
-                            //     mainAxisAlignment: MainAxisAlignment.center,
-                            //     children: [
-                            //       Container(
-                            //         alignment: Alignment.centerRight,
-                            //
-                            //       )
-                            //     ],
-                            //   );
-                            // } else {
-                            //   return Container();
-                            // }
-                          },
-                        ),
-                      ),
-                    )
-                )
+                          return WidgetUtils.menuListTile(getMenus);
+                        } else {
+                          return Container();
+                        }
+                      },
+                    ),
+                  ),
+                ))
               ],
             ),
           ),
@@ -185,4 +258,253 @@ class _AccountPageState extends State<AccountPage> {
       ),
     );
   }
+
+// void _showEditModal(BuildContext context) {
+//   showModalBottomSheet(
+//       context: context,
+//       builder: (BuildContext context) {
+//         return Container(
+//           height: MediaQuery.sizeOf(context).height,
+//           child: SingleChildScrollView(
+//             child: Stack(
+//                 children: [
+//                   SizedBox(
+//                     width: double.infinity,
+//                     child: Column(
+//                       children: [
+//                         Padding(
+//                           padding: const EdgeInsets.all(8.0),
+//                           child: Row(
+//                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                             children: [
+//                               TextButton(
+//                                   onPressed: () {
+//                                     Navigator.pop(context);
+//                                   },
+//                                   child: const Text('キャンセル')
+//                               ),
+//                               ElevatedButton(
+//                                   onPressed: () async{
+//                                     setState(() {
+//                                       _isLoading = true;
+//                                     });
+//                                     if (nameController.text.isNotEmpty && emailController.text.isNotEmpty){
+//                                       String imagePath = '';
+//                                       if (image != null)  {
+//                                         var result = await FunctionUtils.uploadImage(myAccount.id, image!);
+//                                         imagePath = result;
+//                                       }
+//                                       Account updateAccount = Account(
+//                                           id: myAccount.id,
+//                                           name: nameController.text,
+//                                           email: emailController.text,
+//                                           imagePath: imagePath
+//                                       );
+//                                       Authentication.myAccount = updateAccount;
+//                                       var result = await UserFirestore.updateUser(updateAccount);
+//                                       if (result == true) {
+//                                         Navigator.pop(context, true);
+//                                       }
+//                                     }
+//                                     setState(() {
+//                                       _isLoading = false;
+//                                     });
+//                                   },
+//
+//                                   child: const Text('更新')),
+//                             ],
+//                           ),
+//                         ),
+//                         // Container(
+//                         //   padding: const EdgeInsets.only(top: 8.0, right: 15.0),
+//                         //   alignment: Alignment.centerRight,
+//                         //   child: OutlinedButton(
+//                         //       onPressed: _showAlertDialog,
+//                         //       style: OutlinedButton.styleFrom(
+//                         //           shape: RoundedRectangleBorder(
+//                         //               borderRadius: BorderRadius.circular(10)
+//                         //           ),
+//                         //           foregroundColor: Colors.red,
+//                         //           side: const BorderSide(
+//                         //             color: Colors.red,
+//                         //             // width: 4
+//                         //           )
+//                         //       ),
+//                         //       child: const Text('削除', style: TextStyle(fontWeight: FontWeight.bold),)
+//                         //   ),
+//                         // ),
+//                         Container(
+//                           width: double.infinity,
+//                           // height: 300,
+//                           padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 20.0),
+//                           child: Column(
+//                             crossAxisAlignment: CrossAxisAlignment.center,
+//                             children: [
+//                               GestureDetector(
+//                                 onTap: () async{
+//                                   var result = await FunctionUtils.getImageFromGallery();
+//                                   if (result != null) {
+//                                     setState(() {
+//                                       image = File(result.path);
+//                                     });
+//                                   }
+//                                 },
+//                                 child: CircleAvatar(
+//                                   radius:40,
+//                                   foregroundImage: getImage(),
+//                                   child: const Icon(Icons.add_a_photo_outlined, size: 30,),
+//                                 ),
+//                               ),
+//                               // SizedBox(
+//                               //   width: double.maxFinite,
+//                               //   child: TextButton(
+//                               //       onPressed: () {},
+//                               //       child: const Row(
+//                               //         mainAxisAlignment: MainAxisAlignment.center,
+//                               //         children: [
+//                               //           Icon(Icons.cancel_outlined, size: 12,),
+//                               //           Text('アイコン削除', style: TextStyle(fontSize: 12),)
+//                               //         ],
+//                               //       )
+//                               //   ),
+//                               // ),
+//                               const SizedBox(height: 10.0,),
+//                               Row(
+//                                 mainAxisAlignment: MainAxisAlignment.start,
+//                                 children: [
+//                                   const SizedBox(
+//                                     width: 60.0,
+//                                     child: Text('名前',
+//                                         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)
+//                                     ),
+//                                   ),
+//                                   const SizedBox(width: 30.0),
+//                                   SizedBox(
+//                                     width: 200,
+//                                     child: TextField(
+//                                       controller: nameController,
+//                                     ),
+//                                   ),
+//                                 ],
+//                               ),
+//                               const SizedBox(height: 20.0,),
+//                               Row(
+//                                 mainAxisAlignment: MainAxisAlignment.start,
+//                                 children: [
+//                                   const SizedBox(
+//                                     width: 60.0,
+//                                     child: Text('メール',
+//                                         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)
+//                                     ),
+//                                   ),
+//                                   const SizedBox(width: 30.0),
+//                                   SizedBox(
+//                                     width: 200,
+//                                     child: TextField(
+//                                       controller: emailController,
+//                                     ),
+//                                   ),
+//                                 ],
+//                               ),
+//                             ],
+//                           ),
+//                         ),
+//                         const SizedBox(height: 10.0,),
+//                         OutlinedButton.icon(
+//                             onPressed: _showAlertDialog,
+//                             style: OutlinedButton.styleFrom(
+//                                 shape: RoundedRectangleBorder(
+//                                     borderRadius: BorderRadius.circular(10)
+//                                 ),
+//                                 foregroundColor: Colors.red,
+//                                 side: const BorderSide(
+//                                   color: Colors.red,
+//                                   // width: 4
+//                                 )
+//                             ),
+//                             icon: const Icon(Icons.cancel),
+//                             label: const Text('アカウント削除', style: TextStyle(fontWeight: FontWeight.bold),)
+//                         ),
+//                         // ElevatedButton(
+//                         //     onPressed: () async{
+//                         //       setState(() {
+//                         //         _isLoading = true;
+//                         //       });
+//                         //       if (nameController.text.isNotEmpty && emailController.text.isNotEmpty){
+//                         //         String imagePath = '';
+//                         //         if (image != null)  {
+//                         //           var result = await FunctionUtils.uploadImage(myAccount.id, image!);
+//                         //           imagePath = result;
+//                         //         }
+//                         //         Account updateAccount = Account(
+//                         //             id: myAccount.id,
+//                         //             name: nameController.text,
+//                         //             email: emailController.text,
+//                         //             imagePath: imagePath
+//                         //         );
+//                         //         Authentication.myAccount = updateAccount;
+//                         //         var result = await UserFirestore.updateUser(updateAccount);
+//                         //         if (result == true) {
+//                         //           Navigator.pop(context, true);
+//                         //         }
+//                         //       }
+//                         //       setState(() {
+//                         //         _isLoading = false;
+//                         //       });
+//                         //     },
+//                         //     child: const Text('更新')),
+//                       ],
+//                     ),
+//                   ),
+//                   WidgetUtils.loadingStack(_isLoading)
+//                 ]
+//             ),
+//           ),
+//         );
+//       }
+//   );
+// }
+//
+// void _showAlertDialog() async {
+//   await showDialog(
+//       context: context,
+//       builder: (_) {
+//         return AlertDialog(
+//           title: const Text('アカウント削除'),
+//           content: const Text('本当に削除しますか？'),
+//           actions: [
+//             ElevatedButton(
+//                 onPressed: () {
+//                   setState(() {
+//                     _isLoading = true;
+//                   });
+//                   UserFirestore.deleteUser(myAccount.id);
+//                   Authentication.deleteAuth();
+//                   while(Navigator.canPop(context)) {
+//                     Navigator.pop(context);
+//                   }
+//                   Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginPage()));
+//                   setState(() {
+//                     _isLoading = false;
+//                   });
+//                 },
+//                 style: ElevatedButton.styleFrom(
+//                     backgroundColor: Colors.green,
+//                     foregroundColor: Colors.white
+//                 ),
+//                 child: const Text('はい', style: TextStyle(fontWeight: FontWeight.bold),)
+//             ),
+//             ElevatedButton(
+//                 onPressed: () {
+//                   Navigator.pop(context, false);
+//                 },
+//                 child: const Text('いいえ'))
+//           ],
+//         );
+//       }
+//   );
+//   setState(() {
+//
+//   });
+// }
 }
