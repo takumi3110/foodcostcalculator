@@ -5,8 +5,10 @@ import 'package:foodcost/model/food.dart';
 import 'package:foodcost/model/menu.dart';
 import 'package:foodcost/utils/authentication.dart';
 import 'package:foodcost/utils/firestore/menus.dart';
+import 'package:foodcost/utils/functionUtils.dart';
 import 'package:foodcost/utils/widget_utils.dart';
 import 'package:foodcost/view/account/edit_account_page.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class AccountPage extends StatefulWidget {
   const AccountPage({super.key});
@@ -18,36 +20,17 @@ class AccountPage extends StatefulWidget {
 class _AccountPageState extends State<AccountPage> {
   Account myAccount = Authentication.myAccount!;
 
-  //
-  // TextEditingController nameController = TextEditingController();
-  // TextEditingController emailController = TextEditingController();
-  // // TextEditingController passController = TextEditingController();
-  // File? image;
-  //
-  // bool _isLoading = false;
-  // // bool _isObscure = true;
-  //
-  // ImageProvider? getImage() {
-  //   if (image == null) {
-  //     if (myAccount.imagePath != null) {
-  //       return NetworkImage(myAccount.imagePath!);
-  //     } else {
-  //       return null;
-  //     }
-  //   } else {
-  //     return FileImage(image!);
-  //   }
-  // }
+  // lineのメッセージを送るurl
+  final String lineUrl = 'https://line.me/R/share?text=';
 
-  final scaffoldKey = GlobalKey<ScaffoldState>();
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   nameController = TextEditingController(text: myAccount.name);
-  //   emailController = TextEditingController(text: myAccount.email);
-  //   // passController = TextEditingController(text: myAccount.pass);
-  // }
+  ImageProvider? getForeGroundImage(imagePath) {
+    if (imagePath != null) {
+      return NetworkImage(imagePath);
+    } else{
+      return null;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -89,7 +72,7 @@ class _AccountPageState extends State<AccountPage> {
                         // height: 200,
                         child: CircleAvatar(
                           radius: 40,
-                          foregroundImage: myAccount.imagePath != null ? NetworkImage(myAccount.imagePath!) : null,
+                          foregroundImage: getForeGroundImage(myAccount.imagePath),
                           child: const Icon(
                             Icons.person,
                             size: 50,
@@ -110,7 +93,7 @@ class _AccountPageState extends State<AccountPage> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           const SizedBox(
-                              width: 60.0,
+                              width: 80.0,
                               child: Text('名前', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0))),
                           const SizedBox(
                             width: 30.0,
@@ -125,7 +108,7 @@ class _AccountPageState extends State<AccountPage> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           const SizedBox(
-                              width: 60.0,
+                              width: 80.0,
                               child: Text('メール', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0))),
                           const SizedBox(
                             width: 30.0,
@@ -133,75 +116,74 @@ class _AccountPageState extends State<AccountPage> {
                           Text(myAccount.email, style: const TextStyle(fontSize: 18.0))
                         ],
                       ),
+                      const SizedBox(height: 10.0,),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          const SizedBox(
+                            width: 80.0,
+                            child: Text('グループ', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0),),
+                          ),
+                          const SizedBox(width: 30.0,),
+                          Text(myAccount.name, style: const TextStyle(fontSize: 18.0),)
+                        ],
+                      ),
+
+                      const SizedBox(height: 20,),
                     ],
                   ),
                 ),
+                Container(
+                  padding: const EdgeInsets.symmetric(vertical: 5.0),
+                  alignment: Alignment.center,
+                  width: double.infinity,
+                  decoration: const BoxDecoration(border: Border(top: BorderSide(color: Colors.grey))),
+                  child: const Text('メンバー'),
+                ),
+                SizedBox(
+                  height: 120,
+                  child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: 3,
+                      itemBuilder: (context, index) {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 5.0),
+                          child: Row(
+                            children: [
+                              CircleAvatar(
+                                radius: 13,
+                                foregroundImage: getForeGroundImage(myAccount.imagePath),
+                                child: const Icon(Icons.person),
+                              ),
+                              const SizedBox(width: 15.0,),
+                              Text('${myAccount.name} さん')
+                            ],
+                          ),
+                        );
+                      }),
+                ),
+                // if (myAccount.groupId != null)
+                  ElevatedButton.icon(
+                      onPressed: () async{
+                        //   送りたいメッセージを追加
+                        final String message = '${myAccount.name}さんからメンバーへ招待されました！';
+                        final String addTextUrl = lineUrl + message;
+                        //   LINEの処理を追加
+                        await FunctionUtils.launchLine(addTextUrl);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                        foregroundColor: Colors.white,
+                      ),
+                      icon: const Icon(Icons.messenger_rounded, color: Colors.white,),
+                      label: const Text('LINEでメンバーを招待', style: TextStyle(fontWeight: FontWeight.bold),)
+                  ),
                 const SizedBox(
                   height: 10.0,
                 ),
-
-                // Container(
-                //   color: Colors.grey,
-                //   padding: const EdgeInsets.only(left: 20.0, bottom: 8.0),
-                //   height: 120,
-                //   child: Container(
-                //     alignment: Alignment.bottomLeft,
-                //     child: CircleAvatar(
-                //       radius: 30,
-                //       foregroundImage: NetworkImage(myAccount.imagePath),
-                //     ),
-                //   ),
-                // ),
-                // Container(
-                //   padding: const EdgeInsets.only(top: 8.0, right: 8.0),
-                //     alignment: Alignment.centerRight,
-                //     child: OutlinedButton(
-                //         onPressed: () {
-                //           Navigator.push(context, MaterialPageRoute(builder: (context) => const EditAccountPage()));
-                //           // _showEditModal(context);
-                //         },
-                //         child: const Text('編集')
-                //     )
-                // ),
-                // Container(
-                //   // color: Colors.red,
-                //   padding: const EdgeInsets.only(left: 50.0, right: 50.0, bottom: 15.0),
-                //   // height: 200,
-                //   child: Column(
-                //     crossAxisAlignment: CrossAxisAlignment.center,
-                //     children: [
-                //       CircleAvatar(
-                //         radius: 40,
-                //         foregroundImage: myAccount.imagePath != null ? NetworkImage(myAccount.imagePath!): null,
-                //         child: const  Icon(Icons.person, size: 50,),
-                //       ),
-                //       const SizedBox(height: 10.0,),
-                //       Row(
-                //         mainAxisAlignment: MainAxisAlignment.start,
-                //         children: [
-                //           const SizedBox(
-                //             width: 60.0,
-                //               child: Text('名前', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0))),
-                //           const SizedBox(width: 30.0,),
-                //           Text('${myAccount.name}さん', style: const TextStyle(fontSize: 18.0))
-                //         ],
-                //       ),
-                //       const SizedBox(height: 10.0,),
-                //       Row(
-                //         mainAxisAlignment: MainAxisAlignment.start,
-                //         children: [
-                //           const SizedBox(
-                //             width: 60.0,
-                //               child: Text('メール', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0))),
-                //           const SizedBox(width: 30.0,),
-                //           Text(myAccount.email, style: const TextStyle(fontSize: 18.0))
-                //         ],
-                //       ),
-                //     ],
-                //   ),
-                // ),
+                
                 Container(
-                  padding: const EdgeInsets.symmetric(vertical: 10.0),
+                  padding: const EdgeInsets.symmetric(vertical: 5.0),
                   alignment: Alignment.center,
                   width: double.infinity,
                   decoration: const BoxDecoration(border: Border(top: BorderSide(color: Colors.grey))),
@@ -258,7 +240,6 @@ class _AccountPageState extends State<AccountPage> {
       ),
     );
   }
-
 // void _showEditModal(BuildContext context) {
 //   showModalBottomSheet(
 //       context: context,
@@ -373,7 +354,7 @@ class _AccountPageState extends State<AccountPage> {
 //                                 mainAxisAlignment: MainAxisAlignment.start,
 //                                 children: [
 //                                   const SizedBox(
-//                                     width: 60.0,
+//                                     width: 80.0,
 //                                     child: Text('名前',
 //                                         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)
 //                                     ),
@@ -392,7 +373,7 @@ class _AccountPageState extends State<AccountPage> {
 //                                 mainAxisAlignment: MainAxisAlignment.start,
 //                                 children: [
 //                                   const SizedBox(
-//                                     width: 60.0,
+//                                     width: 80.0,
 //                                     child: Text('メール',
 //                                         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)
 //                                     ),
@@ -456,7 +437,7 @@ class _AccountPageState extends State<AccountPage> {
 //                       ],
 //                     ),
 //                   ),
-//                   WidgetUtils.loadingStack(_isLoading)
+//                   // WidgetUtils.loadingStack(_isLoading)
 //                 ]
 //             ),
 //           ),
@@ -464,7 +445,7 @@ class _AccountPageState extends State<AccountPage> {
 //       }
 //   );
 // }
-//
+
 // void _showAlertDialog() async {
 //   await showDialog(
 //       context: context,
@@ -503,8 +484,5 @@ class _AccountPageState extends State<AccountPage> {
 //         );
 //       }
 //   );
-//   setState(() {
-//
-//   });
 // }
 }

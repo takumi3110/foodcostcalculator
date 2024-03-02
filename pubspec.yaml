@@ -39,6 +39,7 @@ dependencies:
   cloud_firestore: ^4.14.0
   firebase_auth: ^4.17.4
   fl_chart: ^0.66.2
+  url_launcher: ^6.2.5
 
 
 dev_dependencies:

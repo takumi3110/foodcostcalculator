@@ -7,6 +7,7 @@ import 'package:foodcost/utils/firestore/menus.dart';
 class UserFirestore {
   static final _firestoreInstance = FirebaseFirestore.instance;
   static final CollectionReference users = _firestoreInstance.collection('users');
+  static final CollectionReference groups = _firestoreInstance.collection('groups');
 
   static Future<dynamic> setUser(Account newAccount) async{
     try {
@@ -90,5 +91,22 @@ class UserFirestore {
   static Future<dynamic> deleteUser(String accountId) async {
     await MenuFirestore.deleteMenus(accountId);
     users.doc(accountId).delete();
+  }
+
+  static Future<dynamic> createGroup(Group newGroup) async {
+    try {
+      var result = await groups.add({
+        'name': newGroup.name,
+        'pass': newGroup.pass,
+        'owner': newGroup.owner
+      });
+      final CollectionReference groupMembers = groups.doc(result.id).collection('members');
+      await groupMembers.doc(newGroup.owner).set({'account_id': newGroup.owner, 'is_owner': true});
+      print('グループ登録完了');
+      return true;
+    } on FirebaseException catch (e) {
+      print('グループ登録エラー: $e');
+      return false;
+    }
   }
 }

@@ -47,21 +47,25 @@ class TargetFirestore {
       final CollectionReference userTarget =
           _firestoreInstance.collection('users').doc(accountId).collection('my_target');
       final userTargetSnapshot = await userTarget.get();
-      Map<String, dynamic> userTargetData = userTargetSnapshot.docs[0].data() as Map<String, dynamic>;
-      // var myTarget = await targets.where('user_id', isEqualTo: accountId).get();
-      // myTarget.docs.forEach((doc) {
-      //   Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-      final targetSnapshot = await targets.doc(userTargetData['target_id']).get();
-      Map<String, dynamic> targetData = targetSnapshot.data() as Map<String, dynamic>;
-      Target target = Target(
-          id: targetSnapshot.id,
-          monthAmount: targetData['month_amount'],
-          dayAmount: targetData['day_amount'],
-          userId: targetData['user_id'],
-          updatedTime: targetData['updated_time']);
-      //
-      // });
-      return target;
+      if (userTargetSnapshot.docs.isNotEmpty) {
+        Map<String, dynamic> userTargetData = userTargetSnapshot.docs[0].data() as Map<String, dynamic>;
+        // var myTarget = await targets.where('user_id', isEqualTo: accountId).get();
+        // myTarget.docs.forEach((doc) {
+        //   Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+        final targetSnapshot = await targets.doc(userTargetData['target_id']).get();
+        Map<String, dynamic> targetData = targetSnapshot.data() as Map<String, dynamic>;
+        Target target = Target(
+            id: targetSnapshot.id,
+            monthAmount: targetData['month_amount'],
+            dayAmount: targetData['day_amount'],
+            userId: targetData['user_id'],
+            updatedTime: targetData['updated_time']);
+        //
+        // });
+        return target;
+      } else {
+        return null;
+      }
     } on FirebaseException catch (e) {
       print('目標金額取得エラー: $e');
       return null;

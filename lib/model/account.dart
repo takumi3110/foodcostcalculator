@@ -8,5 +8,20 @@ class Account {
   Timestamp? createdTime;
   Timestamp? updatedTime;
 
-  Account({this.id = '', this.name = '', this.email = '', this.imagePath, this.createdTime, this.updatedTime});
+  Account(
+      {this.id = '',
+      this.name = '',
+      this.email = '',
+      this.imagePath,
+      this.createdTime,
+      this.updatedTime});
+}
+
+class Group {
+  String id;
+  String name;
+  String pass;
+  String owner;
+
+  Group({this.id = '', required this.name, required this.pass, required this.owner});
 }

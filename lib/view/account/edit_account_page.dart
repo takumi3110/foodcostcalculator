@@ -22,10 +22,20 @@ class _EditAccountPageState extends State<EditAccountPage> {
 
   TextEditingController nameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
+  String? currentName;
+  String? currentEmail;
+
+  // group
+  TextEditingController groupNameController = TextEditingController();
+  TextEditingController groupPassController = TextEditingController();
+
+  bool _isObscure = true;
+
   // TextEditingController passController = TextEditingController();
   File? image;
 
   bool _isLoading = false;
+
   // bool _isObscure = true;
 
   ImageProvider? getImage() {
@@ -55,7 +65,7 @@ class _EditAccountPageState extends State<EditAccountPage> {
                     });
                     UserFirestore.deleteUser(myAccount.id);
                     Authentication.deleteAuth();
-                    while(Navigator.canPop(context)) {
+                    while (Navigator.canPop(context)) {
                       Navigator.pop(context);
                     }
                     Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginPage()));
@@ -63,12 +73,11 @@ class _EditAccountPageState extends State<EditAccountPage> {
                       _isLoading = false;
                     });
                   },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    foregroundColor: Colors.white
-                  ),
-                  child: const Text('はい', style: TextStyle(fontWeight: FontWeight.bold),)
-              ),
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white),
+                  child: const Text(
+                    'はい',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  )),
               ElevatedButton(
                   onPressed: () {
                     Navigator.pop(context, false);
@@ -76,11 +85,7 @@ class _EditAccountPageState extends State<EditAccountPage> {
                   child: const Text('いいえ'))
             ],
           );
-        }
-    );
-    setState(() {
-
-    });
+        });
   }
 
   @override
@@ -88,10 +93,10 @@ class _EditAccountPageState extends State<EditAccountPage> {
     super.initState();
     nameController = TextEditingController(text: myAccount.name);
     emailController = TextEditingController(text: myAccount.email);
+    currentName = myAccount.name;
+    currentEmail = myAccount.email;
     // passController = TextEditingController(text: myAccount.pass);
   }
-
-  // TODO: アカウントアイコン削除
 
   @override
   Widget build(BuildContext context) {
@@ -102,101 +107,88 @@ class _EditAccountPageState extends State<EditAccountPage> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          child: Stack(
-            children: [
-              SizedBox(
-                width: double.infinity,
-                child: Column(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.only(top: 8.0, right: 15.0),
-                      alignment: Alignment.centerRight,
-                      child: OutlinedButton(
-                          // onPressed: () {
-                            // UserFirestore.deleteUser(myAccount.id);
-                            // Authentication.deleteAuth();
-                            // while(Navigator.canPop(context)) {
-                            //   Navigator.pop(context);
-                            // }
-                            // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginPage()));
-                          // },
+          child: Stack(children: [
+            SizedBox(
+              width: double.infinity,
+              child: Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.only(top: 8.0, right: 15.0),
+                    alignment: Alignment.centerRight,
+                    child: OutlinedButton(
+                        // onPressed: () {
+                        // UserFirestore.deleteUser(myAccount.id);
+                        // Authentication.deleteAuth();
+                        // while(Navigator.canPop(context)) {
+                        //   Navigator.pop(context);
+                        // }
+                        // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginPage()));
+                        // },
                         onPressed: _showAlertDialog,
-                          style: OutlinedButton.styleFrom(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10)
-                            ),
+                        style: OutlinedButton.styleFrom(
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                             foregroundColor: Colors.red,
                             side: const BorderSide(
                               color: Colors.red,
                               // width: 4
-                            )
-                          ),
-                          child: const Text('削除', style: TextStyle(fontWeight: FontWeight.bold),)
-                      ),
-                    ),
-                    Container(
-                      width: double.infinity,
-                      height: 300,
-                      padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 20.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          GestureDetector(
-                            onTap: () async{
-                              var result = await FunctionUtils.getImageFromGallery();
-                              if (result != null) {
-                                setState(() {
-                                  image = File(result.path);
-                                });
-                              }
-                            },
-                            child: CircleAvatar(
-                              radius:40,
-                              foregroundImage: getImage(),
-                              child: const Icon(Icons.add_a_photo_outlined, size: 30,),
+                            )),
+                        child: const Text(
+                          '削除',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        )),
+                  ),
+                  Container(
+                    width: double.infinity,
+                    // height: 300,
+                    padding: const EdgeInsets.symmetric(vertical: 20.0),
+                    child: Column(
+                      children: [
+                        GestureDetector(
+                          onTap: () async {
+                            var result = await FunctionUtils.getImageFromGallery();
+                            if (result != null) {
+                              setState(() {
+                                image = File(result.path);
+                              });
+                            }
+                          },
+                          child: CircleAvatar(
+                            radius: 40,
+                            foregroundImage: getImage(),
+                            child: const Icon(
+                              Icons.add_a_photo_outlined,
+                              size: 30,
                             ),
                           ),
-                          // SizedBox(
-                          //   width: double.maxFinite,
-                          //   child: TextButton(
-                          //       onPressed: () {},
-                          //       child: const Row(
-                          //         mainAxisAlignment: MainAxisAlignment.center,
-                          //         children: [
-                          //           Icon(Icons.cancel_outlined, size: 12,),
-                          //           Text('アイコン削除', style: TextStyle(fontSize: 12),)
-                          //         ],
-                          //       )
-                          //   ),
-                          // ),
-                          const SizedBox(height: 10.0,),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
+                        ),
+                        const SizedBox(
+                          height: 10.0,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const SizedBox(
+                              width: 100,
+                              child: Text('名前', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                            ),
+                            const SizedBox(width: 30.0),
+                            SizedBox(
+                              width: 200,
+                              child: TextField(
+                                controller: nameController,
+                              ),
+                            ),
+                          ],
+                        ),
+                        // const SizedBox(height: 20.0,),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 20.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               const SizedBox(
-                                width: 60.0,
-                                child: Text('名前',
-                                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)
-                                ),
-                              ),
-                              const SizedBox(width: 30.0),
-                              SizedBox(
-                                width: 200,
-                                child: TextField(
-                                  controller: nameController,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 20.0,),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              const SizedBox(
-                                width: 60.0,
-                                child: Text('メール',
-                                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)
-                                ),
+                                width: 100,
+                                child: Text('メール', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                               ),
                               const SizedBox(width: 30.0),
                               SizedBox(
@@ -207,44 +199,111 @@ class _EditAccountPageState extends State<EditAccountPage> {
                               ),
                             ],
                           ),
-                        ],
-                      ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(vertical: 5.0),
+                          alignment: Alignment.center,
+                          width: double.infinity,
+                          decoration: const BoxDecoration(border: Border(top: BorderSide(color: Colors.grey))),
+                          child: const Text('グループ'),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const SizedBox(
+                              width: 100,
+                              child: Text('グループ名', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                            ),
+                            const SizedBox(width: 30.0),
+                            SizedBox(
+                              width: 200,
+                              child: TextField(
+                                controller: groupNameController,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 20.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const SizedBox(
+                                width: 100,
+                                child: Text('パスワード', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                              ),
+                              const SizedBox(width: 30.0),
+                              SizedBox(
+                                width: 200,
+                                child: TextField(
+                                  controller: groupPassController,
+                                  decoration: InputDecoration(
+                                      suffixIcon: IconButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        _isObscure = !_isObscure;
+                                      });
+                                    },
+                                    icon: Icon(_isObscure ? Icons.visibility_off : Icons.visibility),
+                                  )),
+                                  obscureText: _isObscure,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 20.0,),
-                    ElevatedButton(
-                        onPressed: () async{
-                          setState(() {
-                            _isLoading = true;
-                          });
-                          if (nameController.text.isNotEmpty && emailController.text.isNotEmpty){
+                  ),
+                  const SizedBox(
+                    height: 20.0,
+                  ),
+                  ElevatedButton(
+                      onPressed: () async {
+                        setState(() {
+                          _isLoading = true;
+                        });
+                        bool accountResult = false;
+                        bool groupResult = false;
+                        if (nameController.text != currentName || emailController.text != currentEmail || image != null) {
+                          if (nameController.text.isNotEmpty && emailController.text.isNotEmpty) {
                             String imagePath = '';
-                            if (image != null)  {
-                              var result = await FunctionUtils.uploadImage(myAccount.id, image!);
-                              imagePath = result;
+                            if (image != null) {
+                              imagePath = await FunctionUtils.uploadImage(myAccount.id, image!);
                             }
                             Account updateAccount = Account(
-                              id: myAccount.id,
-                              name: nameController.text,
-                              email: emailController.text,
-                              imagePath: imagePath
+                                id: myAccount.id,
+                                name: nameController.text,
+                                email: emailController.text,
+                                imagePath: imagePath
                             );
                             Authentication.myAccount = updateAccount;
-                            var result = await UserFirestore.updateUser(updateAccount);
-                            if (result == true) {
-                              Navigator.pop(context, true);
-                            }
+                            accountResult = await UserFirestore.updateUser(updateAccount);
                           }
-                          setState(() {
-                            _isLoading = false;
-                          });
-                        },
-                        child: const Text('更新')),
-                  ],
-                ),
+                        }
+                        if (groupNameController.text.isNotEmpty && groupPassController.text.isNotEmpty) {
+                          //   TODO:グループ登録
+                          Group newGroup = Group(
+                            name: groupNameController.text,
+                            pass: groupPassController.text,
+                            owner: myAccount.id,
+                          );
+                          groupResult = await UserFirestore.createGroup(newGroup);
+                        }
+                        //   TODO:accountResultかグループのresultがtrueなら戻る
+                        if (groupResult == true || accountResult == true) {
+                          Navigator.pop(context, true);
+                        }
+                        setState(() {
+                          _isLoading = false;
+                        });
+                      },
+                      child: const Text('更新')),
+                ],
               ),
-              WidgetUtils.loadingStack(_isLoading)
-            ]
-          ),
+            ),
+            WidgetUtils.loadingStack(_isLoading)
+          ]),
         ),
       ),
     );

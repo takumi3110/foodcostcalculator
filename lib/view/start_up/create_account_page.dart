@@ -90,7 +90,9 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                                       _isObscure = !_isObscure;
                                     });
                                   },
-                                  icon: Icon(_isObscure ? Icons.visibility_off : Icons.visibility))),
+                                  icon: Icon(_isObscure ? Icons.visibility_off : Icons.visibility)
+                              )
+                          ),
                           obscureText: _isObscure,
                         ),
                       ),
