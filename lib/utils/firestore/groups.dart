@@ -6,8 +6,8 @@ import 'package:foodcost/utils/firestore/users.dart';
 class GroupFirestore {
   static final _firestoreInstance = FirebaseFirestore.instance;
   static final CollectionReference groups = _firestoreInstance.collection('groups');
-  
-  static Future<dynamic> createGroup(Group newGroup) async {
+
+  static Future<bool> createGroup(Group newGroup) async {
     try {
       var result = await groups.add({
         'name': newGroup.name,
@@ -17,21 +17,30 @@ class GroupFirestore {
       final myAccount = Authentication.myAccount;
       if (myAccount != null) {
         final CollectionReference groupMembers = groups.doc(result.id).collection('members');
-        await groupMembers.doc(myAccount.id).set({
-          'name': myAccount.name,
-          'image_path': myAccount.imagePath,
-          'is_owner': true
-        });
+        await groupMembers
+            .doc(myAccount.id)
+            .set({'name': myAccount.name, 'image_path': myAccount.imagePath, 'is_owner': true});
         // ユーザーのグループIDに追加
-        await UserFirestore.users.doc(newGroup.owner).update({
-          'group_id': result.id
-        });
+        await UserFirestore.users.doc(myAccount.id).update({'group_id': result.id});
         Authentication.myAccount!.groupId = result.id;
       }
-        print('グループ登録完了');
-        return true;
+      print('グループ登録完了');
+      return true;
     } on FirebaseException catch (e) {
       print('グループ登録エラー: $e');
+      return false;
+    }
+  }
+
+  static Future<bool> updateGroup(Group newGroup) async {
+    try {
+      await groups.doc(newGroup.id).update({
+        'name': newGroup.name,
+      });
+      print('グループ更新完了');
+      return true;
+    } on FirebaseException catch (e) {
+      print('グループ更新エラー:$e');
       return false;
     }
   }
@@ -42,9 +51,9 @@ class GroupFirestore {
       if (doc.data() != null) {
         Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
         Group newGroup = Group(
-            name: data['name'],
-            code: data['code'],
-            owner: data['owner']
+          id: doc.id,
+          name: data['name'],
+          code: data['code'],
         );
         print('グループ取得完了');
         return newGroup;
@@ -57,7 +66,6 @@ class GroupFirestore {
     }
   }
 
-  
   static Future<List<Member>?> getGroupMembers(String groupId) async {
     try {
       final CollectionReference members = groups.doc(groupId).collection('members');
@@ -65,11 +73,7 @@ class GroupFirestore {
       QuerySnapshot snapshot = await members.get();
       for (var doc in snapshot.docs) {
         Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-        memberList.add(Member(
-            name: data['name'],
-            imagePath: data['image_path'],
-            isOwner: data['is_owner']
-        ));
+        memberList.add(Member(name: data['name'], imagePath: data['image_path'], isOwner: data['is_owner']));
       }
       if (memberList.isNotEmpty) {
         print('メンバー取得完了');

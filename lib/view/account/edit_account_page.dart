@@ -26,12 +26,10 @@ class _EditAccountPageState extends State<EditAccountPage> {
 
   TextEditingController nameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
-  String? currentName;
-  String? currentEmail;
 
   // group
   TextEditingController groupNameController = TextEditingController();
-  String? currentGroupName;
+  Group? group;
 
   // TextEditingController passController = TextEditingController();
   File? image;
@@ -95,7 +93,7 @@ class _EditAccountPageState extends State<EditAccountPage> {
     if (result != null) {
       setState(() {
         groupNameController = TextEditingController(text: result.name);
-        currentGroupName = result.name;
+        group = result;
       });
     }
   }
@@ -105,8 +103,6 @@ class _EditAccountPageState extends State<EditAccountPage> {
     super.initState();
     nameController = TextEditingController(text: myAccount.name);
     emailController = TextEditingController(text: myAccount.email);
-    currentName = myAccount.name;
-    currentEmail = myAccount.email;
     if (myAccount.groupId != null) {
       getGroup(myAccount.groupId!);
     }
@@ -130,14 +126,6 @@ class _EditAccountPageState extends State<EditAccountPage> {
                     padding: const EdgeInsets.only(top: 8.0, right: 15.0),
                     alignment: Alignment.centerRight,
                     child: OutlinedButton(
-                        // onPressed: () {
-                        // UserFirestore.deleteUser(myAccount.id);
-                        // Authentication.deleteAuth();
-                        // while(Navigator.canPop(context)) {
-                        //   Navigator.pop(context);
-                        // }
-                        // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginPage()));
-                        // },
                         onPressed: _showAlertDialog,
                         style: OutlinedButton.styleFrom(
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -250,7 +238,7 @@ class _EditAccountPageState extends State<EditAccountPage> {
                         });
                         bool accountResult = false;
                         bool groupResult = false;
-                        if (nameController.text != currentName || emailController.text != currentEmail || image != null) {
+                        if (nameController.text != myAccount.name || emailController.text != myAccount.email || image != null) {
                           if (nameController.text.isNotEmpty && emailController.text.isNotEmpty) {
                             String? imagePath = myAccount.imagePath;
                             if (image != null) {
@@ -267,18 +255,22 @@ class _EditAccountPageState extends State<EditAccountPage> {
                             accountResult = await UserFirestore.updateUser(updateAccount);
                           }
                         }
-                        if (groupNameController.text.isNotEmpty && groupNameController.text != currentGroupName) {
+                        if (groupNameController.text.isNotEmpty && groupNameController.text != (group != null ? group!.name: '')) {
                           // グループ登録
                           // 招待コード作成
                           const String charset = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
                           final Random random = Random.secure();
                           final String randomCode = List.generate(5, (_) => charset[random.nextInt(charset.length)]).join();
                           Group newGroup = Group(
+                            id: group?.id,
                             name: groupNameController.text,
                             code: randomCode,
-                            owner: myAccount.id,
                           );
-                          groupResult = await GroupFirestore.createGroup(newGroup);
+                          if (group != null) {
+                            groupResult = await GroupFirestore.updateGroup(newGroup);
+                          } else {
+                            groupResult = await GroupFirestore.createGroup(newGroup);
+                          }
                         }
                         // accountResultかグループのresultがtrueなら戻る
                         if (groupResult == true || accountResult == true) {
