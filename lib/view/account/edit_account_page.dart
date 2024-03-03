@@ -1,10 +1,13 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:foodcost/model/account.dart';
+import 'package:foodcost/model/group.dart';
 import 'package:foodcost/utils/authentication.dart';
+import 'package:foodcost/utils/firestore/groups.dart';
 import 'package:foodcost/utils/firestore/users.dart';
 import 'package:foodcost/utils/functionUtils.dart';
 import 'package:foodcost/utils/widget_utils.dart';
@@ -19,6 +22,7 @@ class EditAccountPage extends StatefulWidget {
 
 class _EditAccountPageState extends State<EditAccountPage> {
   Account myAccount = Authentication.myAccount!;
+  // Group myGroup = GroupFirestore.myGroup!;
 
   TextEditingController nameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
@@ -27,9 +31,7 @@ class _EditAccountPageState extends State<EditAccountPage> {
 
   // group
   TextEditingController groupNameController = TextEditingController();
-  TextEditingController groupPassController = TextEditingController();
-
-  bool _isObscure = true;
+  String? currentGroupName;
 
   // TextEditingController passController = TextEditingController();
   File? image;
@@ -88,6 +90,16 @@ class _EditAccountPageState extends State<EditAccountPage> {
         });
   }
 
+  void getGroup(String groupId) async {
+    final result = await GroupFirestore.getGroup(groupId);
+    if (result != null) {
+      setState(() {
+        groupNameController = TextEditingController(text: result.name);
+        currentGroupName = result.name;
+      });
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -95,7 +107,9 @@ class _EditAccountPageState extends State<EditAccountPage> {
     emailController = TextEditingController(text: myAccount.email);
     currentName = myAccount.name;
     currentEmail = myAccount.email;
-    // passController = TextEditingController(text: myAccount.pass);
+    if (myAccount.groupId != null) {
+      getGroup(myAccount.groupId!);
+    }
   }
 
   @override
@@ -106,9 +120,9 @@ class _EditAccountPageState extends State<EditAccountPage> {
         elevation: 1,
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Stack(children: [
-            SizedBox(
+        child: Stack(children: [
+          SingleChildScrollView(
+            child: SizedBox(
               width: double.infinity,
               child: Column(
                 children: [
@@ -223,35 +237,6 @@ class _EditAccountPageState extends State<EditAccountPage> {
                             ),
                           ],
                         ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 20.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const SizedBox(
-                                width: 100,
-                                child: Text('パスワード', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                              ),
-                              const SizedBox(width: 30.0),
-                              SizedBox(
-                                width: 200,
-                                child: TextField(
-                                  controller: groupPassController,
-                                  decoration: InputDecoration(
-                                      suffixIcon: IconButton(
-                                    onPressed: () {
-                                      setState(() {
-                                        _isObscure = !_isObscure;
-                                      });
-                                    },
-                                    icon: Icon(_isObscure ? Icons.visibility_off : Icons.visibility),
-                                  )),
-                                  obscureText: _isObscure,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
                       ],
                     ),
                   ),
@@ -267,30 +252,35 @@ class _EditAccountPageState extends State<EditAccountPage> {
                         bool groupResult = false;
                         if (nameController.text != currentName || emailController.text != currentEmail || image != null) {
                           if (nameController.text.isNotEmpty && emailController.text.isNotEmpty) {
-                            String imagePath = '';
+                            String? imagePath = myAccount.imagePath;
                             if (image != null) {
                               imagePath = await FunctionUtils.uploadImage(myAccount.id, image!);
                             }
+
                             Account updateAccount = Account(
                                 id: myAccount.id,
                                 name: nameController.text,
                                 email: emailController.text,
-                                imagePath: imagePath
+                                imagePath: imagePath,
                             );
                             Authentication.myAccount = updateAccount;
                             accountResult = await UserFirestore.updateUser(updateAccount);
                           }
                         }
-                        if (groupNameController.text.isNotEmpty && groupPassController.text.isNotEmpty) {
-                          //   TODO:グループ登録
+                        if (groupNameController.text.isNotEmpty && groupNameController.text != currentGroupName) {
+                          // グループ登録
+                          // 招待コード作成
+                          const String charset = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+                          final Random random = Random.secure();
+                          final String randomCode = List.generate(5, (_) => charset[random.nextInt(charset.length)]).join();
                           Group newGroup = Group(
                             name: groupNameController.text,
-                            pass: groupPassController.text,
+                            code: randomCode,
                             owner: myAccount.id,
                           );
-                          groupResult = await UserFirestore.createGroup(newGroup);
+                          groupResult = await GroupFirestore.createGroup(newGroup);
                         }
-                        //   TODO:accountResultかグループのresultがtrueなら戻る
+                        // accountResultかグループのresultがtrueなら戻る
                         if (groupResult == true || accountResult == true) {
                           Navigator.pop(context, true);
                         }
@@ -302,8 +292,9 @@ class _EditAccountPageState extends State<EditAccountPage> {
                 ],
               ),
             ),
-            WidgetUtils.loadingStack(_isLoading)
-          ]),
+          ),
+          WidgetUtils.loadingStack(_isLoading)
+        ]
         ),
       ),
     );

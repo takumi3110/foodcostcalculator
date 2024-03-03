@@ -6,7 +6,6 @@ import 'package:foodcost/utils/authentication.dart';
 import 'package:foodcost/view/account/account_page.dart';
 import 'package:foodcost/view/calendar/calendar_page.dart';
 import 'package:foodcost/view/cost/cost_page.dart';
-import 'package:foodcost/view/cost/cost_page.dart';
 import 'package:foodcost/view/menu/create_menu_page.dart';
 import 'package:foodcost/view/start_up/login_page.dart';
 import 'package:intl/intl.dart';

@@ -5,6 +5,7 @@ class Account {
   String name;
   String email;
   String? imagePath;
+  String? groupId;
   Timestamp? createdTime;
   Timestamp? updatedTime;
 
@@ -13,15 +14,9 @@ class Account {
       this.name = '',
       this.email = '',
       this.imagePath,
+      this.groupId,
       this.createdTime,
       this.updatedTime});
 }
 
-class Group {
-  String id;
-  String name;
-  String pass;
-  String owner;
 
-  Group({this.id = '', required this.name, required this.pass, required this.owner});
-}
