@@ -6,7 +6,6 @@ import 'package:foodcost/utils/authentication.dart';
 import 'package:foodcost/view/account/account_page.dart';
 import 'package:foodcost/view/calendar/calendar_page.dart';
 import 'package:foodcost/view/cost/cost_page.dart';
-import 'package:foodcost/view/cost/cost_page.dart';
 import 'package:foodcost/view/menu/create_menu_page.dart';
 import 'package:foodcost/view/start_up/login_page.dart';
 import 'package:intl/intl.dart';
@@ -40,7 +39,7 @@ class WidgetUtils {
 
   static SizedBox sideMenuDrawer(BuildContext context) {
     return SizedBox(
-      width: 250,
+      width: 230,
       child: Drawer(
         child: Container(
           color: Colors.white,
@@ -66,7 +65,7 @@ class WidgetUtils {
                   children: [
                     Icon(Icons.calendar_month),
                     SizedBox(
-                      width: 10.0,
+                      width: 15.0,
                     ),
                     Text('カレンダー')
                   ],
@@ -80,7 +79,7 @@ class WidgetUtils {
                   children: [
                     Icon(Icons.bar_chart),
                     SizedBox(
-                      width: 10.0,
+                      width: 15.0,
                     ),
                     Text('今月の食費'),
                   ],
@@ -95,7 +94,7 @@ class WidgetUtils {
                   children: [
                     Icon(Icons.account_box),
                     SizedBox(
-                      width: 10.0,
+                      width: 15.0,
                     ),
                     Text('マイページ'),
                   ],
@@ -109,7 +108,7 @@ class WidgetUtils {
                   children: [
                     Icon(Icons.logout),
                     SizedBox(
-                      width: 10.0,
+                      width: 15.0,
                     ),
                     Text('ログアウト'),
                   ],

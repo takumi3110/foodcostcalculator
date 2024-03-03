@@ -90,7 +90,9 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                                       _isObscure = !_isObscure;
                                     });
                                   },
-                                  icon: Icon(_isObscure ? Icons.visibility_off : Icons.visibility))),
+                                  icon: Icon(_isObscure ? Icons.visibility_off : Icons.visibility)
+                              )
+                          ),
                           obscureText: _isObscure,
                         ),
                       ),
@@ -140,11 +142,13 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
         var result = await FunctionUtils.uploadImage(uid, image!);
         imagePath = result;
       }
+      String? groupId;
       Account newAccount = Account(
           id: uid,
           name: nameController.text,
           email: emailController.text,
           imagePath: imagePath,
+          groupId: groupId,
           createdTime: Timestamp.now(),
           updatedTime: Timestamp.now());
       var result = await UserFirestore.setUser(newAccount);

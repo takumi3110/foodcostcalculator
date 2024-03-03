@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class FunctionUtils {
   static Future<dynamic> getImageFromGallery() async{
@@ -19,6 +20,18 @@ class FunctionUtils {
     } on FirebaseException catch (e) {
       print(e);
       return null;
+    }
+  }
+
+  static Future<void> launchLine(String url) async {
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(
+          uri,
+          mode: LaunchMode.externalApplication
+      );
+    } else {
+      print('URL起動エラー');
     }
   }
 }

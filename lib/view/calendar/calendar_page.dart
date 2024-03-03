@@ -183,14 +183,16 @@ class _CalendarPageState extends State<CalendarPage> {
                                     for (var doc in snapshot.data!.docs) {
                                       Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
                                       List<Food> foods = [];
-                                      for (var food in data['foods']) {
-                                        Food getFood = Food(
-                                          name: food['name'],
-                                          unitPrice: food['unit_price'],
-                                          costCount: food['cost_count'],
-                                          price: food['price']
-                                        );
-                                        foods.add(getFood);
+                                      if (data['foods'] != null) {
+                                        for (var food in data['foods']) {
+                                          Food getFood = Food(
+                                              name: food['name'],
+                                              unitPrice: food['unit_price'],
+                                              costCount: food['cost_count'],
+                                              price: food['price']
+                                          );
+                                          foods.add(getFood);
+                                        }
                                       }
                                       Menu getMenu = Menu(
                                         id: doc.id,

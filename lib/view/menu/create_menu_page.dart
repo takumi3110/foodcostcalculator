@@ -80,15 +80,15 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
       menuController.text = menu.name;
       menu.foods.asMap().forEach((int index, Food food) {
         foodControllers.add({
-          'name': TextEditingController(),
-          'unitPrice': TextEditingController(),
-          'costCount': TextEditingController(),
-          'price': TextEditingController(),
+          'name': TextEditingController(text: food.name),
+          'unitPrice': TextEditingController(text: food.unitPrice.toString()),
+          'costCount': TextEditingController(text: food.costCount.toString()),
+          'price': TextEditingController(text: food.price.toString()),
         });
-        foodControllers[index]['name']!.text = food.name;
-        foodControllers[index]['unitPrice']!.text = food.unitPrice.toString();
-        foodControllers[index]['costCount']!.text = food.costCount.toString();
-        foodControllers[index]['price']!.text = food.price.toString();
+        // foodControllers[index]['name']!.text = food.name;
+        // foodControllers[index]['unitPrice']!.text = food.unitPrice.toString();
+        // foodControllers[index]['costCount']!.text = food.costCount.toString();
+        // foodControllers[index]['price']!.text = food.price.toString();
         allPrice += food.price;
         final Count count = menuItemValues.firstWhere((Count value) => value.count == double.parse(food.costCount));
         _costCounts.add(count);

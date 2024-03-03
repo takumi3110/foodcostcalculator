@@ -5,8 +5,18 @@ class Account {
   String name;
   String email;
   String? imagePath;
+  String? groupId;
   Timestamp? createdTime;
   Timestamp? updatedTime;
 
-  Account({this.id = '', this.name = '', this.email = '', this.imagePath, this.createdTime, this.updatedTime});
+  Account(
+      {this.id = '',
+      this.name = '',
+      this.email = '',
+      this.imagePath,
+      this.groupId,
+      this.createdTime,
+      this.updatedTime});
 }
+
+

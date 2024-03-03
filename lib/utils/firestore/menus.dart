@@ -53,17 +53,6 @@ class MenuFirestore {
     }
   }
 
-  static Future<dynamic> updateMenuImage(String menuId, String imagePath) async {
-    try {
-      await menus.doc(menuId).update({'image_path': imagePath});
-      print('メニュー画像登録完了');
-      return true;
-    } on FirebaseException catch (e) {
-      print('メニュー画像登録エラー: $e');
-      return false;
-    }
-  }
-
   static Future<dynamic> getMenus(String accountId) async {
     try {
       DateTime now = DateTime.now();

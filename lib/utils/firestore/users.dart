@@ -14,6 +14,7 @@ class UserFirestore {
         'name': newAccount.name,
         'email': newAccount.email,
         'image_path': newAccount.imagePath,
+        'group_id': null,
         'created_time': newAccount.createdTime,
         'updated_time': newAccount.updatedTime
       });
@@ -35,6 +36,7 @@ class UserFirestore {
           name: data['name'],
           email: data['email'],
           imagePath: data['image_path'],
+          groupId: data['group_id'],
           createdTime: data['created_time'],
         );
         Authentication.myAccount = myAccount;
@@ -49,28 +51,6 @@ class UserFirestore {
     }
   }
 
-  static Future<Map<String, Account>?> getPostUserMap(String userId) async{
-    Map<String, Account> map = {};
-    try {
-      var doc = await users.doc(userId).get();
-      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-      Account postAccount = Account(
-        id: userId,
-        name: data['name'],
-        email: data['email'],
-        imagePath: data['image_path'],
-        createdTime: data['created_time'],
-        updatedTime: data['updated_time']
-      );
-      map[userId] = postAccount;
-      print('投稿ユーザーの取得完了');
-      return map;
-    } on FirebaseException catch (e) {
-      print('投稿ユーザー取得エラー: $e');
-      return null;
-    }
-  }
-
   static Future<dynamic> updateUser(Account updateAccount) async{
     try {
       await users.doc(updateAccount.id).update({
@@ -79,6 +59,7 @@ class UserFirestore {
         'image_path': updateAccount.imagePath,
         'updated_time': Timestamp.now()
       });
+      Authentication.myAccount = updateAccount;
       print('update成功');
       return true;
     } on FirebaseException catch (e) {
@@ -91,4 +72,6 @@ class UserFirestore {
     await MenuFirestore.deleteMenus(accountId);
     users.doc(accountId).delete();
   }
+
+
 }
