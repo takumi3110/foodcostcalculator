@@ -58,7 +58,7 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
     if (image == null) {
       if (widget.selectedMenu != null) {
         if (widget.selectedMenu!.imagePath != '') {
-          return NetworkImage(widget.selectedMenu!.imagePath!);
+          return NetworkImage(widget.selectedMenu!.imagePath);
         } else {
           return null;
         }
@@ -143,9 +143,9 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
                 setState(() {
                   _isLoading = true;
                 });
-                String imagePath = '';
+                String imagePath = selectedMenu != null ? selectedMenu!.imagePath : '';
                 if (image != null || isImageEdit == true) {
-                  var result = await FunctionUtils.uploadImage(menuId, image!);
+                  var result = await FunctionUtils.uploadImage('${_selectedDay}_${menuController.text}', image!);
                   imagePath = result;
                 }
                 Menu newMenu = Menu(
@@ -157,8 +157,13 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
                     imagePath: imagePath,
                     foods: newFoods);
                 bool result = false;
-                if (menuId.isNotEmpty) {
-                  result = await MenuFirestore.updateMenu(newMenu);
+                if (selectedMenu != null) {
+                  // TODO:foodの変更をチェック
+                  if (selectedMenu!.name != menuController.text) {
+                    result = await MenuFirestore.updateMenu(newMenu);
+                  } else {
+                    result = true;
+                  }
                 } else {
                   result = await MenuFirestore.addMenu(newMenu);
                 }
@@ -380,7 +385,8 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
                               width: 90,
                               child: DropdownButtonFormField(
                                   decoration: const InputDecoration(hintText: '量'),
-                                  value: foodControllers[index]['costCount']!.text.isNotEmpty ? _costCounts[index] : null,
+                                  value:
+                                      foodControllers[index]['costCount']!.text.isNotEmpty ? _costCounts[index] : null,
                                   // value: _costCounts.length == foodControllers.length ? _costCounts[index] : ,
                                   items: menuItemValues.map((value) {
                                     return DropdownMenuItem(

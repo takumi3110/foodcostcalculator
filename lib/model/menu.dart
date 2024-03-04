@@ -6,7 +6,7 @@ class Menu {
   String name;
   String userId;
   int? totalAmount;
-  String? imagePath;
+  String imagePath;
   Timestamp? createdTime;
   List<Food> foods;
 
@@ -16,7 +16,7 @@ class Menu {
     this.userId = '',
     this.totalAmount,
     this.createdTime,
-    this.imagePath,
+    this.imagePath = '',
     required this.foods
   });
 }
