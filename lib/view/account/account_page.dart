@@ -200,7 +200,7 @@ class _AccountPageState extends State<AccountPage> {
                                 itemCount: memberSnapshot.data!.length,
                                 itemBuilder: (context, index) {
                                   // Map<String, dynamic> data = memberSnapshot.data! as Map<String, dynamic>;
-                                  if (memberSnapshot.data![index].name != myAccount.name) {
+                                  if (memberSnapshot.data![index].id != myAccount.id) {
                                     return Padding(
                                       padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 5.0),
                                       child: Row(

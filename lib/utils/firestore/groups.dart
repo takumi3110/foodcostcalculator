@@ -73,7 +73,7 @@ class GroupFirestore {
       QuerySnapshot snapshot = await members.get();
       for (var doc in snapshot.docs) {
         Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-        memberList.add(Member(name: data['name'], imagePath: data['image_path'], isOwner: data['is_owner']));
+        memberList.add(Member(id: doc.id, name: data['name'], imagePath: data['image_path'], isOwner: data['is_owner']));
       }
       if (memberList.isNotEmpty) {
         print('メンバー取得完了');

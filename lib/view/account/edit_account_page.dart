@@ -244,14 +244,13 @@ class _EditAccountPageState extends State<EditAccountPage> {
                             if (image != null) {
                               imagePath = await FunctionUtils.uploadImage(myAccount.id, image!);
                             }
-
                             Account updateAccount = Account(
                                 id: myAccount.id,
                                 name: nameController.text,
                                 email: emailController.text,
                                 imagePath: imagePath,
                             );
-                            Authentication.myAccount = updateAccount;
+                            // Authentication.myAccount = updateAccount;
                             accountResult = await UserFirestore.updateUser(updateAccount);
                           }
                         }
