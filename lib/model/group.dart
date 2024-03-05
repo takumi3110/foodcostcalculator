@@ -7,11 +7,13 @@ class Group {
 }
 
 class Member {
+  String id;
   String name;
   String? imagePath;
   bool isOwner;
 
   Member({
+    this.id ='',
     required this.name,
     this.imagePath,
     required this.isOwner

@@ -59,7 +59,14 @@ class UserFirestore {
         'image_path': updateAccount.imagePath,
         'updated_time': Timestamp.now()
       });
-      Authentication.myAccount = updateAccount;
+      Account? myAccount = Authentication.myAccount;
+      // Authentication.myAccount = updateAccount;
+      if (myAccount != null) {
+        myAccount.name = updateAccount.name;
+        myAccount.email = updateAccount.email;
+        myAccount.imagePath = updateAccount.imagePath;
+        myAccount.updatedTime = Timestamp.now();
+      }
       print('update成功');
       return true;
     } on FirebaseException catch (e) {

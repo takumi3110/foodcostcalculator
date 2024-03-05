@@ -1,8 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:foodcost/model/account.dart';
 import 'package:foodcost/model/menu.dart';
 import 'package:foodcost/utils/authentication.dart';
+import 'package:foodcost/utils/firestore/users.dart';
 import 'package:foodcost/view/account/account_page.dart';
 import 'package:foodcost/view/calendar/calendar_page.dart';
 import 'package:foodcost/view/cost/cost_page.dart';
@@ -26,9 +28,23 @@ class WidgetUtils {
         style: const TextStyle(color: Colors.black),
       ),
       leading: IconButton(
-        icon: CircleAvatar(
-          foregroundImage: myAccount.imagePath != null ? NetworkImage(myAccount.imagePath!): null,
-          child: const Icon(Icons.person),
+        icon: StreamBuilder<DocumentSnapshot>(
+          stream: UserFirestore.users.doc(myAccount.id).snapshots(),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              Map<String, dynamic> data = snapshot.data!.data() as Map<String, dynamic>;
+              return CircleAvatar(
+                // foregroundImage: myAccount.imagePath != null ? NetworkImage(myAccount.imagePath!) : null,
+                foregroundImage: data['image_path'] != null ? NetworkImage(data['image_path']) : null,
+                child: const Icon(Icons.person),
+              );
+            } else {
+              return const CircleAvatar(
+                child: Icon(Icons.person),
+              );
+            }
+
+          }
         ),
         onPressed: () {
           key.currentState!.openDrawer();
@@ -38,6 +54,7 @@ class WidgetUtils {
   }
 
   static SizedBox sideMenuDrawer(BuildContext context) {
+    // Account myAccount = Authentication.myAccount!;
     return SizedBox(
       width: 230,
       child: Drawer(
@@ -45,21 +62,63 @@ class WidgetUtils {
           color: Colors.white,
           child: ListView(
             children: [
-              UserAccountsDrawerHeader(
-                accountName: Text(
-                  myAccount.name,
-                  style: const TextStyle(fontWeight: FontWeight.w400, fontSize: 18, color: Colors.black),
-                ),
-                accountEmail: Text(
-                  myAccount.email,
-                  style: const TextStyle(color: Colors.black),
-                ),
-                currentAccountPicture: CircleAvatar(
-                  foregroundImage: myAccount.imagePath != null ? NetworkImage(myAccount.imagePath!): null,
-                  child: const Icon(Icons.person, size: 50,),
-                ),
-                decoration: const BoxDecoration(color: Colors.white),
+              StreamBuilder<DocumentSnapshot>(
+                stream: UserFirestore.users.doc(myAccount.id).snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    Map<String, dynamic> data = snapshot.data!.data() as Map<String, dynamic>;
+                    // myAccount = Account(
+                    //   name: data['name'],
+                    //   email: data['email'],
+                    //   imagePath: data['image_path'],
+                    //   groupId: data['group_id'],
+                    //   createdTime: data['created_time'],
+                    //   updatedTime: data['updated_time']
+                    // );
+                    return UserAccountsDrawerHeader(
+                      accountName: Text(
+                        // myAccount.name,
+                        data['name'],
+                        style: const TextStyle(fontWeight: FontWeight.w400, fontSize: 18, color: Colors.black),
+                      ),
+                      accountEmail: Text(
+                        // myAccount.email,
+                        data['email'],
+                        style: const TextStyle(color: Colors.black),
+                      ),
+                      currentAccountPicture: CircleAvatar(
+                        // foregroundImage: myAccount.imagePath != null ? NetworkImage(myAccount.imagePath!): null,
+                        foregroundImage: data['image_path'] != null ? NetworkImage(data['image_path']!): null,
+                        child: const Icon(Icons.person, size: 50,),
+                      ),
+                      decoration: const BoxDecoration(color: Colors.white),
+                    );
+                  }else {
+                   return Container();
+                  }
+                }
               ),
+              // UserAccountsDrawerHeader(
+              //   accountName: Text(
+              //     myAccount.name,
+              //     // data['name'],
+              //     style: const TextStyle(fontWeight: FontWeight.w400, fontSize: 18, color: Colors.black),
+              //   ),
+              //   accountEmail: Text(
+              //     myAccount.email,
+              //     // data['email'],
+              //     style: const TextStyle(color: Colors.black),
+              //   ),
+              //   currentAccountPicture: CircleAvatar(
+              //     foregroundImage: myAccount.imagePath != null ? NetworkImage(myAccount.imagePath!) : null,
+              //     // foregroundImage: data['image_path'] != null ? NetworkImage(data['image_path']!): null,
+              //     child: const Icon(
+              //       Icons.person,
+              //       size: 50,
+              //     ),
+              //   ),
+              //   decoration: const BoxDecoration(color: Colors.white),
+              // ),
               ListTile(
                 title: const Row(
                   children: [
@@ -158,16 +217,19 @@ class WidgetUtils {
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 child: ListTile(
                   onTap: () {
-                  //   TODO: メニューの更新ページ
-                    final selectedDay = menus[index].createdTime != null ? menus[index].createdTime!.toDate(): DateTime.now();
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => CreateMenuPage(selectedDay:selectedDay, selectedMenu: menus[index],)));
+                    final selectedDay =
+                        menus[index].createdTime != null ? menus[index].createdTime!.toDate() : DateTime.now();
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => CreateMenuPage(
+                                  selectedDay: selectedDay,
+                                  selectedMenu: menus[index],
+                                )));
                   },
                   title: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(menus[index].name),
-                      Text('${formatter.format(menus[index].totalAmount)} 円')
-                    ],
+                    children: [Text(menus[index].name), Text('${formatter.format(menus[index].totalAmount)} 円')],
                   ),
                 ),
               ),
@@ -177,5 +239,4 @@ class WidgetUtils {
           );
         });
   }
-
 }
