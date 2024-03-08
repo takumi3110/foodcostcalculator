@@ -45,3 +45,9 @@ app.*.map.json
 
 # fvm
 .fvm/flutter_sdk
+
+# cloud_functions
+/functions/.env
+/functions/node_modules
+
+.env

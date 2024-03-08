@@ -2,12 +2,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/widgets.dart';
 import 'package:foodcost/utils/authentication.dart';
 import 'package:foodcost/utils/firestore/users.dart';
 import 'package:foodcost/utils/widget_utils.dart';
 import 'package:foodcost/view/calendar/calendar_page.dart';
 import 'package:foodcost/view/start_up/create_account_page.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
+
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -22,11 +23,13 @@ class _LoginPageState extends State<LoginPage> {
 
   bool _isLoading = false;
   bool _isObscureText = true;
-  bool _isLoginError = false;
+  bool _isMailLoginError = false;
+  bool _isLineLoginError = false;
+
 
   @override
   Widget build(BuildContext context) {
-    final bottomSpace = MediaQuery.of(context).viewInsets.bottom;
+    // final bottomSpace = MediaQuery.of(context).viewInsets.bottom;
     return Scaffold(
       // resizeToAvoidBottomInset: false,
       body: SafeArea(
@@ -48,11 +51,8 @@ class _LoginPageState extends State<LoginPage> {
                       'まんまのじぇんこ(仮)',
                       style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
                     ),
-                    const SizedBox(
-                      height: 50,
-                    ),
                     Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 50.0),
+                      padding: const EdgeInsets.symmetric(vertical: 30.0),
                       child: SizedBox(
                         width: 300,
                         child: TextField(
@@ -121,13 +121,13 @@ class _LoginPageState extends State<LoginPage> {
                                 }
                               } else {
                                 setState(() {
-                                  _isLoginError = true;
+                                  _isMailLoginError = true;
                                 });
                               }
                               // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const CalendarPage()));
                             } else {
                               setState(() {
-                                _isLoginError = true;
+                                _isMailLoginError = true;
                               });
                             }
                             setState(() {
@@ -138,12 +138,73 @@ class _LoginPageState extends State<LoginPage> {
                           }
                         },
                         child: const Text('メールアドレスでログイン')),
-                    if (_isLoginError)
+                    if (_isMailLoginError)
                       const Center(
                           child: Text(
                         '正しいメールアドレスとパスワードを入力してください。',
                         style: TextStyle(color: Colors.red),
-                      )),
+                      )
+                      ),
+                    const SizedBox(height: 20),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                      child: Column(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(vertical: 5.0,),
+                            alignment: Alignment.center,
+                            decoration: const BoxDecoration(border: Border(top: BorderSide(color: Colors.grey))),
+                            width: double.infinity,
+                            child: const Text('他の方法でログインする'),
+                          ),
+                          // LINE Login
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Ink.image(
+                              width: 150,
+                              height: 45,
+                              image: const AssetImage('images/line/btn_login_base.png'),
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(15),
+                                onTap: () async{
+                                  setState(() {
+                                    _isLoading = true;
+                                  });
+                                  var result = await Authentication.lineSignIn();
+                                  if (result is UserCredential) {
+                                    var getUserResult = await UserFirestore.getUser(result.user!.uid);
+                                    if (getUserResult == true) {
+                                      Navigator.pushReplacement(
+                                          context, MaterialPageRoute(builder: (context) => const CalendarPage()));
+                                    } else {
+                                      setState(() {
+                                        _isLineLoginError = true;
+                                      });
+                                    }
+                                  } else {
+                                    setState(() {
+                                      _isLineLoginError = true;
+                                    });
+                                  }
+                                  setState(() {
+                                    _isLoading = false;
+                                  });
+                                },
+                                splashColor: const Color(0xff000000).withAlpha(30)
+                              ),
+                            ),
+                          ),
+                          if (_isLineLoginError == true)
+                            const Center(
+                              child: Text('LINE認証できませんでした。', style: TextStyle(color: Colors.red),),
+                            )
+
+
+
+                        ],
+                      ),
+                    ),
+
                   ],
                 ),
               ),

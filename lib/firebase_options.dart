@@ -63,6 +63,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '768280654775',
     projectId: 'foodcostcalculator-3f6ab',
     storageBucket: 'foodcostcalculator-3f6ab.appspot.com',
+    iosClientId: '768280654775-58hade1uno3cfhevomcgrs042j3a8ro6.apps.googleusercontent.com',
     iosBundleId: 'com.garitto.foodcost',
   );
 }
