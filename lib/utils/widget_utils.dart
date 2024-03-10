@@ -67,14 +67,6 @@ class WidgetUtils {
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     Map<String, dynamic> data = snapshot.data!.data() as Map<String, dynamic>;
-                    // myAccount = Account(
-                    //   name: data['name'],
-                    //   email: data['email'],
-                    //   imagePath: data['image_path'],
-                    //   groupId: data['group_id'],
-                    //   createdTime: data['created_time'],
-                    //   updatedTime: data['updated_time']
-                    // );
                     return UserAccountsDrawerHeader(
                       accountName: Text(
                         // myAccount.name,
@@ -98,27 +90,6 @@ class WidgetUtils {
                   }
                 }
               ),
-              // UserAccountsDrawerHeader(
-              //   accountName: Text(
-              //     myAccount.name,
-              //     // data['name'],
-              //     style: const TextStyle(fontWeight: FontWeight.w400, fontSize: 18, color: Colors.black),
-              //   ),
-              //   accountEmail: Text(
-              //     myAccount.email,
-              //     // data['email'],
-              //     style: const TextStyle(color: Colors.black),
-              //   ),
-              //   currentAccountPicture: CircleAvatar(
-              //     foregroundImage: myAccount.imagePath != null ? NetworkImage(myAccount.imagePath!) : null,
-              //     // foregroundImage: data['image_path'] != null ? NetworkImage(data['image_path']!): null,
-              //     child: const Icon(
-              //       Icons.person,
-              //       size: 50,
-              //     ),
-              //   ),
-              //   decoration: const BoxDecoration(color: Colors.white),
-              // ),
               ListTile(
                 title: const Row(
                   children: [
@@ -197,7 +168,7 @@ class WidgetUtils {
           ),
         if (isLoading)
           Center(
-            child: LoadingAnimationWidget.stretchedDots(color: Colors.blue, size: 70),
+            child: LoadingAnimationWidget.twoRotatingArc(color: Colors.deepOrange, size: 70),
           ),
       ],
     );
@@ -238,5 +209,26 @@ class WidgetUtils {
             ],
           );
         });
+  }
+
+  static Container welcomeModal(Column child) {
+    return Container(
+      width: 324,
+      height: 200,
+      padding: const EdgeInsets.all(10.0),
+      // margin: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+          color: Colors.white,
+          // border: Border.all(color: Colors.grey),
+          borderRadius: BorderRadius.circular(15),
+          boxShadow: const [BoxShadow(
+              color: Colors.orangeAccent,
+              offset: Offset(3, 3),
+              blurRadius: 10.0,
+              spreadRadius: 0.5
+          )]
+      ),
+      child: child,
+    );
   }
 }

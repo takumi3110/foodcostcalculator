@@ -1,15 +1,18 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:foodcost/model/account.dart';
 import 'package:foodcost/model/food.dart';
 import 'package:foodcost/model/menu.dart';
 import 'package:foodcost/utils/authentication.dart';
+import 'package:foodcost/utils/firestore/groups.dart';
 import 'package:foodcost/utils/firestore/menus.dart';
 import 'package:foodcost/view/menu/create_menu_page.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:foodcost/utils/widget_utils.dart';
 import 'package:foodcost/utils/calendar_utils.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class CalendarPage extends StatefulWidget {
   final DateTime? selectedDay;
@@ -21,8 +24,15 @@ class CalendarPage extends StatefulWidget {
 }
 
 class _CalendarPageState extends State<CalendarPage> {
-  Account myAccount = Authentication.myAccount!;
+  final Account _myAccount = Authentication.myAccount!;
   late final ValueNotifier<List<Event>> _selectedEvents;
+  bool isHasCode = false;
+  bool isVerifying = false;
+  bool isVerified = false;
+  bool isDifferentCode = false;
+  String? groupName;
+
+  // TextEditingController codeController = TextEditingController();
 
   // CalendarFormat _calendarFormat = CalendarFormat.month;
   // RangeSelectionMode _rangeSelectionMode = RangeSelectionMode.toggledOff;
@@ -105,131 +115,282 @@ class _CalendarPageState extends State<CalendarPage> {
       appBar: WidgetUtils.createAppBar('カレンダー', _scaffoldKey),
       drawer: WidgetUtils.sideMenuDrawer(context),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            children: [
-              TableCalendar(
-                locale: 'ja_JP',
-                firstDay: kFirstDay,
-                lastDay: kLastDay,
-                focusedDay: _focusedDay,
-                // calendarFormat: _calendarFormat,
-                selectedDayPredicate: (day) {
-                  // `selectedDayPredicate`を使用して、現在選択されている日を決定します。
-                  // これが true を返す場合、`day` は選択済みとしてマークされます。
-                  // `isSameDay`の使用は無視することをお勧めします
-                  // 比較されたDateTimeオブジェクトの時間部分。
-                  return isSameDay(_selectedDay, day);
-                },
-                // rangeStartDay: _rangeStart,
-                // rangeEndDay: _rangeEnd,
-                // rangeSelectionMode: _rangeSelectionMode,
-                // eventLoader: _getEventsForDay,
-                startingDayOfWeek: StartingDayOfWeek.monday,
-                calendarStyle: const CalendarStyle(outsideDaysVisible: false),
-                onDaySelected: _onDaySelected,
-                // onRangeSelected: _onRangeSelected,
-                // onFormatChanged: (format) {
-                //   if (_calendarFormat != format) {
-                //     // formatを更新するときに `setState()` を呼び出します
-                //     setState(() {
-                //       _calendarFormat = format;
-                //     });
-                //   }
-                // },
-                onPageChanged: (focusedDay) {
-                  // ここで`setState()`を呼び出す必要はありません
-                  _focusedDay = focusedDay;
-                },
-                // format buttonを消す
-                headerStyle: const HeaderStyle(formatButtonVisible: false),
-                calendarBuilders: CalendarBuilders(dowBuilder: (_, day) {
-                  final text = DateFormat.E('ja').format(day);
-                  if (day.weekday == DateTime.sunday) {
-                    return Center(
-                      child: Text(text, style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
-                    );
-                  } else if (day.weekday == DateTime.saturday) {
-                    return Center(
-                      child: Text(
-                        text,
-                        style: const TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
-                      ),
-                    );
-                  }
-                  return null;
-                }),
-              ),
-              const SizedBox(
-                height: 8.0,
-              ),
-              const Divider(),
-              Expanded(
-                  child: SingleChildScrollView(
-                child: ValueListenableBuilder<List<Event>>(
-                    // Eventは{title: ''}
-                    // Eventがvalueに入ってくる
-                    // _selectedEventsでvalueを指定
-                    valueListenable: _selectedEvents,
-                    builder: (context, value, _) {
-                      return StreamBuilder<QuerySnapshot>(
-                          stream: MenuFirestore.menus.where('user_id', isEqualTo: myAccount.id).snapshots(),
-                          builder: (context, snapshot) {
-                            if (snapshot.hasData) {
-                              num allTotalAmount = 0;
-                              List<Menu> getMenus = [];
-                              DateFormat dateFormat = DateFormat('yyyy-MM-dd');
-                              for (var doc in snapshot.data!.docs) {
-                                Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-                                List<Food> foods = [];
-                                if (data['foods'] != null) {
-                                  for (var food in data['foods']) {
-                                    Food getFood = Food(
-                                        name: food['name'],
-                                        unitPrice: food['unit_price'],
-                                        costCount: food['cost_count'],
-                                        price: food['price']);
-                                    foods.add(getFood);
+        child: Stack(children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              children: [
+                TableCalendar(
+                  locale: 'ja_JP',
+                  firstDay: kFirstDay,
+                  lastDay: kLastDay,
+                  focusedDay: _focusedDay,
+                  // calendarFormat: _calendarFormat,
+                  selectedDayPredicate: (day) {
+                    // `selectedDayPredicate`を使用して、現在選択されている日を決定します。
+                    // これが true を返す場合、`day` は選択済みとしてマークされます。
+                    // `isSameDay`の使用は無視することをお勧めします
+                    // 比較されたDateTimeオブジェクトの時間部分。
+                    return isSameDay(_selectedDay, day);
+                  },
+                  // rangeStartDay: _rangeStart,
+                  // rangeEndDay: _rangeEnd,
+                  // rangeSelectionMode: _rangeSelectionMode,
+                  // eventLoader: _getEventsForDay,
+                  startingDayOfWeek: StartingDayOfWeek.monday,
+                  calendarStyle: const CalendarStyle(outsideDaysVisible: false),
+                  onDaySelected: _onDaySelected,
+                  // onRangeSelected: _onRangeSelected,
+                  // onFormatChanged: (format) {
+                  //   if (_calendarFormat != format) {
+                  //     // formatを更新するときに `setState()` を呼び出します
+                  //     setState(() {
+                  //       _calendarFormat = format;
+                  //     });
+                  //   }
+                  // },
+                  onPageChanged: (focusedDay) {
+                    // ここで`setState()`を呼び出す必要はありません
+                    _focusedDay = focusedDay;
+                  },
+                  // format buttonを消す
+                  headerStyle: const HeaderStyle(formatButtonVisible: false),
+                  calendarBuilders: CalendarBuilders(dowBuilder: (_, day) {
+                    final text = DateFormat.E('ja').format(day);
+                    if (day.weekday == DateTime.sunday) {
+                      return Center(
+                        child: Text(text, style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+                      );
+                    } else if (day.weekday == DateTime.saturday) {
+                      return Center(
+                        child: Text(
+                          text,
+                          style: const TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
+                        ),
+                      );
+                    }
+                    return null;
+                  }),
+                ),
+                const SizedBox(
+                  height: 8.0,
+                ),
+                const Divider(),
+                Expanded(
+                    child: SingleChildScrollView(
+                  child: ValueListenableBuilder<List<Event>>(
+                      // Eventは{title: ''}
+                      // Eventがvalueに入ってくる
+                      // _selectedEventsでvalueを指定
+                      valueListenable: _selectedEvents,
+                      builder: (context, value, _) {
+                        return StreamBuilder<QuerySnapshot>(
+                            stream: MenuFirestore.menus.where('user_id', isEqualTo: _myAccount.id).snapshots(),
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData) {
+                                num allTotalAmount = 0;
+                                List<Menu> getMenus = [];
+                                DateFormat dateFormat = DateFormat('yyyy-MM-dd');
+                                for (var doc in snapshot.data!.docs) {
+                                  Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+                                  List<Food> foods = [];
+                                  if (data['foods'] != null) {
+                                    for (var food in data['foods']) {
+                                      Food getFood = Food(
+                                          name: food['name'],
+                                          unitPrice: food['unit_price'],
+                                          costCount: food['cost_count'],
+                                          price: food['price']);
+                                      foods.add(getFood);
+                                    }
+                                  }
+                                  Menu getMenu = Menu(
+                                      id: doc.id,
+                                      name: data['name'],
+                                      userId: data['user_id'],
+                                      totalAmount: data['total_amount'],
+                                      imagePath: data['image_path'],
+                                      createdTime: data['created_time'],
+                                      foods: foods);
+                                  Timestamp createdTime = data['created_time'];
+                                  if (dateFormat.format(_selectedDay!) == dateFormat.format(createdTime.toDate())) {
+                                    getMenus.add(getMenu);
+                                    allTotalAmount += data['total_amount'];
                                   }
                                 }
-                                Menu getMenu = Menu(
-                                    id: doc.id,
-                                    name: data['name'],
-                                    userId: data['user_id'],
-                                    totalAmount: data['total_amount'],
-                                    imagePath: data['image_path'],
-                                    createdTime: data['created_time'],
-                                    foods: foods);
-                                Timestamp createdTime = data['created_time'];
-                                if (dateFormat.format(_selectedDay!) == dateFormat.format(createdTime.toDate())) {
-                                  getMenus.add(getMenu);
-                                  allTotalAmount += data['total_amount'];
-                                }
-                              }
-                              // return WidgetUtils.menuListTile(getMenus, allTotalAmount);
-                              return Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  Container(
-                                    alignment: Alignment.centerRight,
-                                    padding: const EdgeInsets.symmetric(horizontal: 5.0),
-                                    child: Text(
-                                      '合計金額: ${formatter.format(allTotalAmount)} 円',
-                                      style: const TextStyle(fontSize: 18.0),
+                                // return WidgetUtils.menuListTile(getMenus, allTotalAmount);
+                                return Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    Container(
+                                      alignment: Alignment.centerRight,
+                                      padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                                      child: Text(
+                                        '合計金額: ${formatter.format(allTotalAmount)} 円',
+                                        style: const TextStyle(fontSize: 18.0),
+                                      ),
                                     ),
-                                  ),
-                                  WidgetUtils.menuListTile(getMenus)
-                                ],
-                              );
-                            } else {
-                              return Container();
-                            }
-                          });
-                    }),
-              ))
-            ],
+                                    WidgetUtils.menuListTile(getMenus)
+                                  ],
+                                );
+                              } else {
+                                return Container();
+                              }
+                            });
+                      }),
+                ))
+              ],
+            ),
           ),
+          // if (_myAccount.groupId == null)
+          if (_myAccount.isInitialAccess || isHasCode)
+            const Opacity(
+              opacity: 0.6,
+              child: ModalBarrier(dismissible: false, color: Colors.black),
+            ),
+          if (_myAccount.isInitialAccess)
+            Center(
+              child: WidgetUtils.welcomeModal(
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('ようこそまんまのじぇんこへ！'),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    const Text('招待コードはお持ちですか？'),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              isHasCode = true;
+                            });
+                          },
+                          style: ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white),
+                          child: const Text('YES'),
+                        ),
+                        ElevatedButton(
+                            onPressed: () {
+                              setState(() {
+                                isHasCode = false;
+                                _myAccount.isInitialAccess = false;
+                              });
+                            },
+                            child: const Text('NO'))
+                      ],
+                    )
+                  ],
+                ),
+              ),
+            ),
+          if (isHasCode)
+            Center(
+              child: WidgetUtils.welcomeModal(
+                !isVerified ? Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    const Text('招待コードを入力してください。'),
+                    // const SizedBox(height: 10,),
+                    SizedBox(
+                      width: 120,
+                      child: TextField(
+                        // controller: codeController,
+                        keyboardType: TextInputType.text,
+                        // maxLength: 5,
+                        readOnly: isVerifying,
+                        textCapitalization: TextCapitalization.characters,
+                        onChanged: (String value) async {
+                          if (value.length == 5) {
+                            setState(() {
+                              isVerifying = true;
+                            });
+                            var groupResult = await GroupFirestore.getGroupOnCode(value);
+                            await Future<void>.delayed(const Duration(seconds: 3));
+                            if (groupResult != null) {
+                              setState(() {
+                                isVerifying = false;
+                                isVerified = true;
+                                groupName = groupResult.name;
+                              });
+                            } else {
+                              setState(() {
+                                isDifferentCode = true;
+                                isVerifying = false;
+                              });
+                            }
+                          }
+                        },
+                      ),
+                    ),
+                    if (isVerifying)
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          const Text('認証中...'),
+                          // const SizedBox(height: 10,),
+                          Center(
+                            child: LoadingAnimationWidget.fourRotatingDots(color: Colors.orangeAccent, size: 50),
+                          ),
+                        ],
+                      ),
+                    if (isDifferentCode)
+                      const Text(
+                        '正しい認証コードを入力してください。',
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    // const SizedBox(height: 20,),
+                    if (!isVerifying)
+                      ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              isHasCode = false;
+                            });
+                          },
+                          child: const Text('戻る')
+                      )
+                  ],
+                )
+                    : Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Text('【$groupName】\nに招待されました！'),
+                    ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            isHasCode = false;
+                            _myAccount.isInitialAccess = false;
+
+                          });
+                        },
+                        child: const Text('始める', style: TextStyle(fontWeight: FontWeight.bold),)
+                    )
+                  ],
+                ),
+              ),
+            ),
+          // if (isVerified && groupName != null)
+          //   Center(
+          //     child: WidgetUtils.welcomeModal(
+          //         Column(
+          //           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          //           children: [
+          //               Text('${groupName}に招待されました！'),
+          //             ElevatedButton(
+          //                 onPressed: () {
+          //                   _myAccount.isInitialAccess = false;
+          //                 },
+          //                 child: const Text('始める', style: TextStyle(fontWeight: FontWeight.bold),)
+          //             )
+          //           ],
+          //         )
+          //     ),
+          //   )
+        ]
         ),
       ),
       floatingActionButton: FloatingActionButton(

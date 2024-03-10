@@ -56,6 +56,7 @@ class _LoginPageState extends State<LoginPage> {
                       child: SizedBox(
                         width: 300,
                         child: TextField(
+                          keyboardType: TextInputType.emailAddress,
                           controller: emailController,
                           decoration: const InputDecoration(hintText: 'メールアドレス'),
                         ),
@@ -64,6 +65,7 @@ class _LoginPageState extends State<LoginPage> {
                     SizedBox(
                       width: 300,
                       child: TextField(
+                        keyboardType: TextInputType.visiblePassword,
                         controller: passController,
                         decoration: InputDecoration(
                             hintText: 'パスワード',

@@ -6,6 +6,7 @@ class Account {
   String email;
   String? imagePath;
   String? groupId;
+  bool isInitialAccess;
   Timestamp? createdTime;
   Timestamp? updatedTime;
 
@@ -14,9 +15,8 @@ class Account {
       this.name = '',
       this.email = '',
       this.imagePath,
+      this.isInitialAccess = true,
       this.groupId,
       this.createdTime,
       this.updatedTime});
 }
-
-

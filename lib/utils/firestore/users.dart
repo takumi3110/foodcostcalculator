@@ -14,7 +14,8 @@ class UserFirestore {
         'name': newAccount.name,
         'email': newAccount.email,
         'image_path': newAccount.imagePath,
-        'group_id': null,
+        'group_id': newAccount.groupId,
+        'is_initial_access': newAccount.isInitialAccess,
         'created_time': newAccount.createdTime,
         'updated_time': newAccount.updatedTime
       });
@@ -36,6 +37,7 @@ class UserFirestore {
           name: data['name'],
           email: data['email'],
           imagePath: data['image_path'],
+          isInitialAccess: data['is_initial_access'],
           groupId: data['group_id'],
           createdTime: data['created_time'],
         );
