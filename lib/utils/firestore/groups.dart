@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:foodcost/model/account.dart';
 import 'package:foodcost/model/group.dart';
 import 'package:foodcost/utils/authentication.dart';
 import 'package:foodcost/utils/firestore/users.dart';
@@ -73,7 +74,8 @@ class GroupFirestore {
       QuerySnapshot snapshot = await members.get();
       for (var doc in snapshot.docs) {
         Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-        memberList.add(Member(id: doc.id, name: data['name'], imagePath: data['image_path'], isOwner: data['is_owner']));
+        memberList
+            .add(Member(id: doc.id, name: data['name'], imagePath: data['image_path'], isOwner: data['is_owner']));
       }
       if (memberList.isNotEmpty) {
         print('メンバー取得完了');
@@ -84,6 +86,39 @@ class GroupFirestore {
     } on FirebaseException catch (e) {
       print('グループ取得エラー: $e');
       return null;
+    }
+  }
+
+  static Future<dynamic> getGroupOnCode(String code) async {
+    try {
+      List<Group> groupList = [];
+      var snapshot = await groups.where('code', isEqualTo: code).get();
+      for (var doc in snapshot.docs) {
+        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+        if (data['code'] == code) {
+          groupList.add(Group(id: doc.id, name: data['name'], code: data['code']));
+        }
+      }
+      if (groupList.isNotEmpty) {
+        //   TODO: groupのメンバーに追加する処理
+        Account myAccount = Authentication.myAccount!;
+        final group = groupList[0];
+        final CollectionReference myGroup = groups.doc(group.id).collection('members');
+        await myGroup
+            .doc(myAccount.id)
+            .set({'name': myAccount.name, 'image_path': myAccount.imagePath, 'is_owner': false});
+        await UserFirestore.users.doc(myAccount.id).update({
+          'group_id': group.id,
+          'is_initial_access': false,
+        });
+        myAccount.groupId = group.id;
+        return group;
+      } else {
+        return null;
+      }
+    } on FirebaseException catch (e) {
+      print('グループ取得エラー: $e');
+      return false;
     }
   }
 }

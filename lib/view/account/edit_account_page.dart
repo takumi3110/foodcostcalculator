@@ -171,11 +171,11 @@ class _EditAccountPageState extends State<EditAccountPage> {
                           children: [
                             const SizedBox(
                               width: 100,
-                              child: Text('名前', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                              child: Text('名前', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                             ),
                             const SizedBox(width: 30.0),
                             SizedBox(
-                              width: 200,
+                              width: 220,
                               child: TextField(
                                 controller: nameController,
                               ),
@@ -190,11 +190,11 @@ class _EditAccountPageState extends State<EditAccountPage> {
                             children: [
                               const SizedBox(
                                 width: 100,
-                                child: Text('メール', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                                child: Text('メール', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                               ),
                               const SizedBox(width: 30.0),
                               SizedBox(
-                                width: 200,
+                                width: 220,
                                 child: TextField(
                                   controller: emailController,
                                 ),
@@ -214,11 +214,11 @@ class _EditAccountPageState extends State<EditAccountPage> {
                           children: [
                             const SizedBox(
                               width: 100,
-                              child: Text('グループ名', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                              child: Text('グループ名', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                             ),
                             const SizedBox(width: 30.0),
                             SizedBox(
-                              width: 200,
+                              width: 220,
                               child: TextField(
                                 controller: groupNameController,
                               ),
@@ -257,13 +257,14 @@ class _EditAccountPageState extends State<EditAccountPage> {
                         if (groupNameController.text.isNotEmpty && groupNameController.text != (group != null ? group!.name: '')) {
                           // グループ登録
                           // 招待コード作成
+                          String code = group != null ? group!.code: '';
                           const String charset = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
                           final Random random = Random.secure();
-                          final String randomCode = List.generate(5, (_) => charset[random.nextInt(charset.length)]).join();
+                          code = List.generate(5, (_) => charset[random.nextInt(charset.length)]).join();
                           Group newGroup = Group(
-                            id: group?.id,
+                            id: group != null ? group!.id: '',
                             name: groupNameController.text,
-                            code: randomCode,
+                            code: code,
                           );
                           if (group != null) {
                             groupResult = await GroupFirestore.updateGroup(newGroup);

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:foodcost/utils/firestore/users.dart';
 import 'package:foodcost/view/calendar/calendar_page.dart';
 import 'package:foodcost/view/start_up/login_page.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class OpeningPage extends StatefulWidget {
   const OpeningPage({super.key});
@@ -26,8 +27,10 @@ class _OpeningPageState extends State<OpeningPage> {
             controller.close();
           } else {
             print('user is signe in');
-            controller.add(user);
-            controller.close();
+            if (controller.isClosed == false) {
+              controller.add(user);
+              controller.close();
+            }
           }
         });
       }
@@ -55,12 +58,13 @@ class _OpeningPageState extends State<OpeningPage> {
               case ConnectionState.waiting:
                 //     TODO: loading画面
                 print('waiting');
-                nextPage = const Center(
-                  child: SizedBox(
-                    width: 60,
-                    height: 60,
-                    child: CircularProgressIndicator(),
-                  ),
+                nextPage = Center(
+                  // child: SizedBox(
+                  //   width: 60,
+                  //   height: 60,
+                  //   child: CircularProgressIndicator(),
+                  // ),
+                  child: LoadingAnimationWidget.twoRotatingArc(color: Colors.deepOrange, size: 70),
                 );
               case ConnectionState.active:
                 print('active');
