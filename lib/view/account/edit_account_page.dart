@@ -16,7 +16,8 @@ import 'package:foodcost/utils/widget_utils.dart';
 import 'package:foodcost/view/start_up/login_page.dart';
 
 class EditAccountPage extends StatefulWidget {
-  const EditAccountPage({super.key});
+  final bool isOwner;
+  const EditAccountPage({super.key, required this.isOwner});
 
   @override
   State<EditAccountPage> createState() => _EditAccountPageState();
@@ -24,11 +25,12 @@ class EditAccountPage extends StatefulWidget {
 
 class _EditAccountPageState extends State<EditAccountPage> {
   final Account _myAccount = Authentication.myAccount!;
-  // Group myGroup = GroupFirestore.myGroup!;
+  late bool _isOwner;
 
   TextEditingController nameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   bool _isEmailError = false;
+  bool _isGroupError = false;
 
   // group
   TextEditingController groupNameController = TextEditingController();
@@ -109,6 +111,9 @@ class _EditAccountPageState extends State<EditAccountPage> {
     if (_myAccount.groupId != null) {
       getGroup(_myAccount.groupId!);
     }
+    setState(() {
+      _isOwner = widget.isOwner;
+    });
   }
 
   @override
@@ -245,10 +250,30 @@ class _EditAccountPageState extends State<EditAccountPage> {
                             const SizedBox(width: 30.0),
                             SizedBox(
                               width: 220,
-                              child: TextField(
-                                keyboardType: TextInputType.text,
-                                onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
-                                controller: groupNameController,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  TextField(
+                                    keyboardType: TextInputType.text,
+                                    readOnly: !_isOwner,
+                                    onTap: () {
+                                      setState(() {
+                                        if (!_isOwner) {
+                                          _isGroupError = true;
+                                        }
+                                      });
+                                    },
+                                    onTapOutside: (_) => {
+                                      FocusManager.instance.primaryFocus?.unfocus(),
+                                      setState(() {
+                                        _isGroupError = false;
+                                      })
+                                    },
+                                    controller: groupNameController,
+                                  ),
+                                  if (_isGroupError)
+                                    const Text('オーナーではないので編集できません', style: TextStyle(color: Colors.red, fontSize: 12),)
+                                ],
                               ),
                             ),
                           ],
