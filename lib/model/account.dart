@@ -15,7 +15,7 @@ class Account {
       this.name = '',
       this.email = '',
       this.imagePath,
-      this.isInitialAccess = true,
+      this.isInitialAccess = false,
       this.groupId,
       this.createdTime,
       this.updatedTime});

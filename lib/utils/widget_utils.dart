@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:foodcost/model/account.dart';
 import 'package:foodcost/model/menu.dart';
 import 'package:foodcost/utils/authentication.dart';
 import 'package:foodcost/utils/firestore/users.dart';
@@ -14,7 +13,6 @@ import 'package:intl/intl.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class WidgetUtils {
-  static Account myAccount = Authentication.myAccount!;
 
   static AppBar createAppBar(String title, GlobalKey<ScaffoldState> key) {
     // Account myAccount = Authentication.myAccount!;
@@ -29,7 +27,7 @@ class WidgetUtils {
       ),
       leading: IconButton(
         icon: StreamBuilder<DocumentSnapshot>(
-          stream: UserFirestore.users.doc(myAccount.id).snapshots(),
+          stream: UserFirestore.users.doc(Authentication.myAccount!.id).snapshots(),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               Map<String, dynamic> data = snapshot.data!.data() as Map<String, dynamic>;
@@ -63,7 +61,7 @@ class WidgetUtils {
           child: ListView(
             children: [
               StreamBuilder<DocumentSnapshot>(
-                stream: UserFirestore.users.doc(myAccount.id).snapshots(),
+                stream: UserFirestore.users.doc(Authentication.myAccount!.id).snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     Map<String, dynamic> data = snapshot.data!.data() as Map<String, dynamic>;
