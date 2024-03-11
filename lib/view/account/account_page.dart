@@ -19,7 +19,7 @@ class AccountPage extends StatefulWidget {
 }
 
 class _AccountPageState extends State<AccountPage> {
-  Account myAccount = Authentication.myAccount!;
+  Account _myAccount = Authentication.myAccount!;
   Group? group;
 
   // lineのメッセージを送るurl
@@ -31,12 +31,6 @@ class _AccountPageState extends State<AccountPage> {
     } else {
       return null;
     }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    if (myAccount.groupId != null) {}
   }
 
   @override
@@ -58,9 +52,9 @@ class _AccountPageState extends State<AccountPage> {
                 children: [
                   Container(
                     decoration: BoxDecoration(
-                        image: myAccount.imagePath != null
+                        image: _myAccount.imagePath != null
                             ? DecorationImage(
-                                image: NetworkImage(myAccount.imagePath!), fit: BoxFit.cover, opacity: 0.2)
+                                image: NetworkImage(_myAccount.imagePath!), fit: BoxFit.cover, opacity: 0.2)
                             : null),
                     child: Column(
                       children: [
@@ -74,7 +68,7 @@ class _AccountPageState extends State<AccountPage> {
                                   if (result == true) {
                                     setState(() {
                                       if (Authentication.myAccount != null) {
-                                        myAccount = Authentication.myAccount!;
+                                        _myAccount = Authentication.myAccount!;
                                       }
                                     });
                                   }
@@ -86,7 +80,7 @@ class _AccountPageState extends State<AccountPage> {
                           // height: 200,
                           child: CircleAvatar(
                             radius: 40,
-                            foregroundImage: getForeGroundImage(myAccount.imagePath),
+                            foregroundImage: getForeGroundImage(_myAccount.imagePath),
                             child: const Icon(
                               Icons.person,
                               size: 50,
@@ -112,13 +106,13 @@ class _AccountPageState extends State<AccountPage> {
                             const SizedBox(
                               width: 30.0,
                             ),
-                            Text('${myAccount.name}さん', style: const TextStyle(fontSize: 18.0))
+                            Text('${_myAccount.name}さん', style: const TextStyle(fontSize: 18.0))
                           ],
                         ),
                         const SizedBox(
                           height: 10,
                         ),
-                        if (myAccount.email.isNotEmpty)
+                        if (_myAccount.email.isNotEmpty)
                           Row(
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
@@ -128,7 +122,7 @@ class _AccountPageState extends State<AccountPage> {
                               const SizedBox(
                                 width: 30.0,
                               ),
-                              Text(myAccount.email, style: const TextStyle(fontSize: 18.0))
+                              Text(_myAccount.email, style: const TextStyle(fontSize: 18.0))
                             ],
                           ),
                         const SizedBox(
@@ -148,23 +142,15 @@ class _AccountPageState extends State<AccountPage> {
                               width: 30.0,
                             ),
                             StreamBuilder<DocumentSnapshot>(
-                                stream: myAccount.groupId != null ? GroupFirestore.groups.doc(myAccount.groupId).snapshots(): null,
+                                stream: _myAccount.groupId != null
+                                    ? GroupFirestore.groups.doc(_myAccount.groupId).snapshots()
+                                    : null,
                                 builder: (context, snapshot) {
                                   if (snapshot.hasData) {
                                     Map<String, dynamic> data = snapshot.data!.data() as Map<String, dynamic>;
-                                    // setState(() {
-                                    //   Group getGroup = Group(
-                                    //     name: data['name'],
-                                    //     code: data['code']
-                                    //   );
-                                    //   group = getGroup;
-                                    // });
-                                      Group getGroup = Group(
-                                        id: myAccount.groupId,
-                                        name: data['name'],
-                                        code: data['code']
-                                      );
-                                      group = getGroup;
+                                    Group getGroup =
+                                        Group(id: _myAccount.groupId, name: data['name'], code: data['code']);
+                                    group = getGroup;
                                     final groupName = data['name'];
                                     return Text(
                                       groupName,
@@ -189,54 +175,54 @@ class _AccountPageState extends State<AccountPage> {
                     decoration: const BoxDecoration(border: Border(top: BorderSide(color: Colors.grey))),
                     child: const Text('メンバー'),
                   ),
-                  if (myAccount.groupId != null)
-                  FutureBuilder<List<Member>?>(
-                      future: GroupFirestore.getGroupMembers(myAccount.groupId!),
-                      builder: (context, memberSnapshot) {
-                        if (memberSnapshot.hasData && memberSnapshot.connectionState == ConnectionState.done) {
-                          return SizedBox(
-                            height: memberSnapshot.data!.length > 3 ? 120 : null,
-                            child: ListView.builder(
-                                shrinkWrap: true,
-                                itemCount: memberSnapshot.data!.length,
-                                itemBuilder: (context, index) {
-                                  // Map<String, dynamic> data = memberSnapshot.data! as Map<String, dynamic>;
-                                  if (memberSnapshot.data![index].id != myAccount.id) {
-                                    return Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 5.0),
-                                      child: Row(
-                                        children: [
-                                          CircleAvatar(
-                                            radius: 13,
-                                            foregroundImage: getForeGroundImage(memberSnapshot.data![index].imagePath),
-                                            child: const Icon(Icons.person),
-                                          ),
-                                          const SizedBox(
-                                            width: 15.0,
-                                          ),
-                                          Text('${memberSnapshot.data![index].name} さん'),
-                                          const SizedBox(
-                                            width: 10.0,
-                                          ),
-                                          if (memberSnapshot.data![index].isOwner)
-                                            const Icon(
-                                              Icons.star,
-                                              color: Colors.yellow,
-                                            )
-                                        ],
-                                      ),
-                                    );
-                                  } else {
-                                    return Container();
-                                  }
-                                }),
-                          );
-                        } else {
-                          return Container();
-                        }
-                      }
-                      ),
-                  if (myAccount.groupId == null)
+                  if (_myAccount.groupId != null)
+                    FutureBuilder<dynamic>(
+                        future: GroupFirestore.getGroupMembers(_myAccount.groupId!),
+                        builder: (context, memberSnapshot) {
+                          if (memberSnapshot.hasData && memberSnapshot.connectionState == ConnectionState.done) {
+                            return SizedBox(
+                              height: memberSnapshot.data!.length > 3 ? 120 : null,
+                              child: ListView.builder(
+                                  shrinkWrap: true,
+                                  itemCount: memberSnapshot.data!.length,
+                                  itemBuilder: (context, index) {
+                                    // Map<String, dynamic> data = memberSnapshot.data! as Map<String, dynamic>;
+                                    if (memberSnapshot.data![index].id != _myAccount.id) {
+                                      return Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 5.0),
+                                        child: Row(
+                                          children: [
+                                            CircleAvatar(
+                                              radius: 13,
+                                              foregroundImage:
+                                                  getForeGroundImage(memberSnapshot.data![index].imagePath),
+                                              child: const Icon(Icons.person),
+                                            ),
+                                            const SizedBox(
+                                              width: 15.0,
+                                            ),
+                                            Text('${memberSnapshot.data![index].name} さん'),
+                                            const SizedBox(
+                                              width: 10.0,
+                                            ),
+                                            if (memberSnapshot.data![index].isOwner)
+                                              const Icon(
+                                                Icons.star,
+                                                color: Colors.yellow,
+                                              )
+                                          ],
+                                        ),
+                                      );
+                                    } else {
+                                      return Container();
+                                    }
+                                  }),
+                            );
+                          } else {
+                            return Container();
+                          }
+                        }),
+                  if (_myAccount.groupId == null)
                     ElevatedButton.icon(
                         onPressed: () async {
                           var result = await Navigator.push(
@@ -244,20 +230,20 @@ class _AccountPageState extends State<AccountPage> {
                           if (result == true) {
                             setState(() {
                               if (Authentication.myAccount != null) {
-                                myAccount = Authentication.myAccount!;
+                                _myAccount = Authentication.myAccount!;
                               }
                             });
                           }
                         },
                         icon: const Icon(Icons.supervisor_account),
                         label: const Text('グループを作成')),
-                  if (myAccount.groupId != null)
+                  if (_myAccount.groupId != null)
                     ElevatedButton.icon(
                         onPressed: () async {
                           //   送りたいメッセージを追加
                           // TODO: メッセージ編集
                           if (group != null) {
-                            final String message1 = '${myAccount.name}さんからグループ【${group!.name}】へ招待されました！';
+                            final String message1 = '${_myAccount.name}さんからグループ【${group!.name}】へ招待されました！';
                             const String message2 = '\nログイン時に招待コードを入力してください。';
                             final String message3 = '\n招待コード: ${group!.code}';
                             final String allMessage = message1 + message2 + message3;
@@ -271,6 +257,7 @@ class _AccountPageState extends State<AccountPage> {
                           foregroundColor: Colors.white,
                         ),
                         icon: const Icon(
+                          // Icons.add_comment_rounded,
                           Icons.messenger_rounded,
                           color: Colors.white,
                         ),
@@ -297,7 +284,7 @@ class _AccountPageState extends State<AccountPage> {
                     padding: const EdgeInsets.all(8.0),
                     child: SingleChildScrollView(
                       child: StreamBuilder<QuerySnapshot>(
-                        stream: MenuFirestore.menus.where('user_id', isEqualTo: myAccount.id).snapshots(),
+                        stream: MenuFirestore.menus.where('user_id', isEqualTo: _myAccount.id).snapshots(),
                         builder: (context, snapshot) {
                           if (snapshot.hasData) {
                             List<Menu> getMenus = [];

@@ -67,7 +67,7 @@ class GroupFirestore {
     }
   }
 
-  static Future<List<Member>?> getGroupMembers(String groupId) async {
+  static Future<dynamic> getGroupMembers(String groupId) async {
     try {
       final CollectionReference members = groups.doc(groupId).collection('members');
       List<Member> memberList = [];

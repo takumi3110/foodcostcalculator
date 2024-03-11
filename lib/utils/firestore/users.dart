@@ -62,7 +62,7 @@ class UserFirestore {
         'updated_time': Timestamp.now()
       });
       Account? myAccount = Authentication.myAccount;
-      // Authentication.myAccount = updateAccount;
+      // 更新した箇所のみを更新
       if (myAccount != null) {
         myAccount.name = updateAccount.name;
         myAccount.email = updateAccount.email;
