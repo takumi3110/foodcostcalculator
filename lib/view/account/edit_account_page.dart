@@ -3,10 +3,12 @@ import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:foodcost/model/account.dart';
 import 'package:foodcost/model/group.dart';
 import 'package:foodcost/utils/authentication.dart';
+import 'package:foodcost/utils/extension.dart';
 import 'package:foodcost/utils/firestore/groups.dart';
 import 'package:foodcost/utils/firestore/users.dart';
 import 'package:foodcost/utils/functionUtils.dart';
@@ -21,11 +23,12 @@ class EditAccountPage extends StatefulWidget {
 }
 
 class _EditAccountPageState extends State<EditAccountPage> {
-  Account myAccount = Authentication.myAccount!;
+  final Account _myAccount = Authentication.myAccount!;
   // Group myGroup = GroupFirestore.myGroup!;
 
   TextEditingController nameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
+  bool _isEmailError = false;
 
   // group
   TextEditingController groupNameController = TextEditingController();
@@ -40,8 +43,8 @@ class _EditAccountPageState extends State<EditAccountPage> {
 
   ImageProvider? getImage() {
     if (image == null) {
-      if (myAccount.imagePath != null) {
-        return NetworkImage(myAccount.imagePath!);
+      if (_myAccount.imagePath != null) {
+        return NetworkImage(_myAccount.imagePath!);
       } else {
         return null;
       }
@@ -63,7 +66,7 @@ class _EditAccountPageState extends State<EditAccountPage> {
                     setState(() {
                       _isLoading = true;
                     });
-                    UserFirestore.deleteUser(myAccount.id);
+                    UserFirestore.deleteUser(_myAccount.id);
                     Authentication.deleteAuth();
                     while (Navigator.canPop(context)) {
                       Navigator.pop(context);
@@ -101,10 +104,10 @@ class _EditAccountPageState extends State<EditAccountPage> {
   @override
   void initState() {
     super.initState();
-    nameController = TextEditingController(text: myAccount.name);
-    emailController = TextEditingController(text: myAccount.email);
-    if (myAccount.groupId != null) {
-      getGroup(myAccount.groupId!);
+    nameController = TextEditingController(text: _myAccount.name);
+    emailController = TextEditingController(text: _myAccount.email);
+    if (_myAccount.groupId != null) {
+      getGroup(_myAccount.groupId!);
     }
   }
 
@@ -177,13 +180,15 @@ class _EditAccountPageState extends State<EditAccountPage> {
                             SizedBox(
                               width: 220,
                               child: TextField(
+                                keyboardType: TextInputType.name,
+                                onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
                                 controller: nameController,
                               ),
                             ),
                           ],
                         ),
                         // const SizedBox(height: 20.0,),
-                        if (myAccount.email.isNotEmpty)
+                        if (_myAccount.email.isNotEmpty)
                           Padding(
                             padding: const EdgeInsets.symmetric(vertical: 20.0),
                             child: Row(
@@ -194,16 +199,34 @@ class _EditAccountPageState extends State<EditAccountPage> {
                                   child: Text('メール', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                                 ),
                                 const SizedBox(width: 30.0),
-                                SizedBox(
-                                  width: 220,
-                                  child: TextField(
-                                    controller: emailController,
-                                  ),
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    SizedBox(
+                                      width: 220,
+                                      child: TextField(
+                                        inputFormatters: [
+                                          FilteringTextInputFormatter.allow(RegExp(r'[a-zA-z0-9@.+_-]'))
+                                        ],
+                                        keyboardType: TextInputType.emailAddress,
+                                        onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
+                                        controller: emailController,
+                                        onChanged: (String value) {
+                                            setState(() {
+                                              _isEmailError = !value.isValidEmail();
+                                            });
+                                        },
+
+                                      ),
+                                    ),
+                                    if (_isEmailError)
+                                      const Text('正しい形式で入力してください。', style: TextStyle(color: Colors.red, fontSize: 12),)
+                                  ],
                                 ),
                               ],
                             ),
                           ),
-                        if (myAccount.email.isEmpty)
+                        if (_myAccount.email.isEmpty)
                           const SizedBox(height: 20,),
                         Container(
                           padding: const EdgeInsets.symmetric(vertical: 5.0),
@@ -223,6 +246,8 @@ class _EditAccountPageState extends State<EditAccountPage> {
                             SizedBox(
                               width: 220,
                               child: TextField(
+                                keyboardType: TextInputType.text,
+                                onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
                                 controller: groupNameController,
                               ),
                             ),
@@ -241,20 +266,19 @@ class _EditAccountPageState extends State<EditAccountPage> {
                         });
                         bool accountResult = false;
                         bool groupResult = false;
-                        if (nameController.text != myAccount.name || emailController.text != myAccount.email || image != null) {
+                        if (!_isEmailError && (nameController.text != _myAccount.name || emailController.text != _myAccount.email || image != null)) {
                           if ((nameController.text.isNotEmpty && emailController.text.isNotEmpty) || image != null) {
-                            String? imagePath = myAccount.imagePath;
+                            String? imagePath = _myAccount.imagePath;
                             if (image != null) {
-                              imagePath = await FunctionUtils.uploadImage(myAccount.id, image!);
+                              imagePath = await FunctionUtils.uploadImage(_myAccount.id, image!);
                             }
                             Account updateAccount = Account(
-                                id: myAccount.id,
+                                id: _myAccount.id,
                                 name: nameController.text,
                                 email: emailController.text,
                                 imagePath: imagePath,
                               isInitialAccess: false
                             );
-                            // Authentication.myAccount = updateAccount;
                             accountResult = await UserFirestore.updateUser(updateAccount);
                           }
                         }
@@ -285,7 +309,11 @@ class _EditAccountPageState extends State<EditAccountPage> {
                           _isLoading = false;
                         });
                       },
-                      child: const Text('更新')),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: _isEmailError ? Colors.grey: Colors.green,
+                        foregroundColor: Colors.white
+                      ),
+                      child: const Text('更新', style: TextStyle(fontWeight: FontWeight.bold),)),
                 ],
               ),
             ),

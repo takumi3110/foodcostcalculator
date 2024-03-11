@@ -188,7 +188,7 @@ class WidgetUtils {
                   onTap: () {
                     final selectedDay =
                         menus[index].createdTime != null ? menus[index].createdTime!.toDate() : DateTime.now();
-                    Navigator.push(
+                    Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
                             builder: (context) => CreateMenuPage(
