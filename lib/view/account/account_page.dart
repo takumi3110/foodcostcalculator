@@ -20,7 +20,7 @@ class AccountPage extends StatefulWidget {
 
 class _AccountPageState extends State<AccountPage> {
   Account _myAccount = Authentication.myAccount!;
-  Group? group;
+  Group? _group;
 
   // lineのメッセージを送るurl
   final String lineUrl = 'https://line.me/R/share?text=';
@@ -30,6 +30,33 @@ class _AccountPageState extends State<AccountPage> {
       return NetworkImage(imagePath);
     } else {
       return null;
+    }
+  }
+  
+  // member
+  List<Member> _memberList = [];
+  bool _isOwner = false;
+  void getMembers(String groupId) async {
+    final results = await GroupFirestore.getGroupMembers(groupId);
+    if (results != null) {
+      setState(() {
+        _memberList = results;
+        // for (var result in results) {
+        //   if (result.name == _myAccount.name) {
+        //     _isOwner = result.isOwner;
+        //   }
+        // }
+        _isOwner = results.any((result) => (result.id == _myAccount.id) && result.isOwner);
+      });
+    }
+  }
+  
+  
+  @override
+  void initState() {
+    super.initState();
+    if (_myAccount.groupId != null) {
+      getMembers(_myAccount.groupId!);
     }
   }
 
@@ -64,7 +91,7 @@ class _AccountPageState extends State<AccountPage> {
                             child: ElevatedButton(
                                 onPressed: () async {
                                   var result = await Navigator.push(
-                                      context, MaterialPageRoute(builder: (context) => const EditAccountPage()));
+                                      context, MaterialPageRoute(builder: (context) => EditAccountPage(isOwner: _isOwner,)));
                                   if (result == true) {
                                     setState(() {
                                       if (Authentication.myAccount != null) {
@@ -150,7 +177,7 @@ class _AccountPageState extends State<AccountPage> {
                                     Map<String, dynamic> data = snapshot.data!.data() as Map<String, dynamic>;
                                     Group getGroup =
                                         Group(id: _myAccount.groupId, name: data['name'], code: data['code']);
-                                    group = getGroup;
+                                    _group = getGroup;
                                     final groupName = data['name'];
                                     return Text(
                                       groupName,
@@ -176,57 +203,95 @@ class _AccountPageState extends State<AccountPage> {
                     child: const Text('メンバー'),
                   ),
                   if (_myAccount.groupId != null)
-                    FutureBuilder<dynamic>(
-                        future: GroupFirestore.getGroupMembers(_myAccount.groupId!),
-                        builder: (context, memberSnapshot) {
-                          if (memberSnapshot.hasData && memberSnapshot.connectionState == ConnectionState.done) {
-                            return SizedBox(
-                              height: memberSnapshot.data!.length > 3 ? 120 : null,
-                              child: ListView.builder(
-                                  shrinkWrap: true,
-                                  itemCount: memberSnapshot.data!.length,
-                                  itemBuilder: (context, index) {
-                                    // Map<String, dynamic> data = memberSnapshot.data! as Map<String, dynamic>;
-                                    if (memberSnapshot.data![index].id != _myAccount.id) {
-                                      return Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 5.0),
-                                        child: Row(
-                                          children: [
-                                            CircleAvatar(
-                                              radius: 13,
-                                              foregroundImage:
-                                                  getForeGroundImage(memberSnapshot.data![index].imagePath),
-                                              child: const Icon(Icons.person),
-                                            ),
-                                            const SizedBox(
-                                              width: 15.0,
-                                            ),
-                                            Text('${memberSnapshot.data![index].name} さん'),
-                                            const SizedBox(
-                                              width: 10.0,
-                                            ),
-                                            if (memberSnapshot.data![index].isOwner)
-                                              const Icon(
-                                                Icons.star,
-                                                color: Colors.yellow,
-                                              )
-                                          ],
-                                        ),
-                                      );
-                                    } else {
-                                      return Container();
-                                    }
-                                  }),
-                            );
-                          } else {
-                            return Container();
-                          }
-                        }),
+                    // FutureBuilder<dynamic>(
+                    //     future: GroupFirestore.getGroupMembers(_myAccount.groupId!),
+                    //     builder: (context, memberSnapshot) {
+                    //       if (memberSnapshot.hasData && memberSnapshot.connectionState == ConnectionState.done) {
+                    //         return SizedBox(
+                    //           height: memberSnapshot.data!.length > 3 ? 120 : null,
+                    //           child: ListView.builder(
+                    //               shrinkWrap: true,
+                    //               itemCount: memberSnapshot.data!.length,
+                    //               itemBuilder: (context, index) {
+                    //                 // Map<String, dynamic> data = memberSnapshot.data! as Map<String, dynamic>;
+                    //                 if (memberSnapshot.data![index].id != _myAccount.id) {
+                    //                   return Padding(
+                    //                     padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 5.0),
+                    //                     child: Row(
+                    //                       children: [
+                    //                         CircleAvatar(
+                    //                           radius: 13,
+                    //                           foregroundImage:
+                    //                               getForeGroundImage(memberSnapshot.data![index].imagePath),
+                    //                           child: const Icon(Icons.person),
+                    //                         ),
+                    //                         const SizedBox(
+                    //                           width: 15.0,
+                    //                         ),
+                    //                         Text('${memberSnapshot.data![index].name} さん'),
+                    //                         const SizedBox(
+                    //                           width: 10.0,
+                    //                         ),
+                    //                         if (memberSnapshot.data![index].isOwner)
+                    //                           const Icon(
+                    //                             Icons.star,
+                    //                             color: Colors.yellow,
+                    //                           )
+                    //                       ],
+                    //                     ),
+                    //                   );
+                    //                 } else {
+                    //                   return Container();
+                    //                 }
+                    //               }),
+                    //         );
+                    //       } else {
+                    //         return Container();
+                    //       }
+                    //     }),
+                    SizedBox(
+                      height: _memberList.length > 3 ? 120 : null,
+                      child: ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: _memberList.length,
+                          itemBuilder: (context, index) {
+                            // Map<String, dynamic> data = memberSnapshot.data! as Map<String, dynamic>;
+                            if (_memberList[index].id != _myAccount.id) {
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 5.0),
+                                child: Row(
+                                  children: [
+                                    CircleAvatar(
+                                      radius: 13,
+                                      foregroundImage:
+                                      getForeGroundImage(_memberList[index].imagePath),
+                                      child: const Icon(Icons.person),
+                                    ),
+                                    const SizedBox(
+                                      width: 15.0,
+                                    ),
+                                    Text('${_memberList[index].name} さん'),
+                                    const SizedBox(
+                                      width: 10.0,
+                                    ),
+                                    if (_memberList[index].isOwner)
+                                      const Icon(
+                                        Icons.star,
+                                        color: Colors.yellow,
+                                      )
+                                  ],
+                                ),
+                              );
+                            } else {
+                              return Container();
+                            }
+                          }),
+                    ),
                   if (_myAccount.groupId == null)
                     ElevatedButton.icon(
                         onPressed: () async {
                           var result = await Navigator.push(
-                              context, MaterialPageRoute(builder: (context) => const EditAccountPage()));
+                              context, MaterialPageRoute(builder: (context) => EditAccountPage(isOwner: _isOwner,)));
                           if (result == true) {
                             setState(() {
                               if (Authentication.myAccount != null) {
@@ -242,10 +307,10 @@ class _AccountPageState extends State<AccountPage> {
                         onPressed: () async {
                           //   送りたいメッセージを追加
                           // TODO: メッセージ編集
-                          if (group != null) {
-                            final String message1 = '${_myAccount.name}さんからグループ【${group!.name}】へ招待されました！';
+                          if (_group != null) {
+                            final String message1 = '${_myAccount.name}さんからグループ【${_group!.name}】へ招待されました！';
                             const String message2 = '\nログイン時に招待コードを入力してください。';
-                            final String message3 = '\n招待コード: ${group!.code}';
+                            final String message3 = '\n招待コード: ${_group!.code}';
                             final String allMessage = message1 + message2 + message3;
                             final String addTextUrl = lineUrl + allMessage;
                             //   LINEの処理を追加
