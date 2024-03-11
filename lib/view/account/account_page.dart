@@ -118,18 +118,19 @@ class _AccountPageState extends State<AccountPage> {
                         const SizedBox(
                           height: 10,
                         ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            const SizedBox(
-                                width: 80.0,
-                                child: Text('メール', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14.0))),
-                            const SizedBox(
-                              width: 30.0,
-                            ),
-                            Text(myAccount.email, style: const TextStyle(fontSize: 18.0))
-                          ],
-                        ),
+                        if (myAccount.email.isNotEmpty)
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              const SizedBox(
+                                  width: 80.0,
+                                  child: Text('メール', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14.0))),
+                              const SizedBox(
+                                width: 30.0,
+                              ),
+                              Text(myAccount.email, style: const TextStyle(fontSize: 18.0))
+                            ],
+                          ),
                         const SizedBox(
                           height: 10.0,
                         ),

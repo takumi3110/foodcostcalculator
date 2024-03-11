@@ -23,7 +23,13 @@ export const createfirebaseauthcustomtoken = functions
         await verifyAccessToken(accessToken)
         const {lineUserId, name, imageUrl} = await getLINEProfile(accessToken)
         const customToken = await admin.auth().createCustomToken(lineUserId)
-        await setAppUserDocument({lineUserId, name, imageUrl})
+        // ID登録されてればスルー
+        const userDoc = await admin.firestore().collection('users').doc(lineUserId).get()
+        if (!userDoc.exists) {
+            await setAppUserDocument({lineUserId, name, imageUrl})
+        } else {
+            console.log(`user is exists: ${lineUserId}`)
+        }
         return {customToken}
     }
 )
@@ -88,7 +94,8 @@ const setAppUserDocument = async ({lineUserId, name, imageUrl}: {lineUserId: str
         name: name,
         image_path: imageUrl ?? null,
         created_time: Timestamp.now(),
-        updated_tim: Timestamp.now(),
+        updated_time: Timestamp.now(),
+        is_initial_access: true,
         email: '',
         group_id: null,
     })

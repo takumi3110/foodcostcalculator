@@ -7,6 +7,7 @@ import 'package:foodcost/model/menu.dart';
 import 'package:foodcost/utils/authentication.dart';
 import 'package:foodcost/utils/firestore/groups.dart';
 import 'package:foodcost/utils/firestore/menus.dart';
+import 'package:foodcost/utils/firestore/users.dart';
 import 'package:foodcost/view/menu/create_menu_page.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -275,7 +276,13 @@ class _CalendarPageState extends State<CalendarPage> {
                           child: const Text('YES'),
                         ),
                         ElevatedButton(
-                            onPressed: () {
+                            onPressed: () async{
+                              await UserFirestore.users.doc(_myAccount.id).update({
+                                'is_initial_access': false
+                              });
+                              if (Authentication.myAccount != null) {
+                                Authentication.myAccount!.isInitialAccess = false;
+                              }
                               setState(() {
                                 isHasCode = false;
                                 _myAccount.isInitialAccess = false;

@@ -26,7 +26,7 @@ class _OpeningPageState extends State<OpeningPage> {
             print('user is null');
             controller.close();
           } else {
-            print('user is signe in');
+            print('user is sign in');
             if (controller.isClosed == false) {
               controller.add(user);
               controller.close();

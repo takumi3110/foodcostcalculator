@@ -61,6 +61,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                       child: SizedBox(
                         width: 300,
                         child: TextField(
+                          keyboardType: TextInputType.text,
                           controller: nameController,
                           decoration: const InputDecoration(hintText: '名前'),
                         ),
@@ -71,6 +72,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                       child: SizedBox(
                         width: 300,
                         child: TextField(
+                          keyboardType: TextInputType.emailAddress,
                           controller: emailController,
                           decoration: const InputDecoration(hintText: 'メールアドレス'),
                         ),
@@ -81,6 +83,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                       child: SizedBox(
                         width: 300,
                         child: TextField(
+                          keyboardType: TextInputType.visiblePassword,
                           controller: passController,
                           decoration: InputDecoration(
                               hintText: 'パスワード',

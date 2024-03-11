@@ -183,25 +183,28 @@ class _EditAccountPageState extends State<EditAccountPage> {
                           ],
                         ),
                         // const SizedBox(height: 20.0,),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 20.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const SizedBox(
-                                width: 100,
-                                child: Text('メール', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                              ),
-                              const SizedBox(width: 30.0),
-                              SizedBox(
-                                width: 220,
-                                child: TextField(
-                                  controller: emailController,
+                        if (myAccount.email.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 20.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const SizedBox(
+                                  width: 100,
+                                  child: Text('メール', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                                 ),
-                              ),
-                            ],
+                                const SizedBox(width: 30.0),
+                                SizedBox(
+                                  width: 220,
+                                  child: TextField(
+                                    controller: emailController,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
+                        if (myAccount.email.isEmpty)
+                          const SizedBox(height: 20,),
                         Container(
                           padding: const EdgeInsets.symmetric(vertical: 5.0),
                           alignment: Alignment.center,
@@ -239,7 +242,7 @@ class _EditAccountPageState extends State<EditAccountPage> {
                         bool accountResult = false;
                         bool groupResult = false;
                         if (nameController.text != myAccount.name || emailController.text != myAccount.email || image != null) {
-                          if (nameController.text.isNotEmpty && emailController.text.isNotEmpty) {
+                          if ((nameController.text.isNotEmpty && emailController.text.isNotEmpty) || image != null) {
                             String? imagePath = myAccount.imagePath;
                             if (image != null) {
                               imagePath = await FunctionUtils.uploadImage(myAccount.id, image!);
@@ -249,6 +252,7 @@ class _EditAccountPageState extends State<EditAccountPage> {
                                 name: nameController.text,
                                 email: emailController.text,
                                 imagePath: imagePath,
+                              isInitialAccess: false
                             );
                             // Authentication.myAccount = updateAccount;
                             accountResult = await UserFirestore.updateUser(updateAccount);
@@ -257,6 +261,7 @@ class _EditAccountPageState extends State<EditAccountPage> {
                         if (groupNameController.text.isNotEmpty && groupNameController.text != (group != null ? group!.name: '')) {
                           // グループ登録
                           // 招待コード作成
+                          // TODO: グループのオーナーじゃない場合は編集できない。編集しようとするとオーナーに言えと警告
                           String code = group != null ? group!.code: '';
                           const String charset = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
                           final Random random = Random.secure();
