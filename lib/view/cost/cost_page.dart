@@ -171,8 +171,9 @@ class _CostPageTrialState extends State<CostPageTrial> {
           context: context,
           builder: (_) {
             return AlertDialog(
+              // backgroundColor: Colors.white,
+              surfaceTintColor: Colors.white,
               title: const Text('目標金額の設定'),
-              // backgroundColor: Colors.lime,
               actions: [
                 ElevatedButton(
                     onPressed: () async {

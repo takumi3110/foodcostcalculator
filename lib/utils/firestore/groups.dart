@@ -111,7 +111,8 @@ class GroupFirestore {
           'group_id': group.id,
           'is_initial_access': false,
         });
-        myAccount.groupId = group.id;
+        // myAccount.groupId = group.id;
+        Authentication.myAccount!.groupId = group.id;
         return group;
       } else {
         return null;

@@ -320,31 +320,23 @@ class _CalendarPageState extends State<CalendarPage> {
                             await Future<void>.delayed(const Duration(seconds: 3));
                             if (groupResult != null) {
                               setState(() {
-                                isVerifying = false;
                                 isVerified = true;
                                 groupName = groupResult.name;
                               });
                             } else {
                               setState(() {
                                 isDifferentCode = true;
-                                isVerifying = false;
                               });
                             }
+                            setState(() {
+                              isVerifying = false;
+                            });
                           }
                         },
                       ),
                     ),
                     if (isVerifying)
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          const Text('認証中...'),
-                          // const SizedBox(height: 10,),
-                          Center(
-                            child: LoadingAnimationWidget.fourRotatingDots(color: Colors.orangeAccent, size: 50),
-                          ),
-                        ],
-                      ),
+                      WidgetUtils.loadingVerifying(),
                     if (isDifferentCode)
                       const Text(
                         '正しい認証コードを入力してください。',
@@ -365,7 +357,7 @@ class _CalendarPageState extends State<CalendarPage> {
                     : Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    Text('【$groupName】\nに招待されました！'),
+                    Text('【$groupName】\nに参加しました！'),
                     ElevatedButton(
                         onPressed: () {
                           setState(() {
