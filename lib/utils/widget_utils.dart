@@ -1,12 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:foodcost/model/account.dart';
 import 'package:foodcost/model/menu.dart';
 import 'package:foodcost/utils/authentication.dart';
 import 'package:foodcost/utils/firestore/users.dart';
 import 'package:foodcost/view/account/account_page.dart';
 import 'package:foodcost/view/calendar/calendar_page.dart';
 import 'package:foodcost/view/cost/cost_page.dart';
+import 'package:foodcost/view/dialog/entry_code_dialog.dart';
 import 'package:foodcost/view/menu/create_menu_page.dart';
 import 'package:foodcost/view/start_up/login_page.dart';
 import 'package:intl/intl.dart';
@@ -65,6 +67,15 @@ class WidgetUtils {
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     Map<String, dynamic> data = snapshot.data!.data() as Map<String, dynamic>;
+                    // myAccount = Account(
+                    //   name: data['name'],
+                    //   email: data['email'],
+                    //   createdTime: data['created_time'],
+                    //   groupId: data['group_id'],
+                    //   imagePath: data['image_path'],
+                    //   isInitialAccess: data['is_initial_access'],
+                    //   updatedTime: data['updated_time']
+                    // );
                     return UserAccountsDrawerHeader(
                       accountName: Text(
                         // myAccount.name,
@@ -134,6 +145,22 @@ class WidgetUtils {
               ListTile(
                 title: const Row(
                   children: [
+                    Icon(Icons.edit_note),
+                    SizedBox(
+                      width: 15.0,
+                    ),
+                    Text('招待コード入力'),
+                  ],
+                ),
+                onTap: () {
+                  showDialog(context: context, builder: (_) {
+                    return EntryCodeDialog();
+                  });
+                },
+              ),
+              ListTile(
+                title: const Row(
+                  children: [
                     Icon(Icons.logout),
                     SizedBox(
                       width: 15.0,
@@ -168,6 +195,19 @@ class WidgetUtils {
           Center(
             child: LoadingAnimationWidget.twoRotatingArc(color: Colors.deepOrange, size: 70),
           ),
+      ],
+    );
+  }
+
+  static Column loadingVerifying() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        const Text('認証中...'),
+        // const SizedBox(height: 10,),
+        Center(
+          child: LoadingAnimationWidget.fourRotatingDots(color: Colors.orangeAccent, size: 50),
+        ),
       ],
     );
   }
