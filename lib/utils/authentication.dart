@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_line_sdk/flutter_line_sdk.dart';
 import 'package:foodcost/model/account.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class Authentication {
   static final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
@@ -48,12 +49,37 @@ class Authentication {
       // バックエンドサーバーで作成されたカスタムトークンを取得
       final customToken = response.data['customToken'] as String;
       // カスタムトークンを使用して、Firebase Authenticationにサインインする
-      final result = await _firebaseAuth.signInWithCustomToken(customToken);
+      final UserCredential result = await _firebaseAuth.signInWithCustomToken(customToken);
       currentFirebaseUser = result.user;
       print('LINEログイン完了');
       return result;
     } on PlatformException catch(e) {
       print('LINEログインエラー: $e');
+      return false;
+    }
+  }
+
+  static Future<dynamic> signInWithGoogle() async {
+    try {
+      final googleUser = await GoogleSignIn(scopes: ['email']).signIn();
+      if (googleUser != null) {
+        final googleAuth = await googleUser.authentication;
+        final credential = GoogleAuthProvider.credential(
+          accessToken: googleAuth.accessToken,
+          idToken: googleAuth.idToken
+        );
+        final UserCredential result = await _firebaseAuth.signInWithCredential(credential);
+        currentFirebaseUser = result.user;
+        print('Googleログイン完了');
+        return result;
+      } else {
+        return false;
+      }
+    } on FirebaseException catch (e) {
+      print('Google認証エラー:$e');
+      return false;
+    } on PlatformException catch (e) {
+      print('Googleエラー: $e');
       return false;
     }
   }
