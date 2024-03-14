@@ -13,7 +13,6 @@ import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:foodcost/utils/widget_utils.dart';
 import 'package:foodcost/utils/calendar_utils.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class CalendarPage extends StatefulWidget {
   final DateTime? selectedDay;
@@ -25,7 +24,7 @@ class CalendarPage extends StatefulWidget {
 }
 
 class _CalendarPageState extends State<CalendarPage> {
-  final Account _myAccount = Authentication.myAccount!;
+  late final Account _myAccount;
   late final ValueNotifier<List<Event>> _selectedEvents;
   bool isHasCode = false;
   bool isVerifying = false;
@@ -46,6 +45,9 @@ class _CalendarPageState extends State<CalendarPage> {
   @override
   void initState() {
     super.initState();
+    if (Authentication.myAccount != null) {
+      _myAccount = Authentication.myAccount!;
+    }
     if (widget.selectedDay != null) {
       _selectedDay = widget.selectedDay;
     } else {

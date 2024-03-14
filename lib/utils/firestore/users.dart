@@ -19,6 +19,7 @@ class UserFirestore {
         'created_time': newAccount.createdTime,
         'updated_time': newAccount.updatedTime
       });
+      Authentication.myAccount = newAccount;
       print('ユーザー登録完了');
       return true;
     } on FirebaseException catch (e) {

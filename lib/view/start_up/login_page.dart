@@ -1,14 +1,14 @@
-import 'package:flutter/cupertino.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/widgets.dart';
+import 'package:foodcost/model/account.dart';
 import 'package:foodcost/utils/authentication.dart';
 import 'package:foodcost/utils/firestore/users.dart';
 import 'package:foodcost/utils/widget_utils.dart';
 import 'package:foodcost/view/calendar/calendar_page.dart';
 import 'package:foodcost/view/start_up/create_account_page.dart';
-
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -25,7 +25,7 @@ class _LoginPageState extends State<LoginPage> {
   bool _isObscureText = true;
   bool _isMailLoginError = false;
   bool _isLineLoginError = false;
-
+  bool _isGoogleLoginError = false;
 
   @override
   Widget build(BuildContext context) {
@@ -90,7 +90,8 @@ class _LoginPageState extends State<LoginPage> {
                           style: const TextStyle(color: Colors.blue),
                           recognizer: TapGestureRecognizer()
                             ..onTap = () {
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => const CreateAccountPage()));
+                              Navigator.push(
+                                  context, MaterialPageRoute(builder: (context) => const CreateAccountPage()));
                             })
                     ])),
                     const SizedBox(
@@ -145,15 +146,16 @@ class _LoginPageState extends State<LoginPage> {
                           child: Text(
                         '正しいメールアドレスとパスワードを入力してください。',
                         style: TextStyle(color: Colors.red),
-                      )
-                      ),
+                      )),
                     const SizedBox(height: 20),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 18.0),
                       child: Column(
                         children: [
                           Container(
-                            padding: const EdgeInsets.symmetric(vertical: 5.0,),
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 5.0,
+                            ),
                             alignment: Alignment.center,
                             decoration: const BoxDecoration(border: Border(top: BorderSide(color: Colors.grey))),
                             width: double.infinity,
@@ -162,51 +164,129 @@ class _LoginPageState extends State<LoginPage> {
                           // LINE Login
                           Padding(
                             padding: const EdgeInsets.all(8.0),
-                            child: Ink.image(
-                              width: 150,
-                              height: 45,
-                              image: const AssetImage('images/line/btn_login_base.png'),
-                              child: InkWell(
-                                borderRadius: BorderRadius.circular(15),
-                                onTap: () async{
-                                  setState(() {
-                                    _isLoading = true;
-                                  });
-                                  var result = await Authentication.lineSignIn();
-                                  if (result is UserCredential) {
-                                    var getUserResult = await UserFirestore.getUser(result.user!.uid);
-                                    if (getUserResult == true) {
-                                      Navigator.pushReplacement(
-                                          context, MaterialPageRoute(builder: (context) => const CalendarPage()));
-                                    } else {
-                                      setState(() {
-                                        _isLineLoginError = true;
-                                      });
-                                    }
-                                  } else {
-                                    setState(() {
-                                      _isLineLoginError = true;
-                                    });
-                                  }
-                                  setState(() {
-                                    _isLoading = false;
-                                  });
-                                },
-                                splashColor: const Color(0xff000000).withAlpha(30)
-                              ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Ink.image(
+                                  width: 45,
+                                  height: 45,
+                                  image: const AssetImage('images/line/btn_base.png'),
+                                  child: InkWell(
+                                      borderRadius: BorderRadius.circular(15),
+                                      onTap: () async {
+                                        setState(() {
+                                          _isLoading = true;
+                                        });
+                                        var result = await Authentication.lineSignIn();
+                                        if (result is UserCredential) {
+                                          var getUserResult = await UserFirestore.getUser(result.user!.uid);
+                                          if (getUserResult == true) {
+                                            Navigator.pushReplacement(
+                                                context, MaterialPageRoute(builder: (context) => const CalendarPage()));
+                                          } else {
+                                            setState(() {
+                                              _isLineLoginError = true;
+                                            });
+                                          }
+                                        } else {
+                                          setState(() {
+                                            _isLineLoginError = true;
+                                          });
+                                        }
+                                        setState(() {
+                                          _isLoading = false;
+                                        });
+                                      },
+                                      splashColor: const Color(0xff000000).withAlpha(30)),
+                                ),
+                                const SizedBox(
+                                  width: 10.0,
+                                ),
+                                Container(
+                                  width: 45,
+                                  height: 45,
+                                  padding: const EdgeInsets.all(3),
+                                  decoration: BoxDecoration(
+                                      border: Border.all(color: Colors.grey.shade400),
+                                      borderRadius: BorderRadius.circular(10)),
+                                  child: Ink.image(
+                                    // padding: EdgeInsets.all(8),
+                                    // width: 45,
+                                    // height: 45,
+                                    image: const AssetImage('images/google_logo.png'),
+                                    child: InkWell(
+                                        borderRadius: BorderRadius.circular(10),
+                                        onTap: () async {
+                                          setState(() {
+                                            _isLoading = true;
+                                          });
+                                          var result = await Authentication.signInWithGoogle();
+                                          if (result is UserCredential) {
+                                            var getGoogleUserResult = await UserFirestore.getUser(result.user!.uid);
+                                            if (getGoogleUserResult == true) {
+                                              Navigator.pushReplacement(context,
+                                                  MaterialPageRoute(builder: (context) => const CalendarPage()));
+                                            } else {
+                                              // user作成処理
+                                              if (result.user != null) {
+                                                final user = result.user!;
+                                                Account newAccount = Account(
+                                                    id: user.uid,
+                                                    createdTime: Timestamp.now(),
+                                                    email: user.email!,
+                                                    groupId: null,
+                                                    imagePath: user.photoURL,
+                                                    isInitialAccess: true,
+                                                    name: user.displayName!,
+                                                    updatedTime: Timestamp.now());
+                                                var createGoogleUserResult = await UserFirestore.setUser(newAccount);
+                                                if (createGoogleUserResult == true) {
+                                                  Navigator.pushReplacement(context,
+                                                      MaterialPageRoute(builder: (context) => const CalendarPage()));
+                                                } else {
+                                                  setState(() {
+                                                    _isGoogleLoginError = true;
+                                                  });
+                                                }
+                                              } else {
+                                                setState(() {
+                                                  _isGoogleLoginError = true;
+                                                });
+                                              }
+                                            }
+                                          } else {
+                                            setState(() {
+                                              _isGoogleLoginError = true;
+                                            });
+                                          }
+                                          setState(() {
+                                            _isLoading = false;
+                                          });
+                                        },
+                                        // highlightColor: Colors.red,
+                                        splashColor: const Color(0xff000000).withAlpha(30)),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                           if (_isLineLoginError == true)
                             const Center(
-                              child: Text('LINE認証できませんでした。', style: TextStyle(color: Colors.red),),
+                              child: Text(
+                                'LINE認証できませんでした。',
+                                style: TextStyle(color: Colors.red),
+                              ),
+                            ),
+                          if (_isGoogleLoginError == true)
+                            const Center(
+                              child: Text(
+                                'Googleの認証ができませんでした。',
+                                style: TextStyle(color: Colors.red),
+                              ),
                             )
-
-
-
                         ],
                       ),
                     ),
-
                   ],
                 ),
               ),

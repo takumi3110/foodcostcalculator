@@ -29,7 +29,7 @@ class WidgetUtils {
       ),
       leading: IconButton(
         icon: StreamBuilder<DocumentSnapshot>(
-          stream: UserFirestore.users.doc(Authentication.myAccount!.id).snapshots(),
+          stream: Authentication.myAccount != null ? UserFirestore.users.doc(Authentication.myAccount!.id).snapshots(): null,
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               Map<String, dynamic> data = snapshot.data!.data() as Map<String, dynamic>;
@@ -63,7 +63,7 @@ class WidgetUtils {
           child: ListView(
             children: [
               StreamBuilder<DocumentSnapshot>(
-                stream: UserFirestore.users.doc(Authentication.myAccount!.id).snapshots(),
+                stream: Authentication.myAccount != null ? UserFirestore.users.doc(Authentication.myAccount!.id).snapshots(): null,
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     Map<String, dynamic> data = snapshot.data!.data() as Map<String, dynamic>;

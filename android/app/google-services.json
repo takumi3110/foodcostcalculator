@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "768280654775",
+    "project_id": "foodcostcalculator-3f6ab",
+    "storage_bucket": "foodcostcalculator-3f6ab.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:768280654775:android:ecea79a737437cf077ee32",
+        "android_client_info": {
+          "package_name": "com.garitto.foodcost"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "768280654775-4231905g60k03pereelgj0kkg69gvbth.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBAbxQP_44aK5YhUurNFZzcfSEDZjL53cc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "768280654775-4231905g60k03pereelgj0kkg69gvbth.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "768280654775-58hade1uno3cfhevomcgrs042j3a8ro6.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.garitto.foodcost"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
