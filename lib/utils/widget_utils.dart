@@ -1,7 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:foodcost/model/account.dart';
 import 'package:foodcost/model/menu.dart';
 import 'package:foodcost/utils/authentication.dart';
 import 'package:foodcost/utils/firestore/users.dart';
@@ -31,7 +29,7 @@ class WidgetUtils {
         icon: StreamBuilder<DocumentSnapshot>(
           stream: Authentication.myAccount != null ? UserFirestore.users.doc(Authentication.myAccount!.id).snapshots(): null,
           builder: (context, snapshot) {
-            if (snapshot.hasData) {
+            if (snapshot.hasData && snapshot.data!.data() != null) {
               Map<String, dynamic> data = snapshot.data!.data() as Map<String, dynamic>;
               return CircleAvatar(
                 // foregroundImage: myAccount.imagePath != null ? NetworkImage(myAccount.imagePath!) : null,
@@ -65,7 +63,7 @@ class WidgetUtils {
               StreamBuilder<DocumentSnapshot>(
                 stream: Authentication.myAccount != null ? UserFirestore.users.doc(Authentication.myAccount!.id).snapshots(): null,
                 builder: (context, snapshot) {
-                  if (snapshot.hasData) {
+                  if (snapshot.hasData && snapshot.data!.data() != null) {
                     Map<String, dynamic> data = snapshot.data!.data() as Map<String, dynamic>;
                     // myAccount = Account(
                     //   name: data['name'],
