@@ -60,6 +60,8 @@ class _EditAccountPageState extends State<EditAccountPage> {
         context: context,
         builder: (_) {
           return AlertDialog(
+            // backgroundColor: Colors.white,
+            surfaceTintColor: Colors.white,
             title: const Text('アカウント削除'),
             content: const Text('本当に削除しますか？'),
             actions: [

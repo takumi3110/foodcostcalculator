@@ -10,6 +10,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:foodcost/utils/widget_utils.dart';
 import 'dart:io';
 
+import 'package:foodcost/view/start_up/check_email_page.dart';
+
 class CreateAccountPage extends StatefulWidget {
   const CreateAccountPage({super.key});
 
@@ -32,11 +34,14 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('新規登録'), elevation: 1,),
+      appBar: AppBar(
+        title: const Text('新規登録'),
+        elevation: 1,
+      ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Stack(children: [
-            SizedBox(
+        child: Stack(children: [
+          SingleChildScrollView(
+            child: SizedBox(
               width: double.infinity,
               child: Padding(
                 padding: const EdgeInsets.all(20.0),
@@ -81,9 +86,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                               // TODO: バリデーションと認証
                               controller: emailController,
                               decoration: const InputDecoration(hintText: 'メールアドレス'),
-                              inputFormatters: [
-                                FilteringTextInputFormatter.allow(RegExp(r'[a-zA-z0-9@.+_-]'))
-                              ],
+                              inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-z0-9@.+_-]'))],
                               keyboardType: TextInputType.emailAddress,
                               onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
                               onChanged: (String value) {
@@ -94,7 +97,10 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                             ),
                           ),
                           if (_isEmailError)
-                            const Text('正しい形式で入力してください。', style: TextStyle(color: Colors.red, fontSize: 12),)
+                            const Text(
+                              '正しい形式で入力してください。',
+                              style: TextStyle(color: Colors.red, fontSize: 12),
+                            )
                         ],
                       ),
                     ),
@@ -116,9 +122,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                                           _isObscure = !_isObscure;
                                         });
                                       },
-                                      icon: Icon(_isObscure ? Icons.visibility_off : Icons.visibility)
-                                  )
-                              ),
+                                      icon: Icon(_isObscure ? Icons.visibility_off : Icons.visibility))),
                               onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
                               obscureText: _isObscure,
                               onChanged: (String value) {
@@ -129,16 +133,21 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                             ),
                           ),
                           if (_isPasswordError)
-                            const Text('6文字以上で大文字か記号が1つ以上必要です。', style: TextStyle(color: Colors.red, fontSize: 12),),
+                            const Text(
+                              '6文字以上で大文字か記号が1つ以上必要です。',
+                              style: TextStyle(color: Colors.red, fontSize: 12),
+                            ),
                         ],
                       ),
-
-
                     ),
                     const SizedBox(
                       height: 50,
                     ),
                     ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orangeAccent,
+                        foregroundColor: Colors.white
+                      ),
                         onPressed: () async {
                           // 入力されてない時は作動しない
                           if (nameController.text.isNotEmpty &&
@@ -150,10 +159,21 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                             var result =
                                 await Authentication.signUp(email: emailController.text, pass: passController.text);
                             if (result is UserCredential) {
-                              var _result = await createAccount(result.user!.uid);
-                              if (_result == true) {
-                                // TODO: 戻ったらメールアドレスとパスワードに入力したものが反映されて欲しい
-                                Navigator.pop(context);
+                              var createAccountResult = await createAccount(result.user!.uid);
+                              if (createAccountResult == true) {
+                                final actionCodeSettings = ActionCodeSettings(
+                                  url: 'https://foodcostcalculator-3f6ab.firebaseapp.com/__/auth/action?mode=action&oobCode=code',
+                                  iOSBundleId:'com.garitto.foodcost',
+                                  androidPackageName: 'com.garitto.foodcost',
+                                  handleCodeInApp: true,
+                                );
+                                result.user!.sendEmailVerification();
+                                Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            CheckEmailPage(email: emailController.text, pass: passController.text, user: result.user!,)));
+                                // Navigator.pop(context);
                               }
                             }
                             setState(() {
@@ -161,14 +181,21 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                             });
                           }
                         },
-                        child: const Text('アカウント作成'))
+                        child: const Text('アカウント作成', style: TextStyle(fontWeight: FontWeight.bold),)),
+                    const SizedBox(height: 20,),
+                    // TextButton.icon(
+                    //   icon: const Icon(Icons.arrow_back, color: Colors.grey,),
+                    //     onPressed: () {
+                    //     Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginPage()));
+                    //     },
+                    //     label: const Text('戻る', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold),)),
                   ],
                 ),
               ),
             ),
-            WidgetUtils.loadingStack(_isLoading)
-          ]),
-        ),
+          ),
+          WidgetUtils.loadingStack(_isLoading)
+        ]),
       ),
     );
   }

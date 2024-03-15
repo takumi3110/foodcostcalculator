@@ -8,6 +8,7 @@ import 'package:foodcost/utils/authentication.dart';
 import 'package:foodcost/utils/firestore/users.dart';
 import 'package:foodcost/utils/widget_utils.dart';
 import 'package:foodcost/view/calendar/calendar_page.dart';
+import 'package:foodcost/view/start_up/check_email_page.dart';
 import 'package:foodcost/view/start_up/create_account_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -24,6 +25,7 @@ class _LoginPageState extends State<LoginPage> {
   bool _isLoading = false;
   bool _isObscureText = true;
   bool _isMailLoginError = false;
+  bool _isNotMailVerified = false;
   bool _isLineLoginError = false;
   bool _isGoogleLoginError = false;
 
@@ -107,27 +109,25 @@ class _LoginPageState extends State<LoginPage> {
                                 email: emailController.text, password: passController.text);
                             // resultがUserCredentialタイプだったらtrue
                             if (result is UserCredential) {
-                              // if (result.user!.emailVerified == true) {
-                              //   var _result = await UserFirestore.getUser(result.user!.uid);
-                              //   if (_result == true) {
-                              //     Navigator.pushReplacement(
-                              //         context, MaterialPageRoute(builder: (context) => const CalendarPage()));
-                              //   }
-                              // } else {
-                              //   print('メール認証できませんでした。');
-                              // }
                               if (result.user != null) {
-                                var _result = await UserFirestore.getUser(result.user!.uid);
-                                if (_result == true) {
-                                  Navigator.pushReplacement(
-                                      context, MaterialPageRoute(builder: (context) => const CalendarPage()));
+                                if (result.user!.emailVerified == true) {
+                                  var _result = await UserFirestore.getUser(result.user!.uid);
+                                  if (_result == true) {
+                                    Navigator.pushReplacement(
+                                        context, MaterialPageRoute(builder: (context) => const CalendarPage()));
+                                  }
+                                } else {
+                                  print('メール認証なし');
+                                  // result.user!.sendEmailVerification();
+                                  setState(() {
+                                    _isNotMailVerified = true;
+                                  });
                                 }
                               } else {
                                 setState(() {
                                   _isMailLoginError = true;
                                 });
                               }
-                              // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const CalendarPage()));
                             } else {
                               setState(() {
                                 _isMailLoginError = true;
@@ -141,6 +141,32 @@ class _LoginPageState extends State<LoginPage> {
                           }
                         },
                         child: const Text('メールアドレスでログイン')),
+                    if (_isNotMailVerified)
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          const Text('メールの認証ができていません。', style: TextStyle(color: Colors.red),),
+                          RichText(text: TextSpan(
+                            style: const TextStyle(color: Colors.black),
+                            children: [
+                              TextSpan(
+                                  text: 'ここをタップ',
+                                  style: const TextStyle(color: Colors.blue),
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap = () {
+                                    if (Authentication.currentFirebaseUser != null && emailController.text.isNotEmpty && passController.text.isNotEmpty) {
+                                      Authentication.currentFirebaseUser!.sendEmailVerification();
+                                      Navigator.push(context, MaterialPageRoute(builder: (context) => CheckEmailPage(email: emailController.text, pass: passController.text, user: Authentication.currentFirebaseUser!,)));
+                                    }
+                                  }
+                              ),
+                              const TextSpan(text: 'して認証を完了してください。', style: TextStyle(color: Colors.red))
+                            ]
+                          )
+                          ),
+                        ],
+
+                      ),
                     if (_isMailLoginError)
                       const Center(
                           child: Text(
