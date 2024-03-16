@@ -23,6 +23,17 @@ class FunctionUtils {
     }
   }
 
+  static Future<void> deleteImage(String id) async {
+    try {
+      final FirebaseStorage storageInstance = FirebaseStorage.instance;
+      final Reference ref = storageInstance.ref();
+      await ref.child(id).delete();
+      print('image削除完了');
+    } catch (e) {
+      print('image削除エラー: $e');
+    }
+  }
+
   static Future<void> launchLine(String url) async {
     final uri = Uri.parse(url);
     if (await canLaunchUrl(uri)) {

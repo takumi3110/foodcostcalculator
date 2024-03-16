@@ -1,5 +1,6 @@
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_line_sdk/flutter_line_sdk.dart';
 import 'package:foodcost/model/account.dart';
@@ -14,10 +15,11 @@ class Authentication {
   static Future<dynamic> signUp({required String email, required String pass}) async {
     try {
       UserCredential newAccount = await _firebaseAuth.createUserWithEmailAndPassword(email: email, password: pass);
-      print('認証完了');
+      currentFirebaseUser = newAccount.user;
+      debugPrint('認証完了');
       return newAccount;
     } on FirebaseAuthException catch(e) {
-      print('認証エラー: $e');
+      debugPrint('認証エラー: $e');
       return false;
     }
   }
@@ -26,10 +28,10 @@ class Authentication {
     try {
       final UserCredential result = await _firebaseAuth.signInWithEmailAndPassword(email: email, password: password);
       currentFirebaseUser = result.user;
-      print('ログイン完了');
+      debugPrint('ログイン完了');
       return result;
     } on FirebaseAuthException catch (e) {
-      print('サインインエラー: $e');
+      debugPrint('サインインエラー: $e');
       return false;
     }
   }
@@ -51,10 +53,10 @@ class Authentication {
       // カスタムトークンを使用して、Firebase Authenticationにサインインする
       final UserCredential result = await _firebaseAuth.signInWithCustomToken(customToken);
       currentFirebaseUser = result.user;
-      print('LINEログイン完了');
+      debugPrint('LINEログイン完了');
       return result;
     } on PlatformException catch(e) {
-      print('LINEログインエラー: $e');
+      debugPrint('LINEログインエラー: $e');
       return false;
     }
   }
@@ -70,25 +72,29 @@ class Authentication {
         );
         final UserCredential result = await _firebaseAuth.signInWithCredential(credential);
         currentFirebaseUser = result.user;
-        print('Googleログイン完了');
+        debugPrint('Googleログイン完了');
         return result;
       } else {
         return false;
       }
     } on FirebaseException catch (e) {
-      print('Google認証エラー:$e');
+      debugPrint('Google認証エラー:$e');
       return false;
     } on PlatformException catch (e) {
-      print('Googleエラー: $e');
+      debugPrint('Googleエラー: $e');
       return false;
     }
   }
 
   static Future<void> signOut() async{
     await _firebaseAuth.signOut();
+    debugPrint('サインアウト');
   }
 
   static Future<void> deleteAuth() async{
-    await currentFirebaseUser!.delete();
+    if (currentFirebaseUser != null) {
+      await currentFirebaseUser!.delete();
+      debugPrint('ユーザー削除完了');
+    }
   }
 }

@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:foodcost/model/food.dart';
 import 'package:foodcost/model/menu.dart';
 import 'package:foodcost/utils/firestore/foods.dart';
+import 'package:foodcost/utils/functionUtils.dart';
 
 class MenuFirestore {
   static final _firestoreInstance = FirebaseFirestore.instance;
@@ -90,14 +91,21 @@ class MenuFirestore {
     }
   }
 
-  static Future<dynamic> deleteMenus(String accountId) async {
-    final CollectionReference userMenus = _firestoreInstance.collection('users').doc(accountId).collection('my_menus');
-    var snapshot = await userMenus.get();
-    snapshot.docs.forEach((doc) async {
-      final CollectionReference collectionFoods = menus.doc(doc.id).collection('foods');
-      await FoodFirestore.deleteFoods(collectionFoods);
-      await menus.doc(doc.id).delete();
-      await userMenus.doc(doc.id).delete();
-    });
+  static Future<void> deleteMenus(String accountId) async {
+    try {
+      final CollectionReference userMenus = _firestoreInstance.collection('users').doc(accountId).collection('my_menus');
+      var snapshot = await userMenus.get();
+      for (var doc in snapshot.docs) {
+        final CollectionReference collectionFoods = menus.doc(doc.id).collection('foods');
+        await FoodFirestore.deleteFoods(collectionFoods);
+        await FunctionUtils.deleteImage(doc.id);
+        await menus.doc(doc.id).delete();
+        await userMenus.doc(doc.id).delete();
+      }
+      print('メニュー削除完了');
+    } on FirebaseException catch (e) {
+      print('メニュー削除エラー: $e');
+    }
+
   }
 }

@@ -59,9 +59,11 @@ class TargetFirestore {
             monthAmount: targetData['month_amount'],
             dayAmount: targetData['day_amount'],
             userId: targetData['user_id'],
-            updatedTime: targetData['updated_time']);
+            updatedTime: targetData['updated_time']
+        );
         //
         // });
+        print('目標金額取得完了');
         return target;
       } else {
         return null;
@@ -69,6 +71,20 @@ class TargetFirestore {
     } on FirebaseException catch (e) {
       print('目標金額取得エラー: $e');
       return null;
+    }
+  }
+
+  static Future<void> deleteTarget(String accountId) async {
+    try {
+      final CollectionReference myTargets = _firestoreInstance.collection('users').doc(accountId).collection('my_target');
+      var snapshot = await myTargets.get();
+      for (var doc in snapshot.docs) {
+        await targets.doc(doc.id).delete();
+        await myTargets.doc(doc.id).delete();
+      }
+      print('目標金額削除完了');
+    } on FirebaseException catch (e) {
+      print('目標金額削除エラー: $e');
     }
   }
 }
