@@ -122,4 +122,21 @@ class GroupFirestore {
       return false;
     }
   }
+
+  static Future<void> deleteMember(String accountId) async {
+    try {
+      final DocumentSnapshot user = await _firestoreInstance.collection('users').doc(accountId).get();
+      if (user.data() != null) {
+        Map<String, dynamic> data = user.data() as Map<String, dynamic>;
+        final groupId = data['group_id'];
+        if (groupId != null) {
+          final CollectionReference members = groups.doc(groupId).collection('members');
+          await members.doc(accountId).delete();
+          print('メンバー削除');
+        }
+      }
+    } on FirebaseException catch (e) {
+      print('メンバー削除エラー: $e');
+    }
+  }
 }

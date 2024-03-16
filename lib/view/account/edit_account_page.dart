@@ -66,12 +66,12 @@ class _EditAccountPageState extends State<EditAccountPage> {
             content: const Text('本当に削除しますか？'),
             actions: [
               ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async{
                     setState(() {
                       _isLoading = true;
                     });
-                    UserFirestore.deleteUser(_myAccount.id);
-                    Authentication.deleteAuth();
+                    await UserFirestore.deleteUser(_myAccount.id);
+                    await Authentication.deleteAuth();
                     while (Navigator.canPop(context)) {
                       Navigator.pop(context);
                     }
@@ -80,16 +80,23 @@ class _EditAccountPageState extends State<EditAccountPage> {
                       _isLoading = false;
                     });
                   },
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white),
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      foregroundColor: Colors.white
+                  ),
                   child: const Text(
                     'はい',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   )),
               ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.grey,
+                  foregroundColor: Colors.white
+                ),
                   onPressed: () {
                     Navigator.pop(context, false);
                   },
-                  child: const Text('いいえ'))
+                  child: const Text('いいえ', style: TextStyle(fontWeight: FontWeight.bold),))
             ],
           );
         });

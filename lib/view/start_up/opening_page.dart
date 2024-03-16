@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:foodcost/utils/authentication.dart';
 import 'package:foodcost/utils/firestore/users.dart';
 import 'package:foodcost/view/calendar/calendar_page.dart';
 import 'package:foodcost/view/start_up/login_page.dart';
@@ -27,6 +28,7 @@ class _OpeningPageState extends State<OpeningPage> {
             controller.close();
           } else {
             print('user is sign in');
+            Authentication.currentFirebaseUser = user;
             if (controller.isClosed == false) {
               controller.add(user);
               controller.close();
@@ -87,6 +89,7 @@ class _OpeningPageState extends State<OpeningPage> {
                         print(futureSnapshot.connectionState);
                         if (futureSnapshot.hasData) {
                           return const CalendarPage();
+                          // return const LoginPage();
                         } else {
                           return Container(
                             color: Colors.white,

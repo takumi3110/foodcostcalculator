@@ -2,7 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:foodcost/model/account.dart';
 import 'package:foodcost/utils/authentication.dart';
 import 'package:foodcost/utils/firestore/foods.dart';
+import 'package:foodcost/utils/firestore/groups.dart';
 import 'package:foodcost/utils/firestore/menus.dart';
+import 'package:foodcost/utils/firestore/targets.dart';
+import 'package:foodcost/utils/functionUtils.dart';
 
 class UserFirestore {
   static final _firestoreInstance = FirebaseFirestore.instance;
@@ -42,6 +45,7 @@ class UserFirestore {
           groupId: data['group_id'],
           createdTime: data['created_time'],
         );
+
         Authentication.myAccount = myAccount;
         print('ユーザー取得完了');
         return true;
@@ -79,7 +83,10 @@ class UserFirestore {
   }
 
   static Future<dynamic> deleteUser(String accountId) async {
+    await FunctionUtils.deleteImage(accountId);
+    await TargetFirestore.deleteTarget(accountId);
     await MenuFirestore.deleteMenus(accountId);
+    await GroupFirestore.deleteMember(accountId);
     users.doc(accountId).delete();
   }
 

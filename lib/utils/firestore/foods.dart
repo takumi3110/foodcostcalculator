@@ -72,11 +72,10 @@ class FoodFirestore {
   //   });
   // }
 
-  static Future<dynamic> deleteFoods(CollectionReference foods) async {
-    var snapshot = await foods.get();
+  static Future<dynamic> deleteFoods(CollectionReference collectionFoods) async {
+    var snapshot = await collectionFoods.get();
     snapshot.docs.forEach((doc) async{
-      await foods.doc(doc.id).delete();
-      await foods.doc(doc.id).delete();
+      await collectionFoods.doc(doc.id).delete();
     });
   }
 }

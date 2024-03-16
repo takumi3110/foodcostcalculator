@@ -140,7 +140,8 @@ class _LoginPageState extends State<LoginPage> {
                             null;
                           }
                         },
-                        child: const Text('メールアドレスでログイン')),
+                        child: const Text('メールアドレスでログイン')
+                    ),
                     if (_isNotMailVerified)
                       Column(
                         mainAxisAlignment: MainAxisAlignment.start,

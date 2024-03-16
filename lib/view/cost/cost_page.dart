@@ -476,7 +476,7 @@ class _CostPageTrialState extends State<CostPageTrial> {
                                           ],
                                         ),
                                         SizedBox(
-                                          width: 120,
+                                          // width: 120,
                                           child: Row(
                                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                             children: [
