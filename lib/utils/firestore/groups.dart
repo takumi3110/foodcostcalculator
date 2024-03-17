@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:foodcost/model/account.dart';
 import 'package:foodcost/model/group.dart';
 import 'package:foodcost/utils/authentication.dart';
@@ -25,10 +26,10 @@ class GroupFirestore {
         await UserFirestore.users.doc(myAccount.id).update({'group_id': result.id});
         Authentication.myAccount!.groupId = result.id;
       }
-      print('グループ登録完了');
+      debugPrint('グループ登録完了');
       return true;
     } on FirebaseException catch (e) {
-      print('グループ登録エラー: $e');
+      debugPrint('グループ登録エラー: $e');
       return false;
     }
   }
@@ -38,10 +39,10 @@ class GroupFirestore {
       await groups.doc(newGroup.id).update({
         'name': newGroup.name,
       });
-      print('グループ更新完了');
+      debugPrint('グループ更新完了');
       return true;
     } on FirebaseException catch (e) {
-      print('グループ更新エラー:$e');
+      debugPrint('グループ更新エラー:$e');
       return false;
     }
   }
@@ -56,13 +57,13 @@ class GroupFirestore {
           name: data['name'],
           code: data['code'],
         );
-        print('グループ取得完了');
+        debugPrint('グループ取得完了');
         return newGroup;
       } else {
         return null;
       }
     } on FirebaseException catch (e) {
-      print('グループ取得エラー: $e');
+      debugPrint('グループ取得エラー: $e');
       return null;
     }
   }
@@ -78,13 +79,13 @@ class GroupFirestore {
             .add(Member(id: doc.id, name: data['name'], imagePath: data['image_path'], isOwner: data['is_owner']));
       }
       if (memberList.isNotEmpty) {
-        print('メンバー取得完了');
+        debugPrint('メンバー取得完了');
         return memberList;
       } else {
         return null;
       }
     } on FirebaseException catch (e) {
-      print('グループ取得エラー: $e');
+      debugPrint('グループ取得エラー: $e');
       return null;
     }
   }
@@ -118,7 +119,7 @@ class GroupFirestore {
         return null;
       }
     } on FirebaseException catch (e) {
-      print('グループ取得エラー: $e');
+      debugPrint('グループ取得エラー: $e');
       return false;
     }
   }
@@ -132,11 +133,11 @@ class GroupFirestore {
         if (groupId != null) {
           final CollectionReference members = groups.doc(groupId).collection('members');
           await members.doc(accountId).delete();
-          print('メンバー削除');
+          debugPrint('メンバー削除');
         }
       }
     } on FirebaseException catch (e) {
-      print('メンバー削除エラー: $e');
+      debugPrint('メンバー削除エラー: $e');
     }
   }
 }

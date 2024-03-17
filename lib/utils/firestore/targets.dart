@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:foodcost/model/target.dart';
 
 class TargetFirestore {
@@ -18,10 +19,10 @@ class TargetFirestore {
       await userTarget.doc(result.id).set({
         'target_id': result.id,
       });
-      print('目標金額登録完了');
+      debugPrint('目標金額登録完了');
       return result;
     } on FirebaseException catch (e) {
-      print('目標金額登録エラー: $e');
+      debugPrint('目標金額登録エラー: $e');
       return null;
     }
   }
@@ -34,10 +35,10 @@ class TargetFirestore {
             'day_amount': newTarget.dayAmount,
             'updated_time': Timestamp.now()
           });
-      print('目標金額更新完了');
+      debugPrint('目標金額更新完了');
       return true;
     } on FirebaseException catch (e) {
-      print('目標金額更新エラー: $e');
+      debugPrint('目標金額更新エラー: $e');
       return null;
     }
   }
@@ -63,13 +64,13 @@ class TargetFirestore {
         );
         //
         // });
-        print('目標金額取得完了');
+        debugPrint('目標金額取得完了');
         return target;
       } else {
         return null;
       }
     } on FirebaseException catch (e) {
-      print('目標金額取得エラー: $e');
+      debugPrint('目標金額取得エラー: $e');
       return null;
     }
   }
@@ -82,9 +83,9 @@ class TargetFirestore {
         await targets.doc(doc.id).delete();
         await myTargets.doc(doc.id).delete();
       }
-      print('目標金額削除完了');
+      debugPrint('目標金額削除完了');
     } on FirebaseException catch (e) {
-      print('目標金額削除エラー: $e');
+      debugPrint('目標金額削除エラー: $e');
     }
   }
 }

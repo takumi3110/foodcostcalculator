@@ -152,7 +152,7 @@ class WidgetUtils {
                 ),
                 onTap: () {
                   showDialog(context: context, builder: (_) {
-                    return EntryCodeDialog();
+                    return const EntryCodeDialog();
                   });
                 },
               ),

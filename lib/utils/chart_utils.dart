@@ -16,7 +16,7 @@ class ChartUtils {
     //   fontWeight: FontWeight.bold,
     // );
 
-    // TODO: 当日は太字、土日は色つける
+    // 当日は太字、土日は色つける
     TextStyle style;
     switch (value.toInt()) {
       case 22:

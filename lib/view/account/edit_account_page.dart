@@ -1,10 +1,8 @@
 import 'dart:io';
 import 'dart:math';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:foodcost/model/account.dart';
 import 'package:foodcost/model/group.dart';
 import 'package:foodcost/utils/authentication.dart';

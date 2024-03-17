@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/cupertino.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -16,9 +17,10 @@ class FunctionUtils {
       final Reference ref = storageInstance.ref();
       await ref.child(id).putFile(image);
       String downloadUrl = await storageInstance.ref(id).getDownloadURL();
+      debugPrint('imageアップロード完了');
       return downloadUrl;
     } on FirebaseException catch (e) {
-      print(e);
+      debugPrint('imageアップロードエラー: $e');
       return null;
     }
   }
@@ -28,9 +30,9 @@ class FunctionUtils {
       final FirebaseStorage storageInstance = FirebaseStorage.instance;
       final Reference ref = storageInstance.ref();
       await ref.child(id).delete();
-      print('image削除完了');
+      debugPrint('image削除完了');
     } catch (e) {
-      print('image削除エラー: $e');
+      debugPrint('image削除エラー: $e');
     }
   }
 
@@ -42,7 +44,7 @@ class FunctionUtils {
           mode: LaunchMode.externalApplication
       );
     } else {
-      print('URL起動エラー');
+      debugPrint('URL起動エラー');
     }
   }
 }

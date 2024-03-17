@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:foodcost/model/food.dart';
 
 class FoodFirestore {
@@ -22,11 +23,11 @@ class FoodFirestore {
         //   'food_id': result.id,
         //   'created_time': Timestamp.now()
         // });
-        print('材料を登録しました。');
+        debugPrint('材料を登録しました。');
       }
       return true;
     } on FirebaseException catch (e) {
-      print('登録エラー: $e');
+      debugPrint('登録エラー: $e');
       return false;
     }
   }
@@ -48,11 +49,11 @@ class FoodFirestore {
         foodList.add(food);
       });
       if (foodList.isNotEmpty) {
-        print('food取得完了');
+        debugPrint('food取得完了');
       }
       return foodList;
     } on FirebaseException catch(e) {
-      print('food取得エラー: $e');
+      debugPrint('food取得エラー: $e');
       return null;
     }
   }

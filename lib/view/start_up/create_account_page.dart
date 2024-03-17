@@ -219,7 +219,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
       var result = await UserFirestore.setUser(newAccount);
       return result;
     } on FirebaseException catch (e) {
-      print('アカウント作成エラー: $e');
+      debugPrint('アカウント作成エラー: $e');
       return false;
     }
   }
