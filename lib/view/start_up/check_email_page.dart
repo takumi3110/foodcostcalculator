@@ -4,7 +4,6 @@ import 'package:foodcost/utils/authentication.dart';
 import 'package:foodcost/utils/firestore/users.dart';
 import 'package:foodcost/utils/widget_utils.dart';
 import 'package:foodcost/view/calendar/calendar_page.dart';
-import 'package:foodcost/view/start_up/create_account_page.dart';
 
 class CheckEmailPage extends StatefulWidget {
   final String email;

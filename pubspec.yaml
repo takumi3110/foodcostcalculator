@@ -43,6 +43,8 @@ dependencies:
   flutter_line_sdk: ^2.3.6
   cloud_functions: ^4.6.7
   google_sign_in: ^6.2.1
+  table_calendar: ^3.0.9
+  loading_animation_widget: ^1.2.0+4
 
 
 dev_dependencies:
@@ -57,10 +59,7 @@ dev_dependencies:
   flutter_lints: ^3.0.1
   firebase_core: ^2.24.2
   firebase_storage: ^11.6.0
-  table_calendar: ^3.0.9
   image_picker: ^1.0.7
-  loading_animation_widget: ^1.2.0+4
-
 
 
 # For information on the generic Dart part of this file, see the

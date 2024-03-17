@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:foodcost/model/food.dart';
 import 'package:foodcost/model/menu.dart';
 import 'package:foodcost/utils/firestore/foods.dart';
@@ -25,11 +26,11 @@ class MenuFirestore {
         'foods': foods
       });
       await userMenus.doc(result.id).set({'menu_id': result.id, 'created_time': newMenu.createdTime});
-      print('メニュー登録完了');
+      debugPrint('メニュー登録完了');
       // return result.id;
       return true;
     } on FirebaseException catch (e) {
-      print('メニュー登録エラー: $e');
+      debugPrint('メニュー登録エラー: $e');
       return null;
     }
   }
@@ -46,10 +47,10 @@ class MenuFirestore {
         'total_amount': newMenu.totalAmount,
         'foods': foods,
       });
-      print('メニュー更新完了');
+      debugPrint('メニュー更新完了');
       return true;
     } on FirebaseException catch (e) {
-      print('メニュー更新エラー: $e');
+      debugPrint('メニュー更新エラー: $e');
       return false;
     }
   }
@@ -82,11 +83,11 @@ class MenuFirestore {
         }
       }
       if (menuList.isNotEmpty) {
-        print('メニュー取得完了');
+        debugPrint('メニュー取得完了');
       }
       return menuList;
     } on FirebaseException catch (e) {
-      print('メニュー取得エラー: $e');
+      debugPrint('メニュー取得エラー: $e');
       return null;
     }
   }
@@ -102,9 +103,9 @@ class MenuFirestore {
         await menus.doc(doc.id).delete();
         await userMenus.doc(doc.id).delete();
       }
-      print('メニュー削除完了');
+      debugPrint('メニュー削除完了');
     } on FirebaseException catch (e) {
-      print('メニュー削除エラー: $e');
+      debugPrint('メニュー削除エラー: $e');
     }
 
   }

@@ -21,13 +21,13 @@ class _OpeningPageState extends State<OpeningPage> {
     controller = StreamController<User?> (
       onListen: () async {
         await Future<void>.delayed(const Duration(seconds: 1));
-        print('duration 1seconds');
+        debugPrint('duration 1seconds');
         FirebaseAuth.instance.authStateChanges().listen((User? user) {
           if (user == null) {
-            print('user is null');
+            debugPrint('user is null');
             controller.close();
           } else {
-            print('user is sign in');
+            debugPrint('user is sign in');
             Authentication.currentFirebaseUser = user;
             if (controller.isClosed == false) {
               controller.add(user);
@@ -48,18 +48,18 @@ class _OpeningPageState extends State<OpeningPage> {
         stream: _stream,
         builder: (BuildContext context, AsyncSnapshot<User?> snapshot) {
           Widget nextPage = const SizedBox();
-          print('start');
+          debugPrint('start');
           if (snapshot.hasError) {
             //   TODO: エラー画面
             return Container();
           } else {
             switch (snapshot.connectionState) {
               case ConnectionState.none:
-                print('none');
+                debugPrint('none');
                 nextPage = const LoginPage();
               case ConnectionState.waiting:
                 //     TODO: loading画面
-                print('waiting');
+                debugPrint('waiting');
                 nextPage = Center(
                   // child: SizedBox(
                   //   width: 60,
@@ -69,9 +69,9 @@ class _OpeningPageState extends State<OpeningPage> {
                   child: LoadingAnimationWidget.twoRotatingArc(color: Colors.deepOrange, size: 70),
                 );
               case ConnectionState.active:
-                print('active');
+                debugPrint('active');
               case ConnectionState.done:
-                print('done');
+                debugPrint('done');
                 if (snapshot.hasData) {
                   nextPage = FutureBuilder(
                       future: UserFirestore.getUser(snapshot.data!.uid),
@@ -86,7 +86,7 @@ class _OpeningPageState extends State<OpeningPage> {
                         //   );
                         // }
                         // return const CalendarPage();
-                        print(futureSnapshot.connectionState);
+                        debugPrint('${futureSnapshot.connectionState}');
                         if (futureSnapshot.hasData) {
                           return const CalendarPage();
                           // return const LoginPage();
@@ -101,7 +101,7 @@ class _OpeningPageState extends State<OpeningPage> {
                 }
 
                 // if (snapshot.hasData) {
-                //   print(snapshot.data!.uid);
+                //   debugPrint(snapshot.data!.uid);
                 //   nextPage = const Center(
                 //     child: Icon(
                 //       Icons.info,

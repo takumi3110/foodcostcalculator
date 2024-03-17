@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/widgets.dart';
 import 'package:foodcost/model/account.dart';
 import 'package:foodcost/utils/authentication.dart';
 import 'package:foodcost/utils/firestore/users.dart';
@@ -111,13 +110,13 @@ class _LoginPageState extends State<LoginPage> {
                             if (result is UserCredential) {
                               if (result.user != null) {
                                 if (result.user!.emailVerified == true) {
-                                  var _result = await UserFirestore.getUser(result.user!.uid);
-                                  if (_result == true) {
+                                  var getUserResult = await UserFirestore.getUser(result.user!.uid);
+                                  if (getUserResult == true) {
                                     Navigator.pushReplacement(
                                         context, MaterialPageRoute(builder: (context) => const CalendarPage()));
                                   }
                                 } else {
-                                  print('メール認証なし');
+                                  debugPrint('メール認証なし');
                                   // result.user!.sendEmailVerification();
                                   setState(() {
                                     _isNotMailVerified = true;

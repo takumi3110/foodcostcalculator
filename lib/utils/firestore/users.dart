@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:foodcost/model/account.dart';
 import 'package:foodcost/utils/authentication.dart';
-import 'package:foodcost/utils/firestore/foods.dart';
 import 'package:foodcost/utils/firestore/groups.dart';
 import 'package:foodcost/utils/firestore/menus.dart';
 import 'package:foodcost/utils/firestore/targets.dart';
@@ -23,10 +23,10 @@ class UserFirestore {
         'updated_time': newAccount.updatedTime
       });
       Authentication.myAccount = newAccount;
-      print('ユーザー登録完了');
+      debugPrint('ユーザー登録完了');
       return true;
     } on FirebaseException catch (e) {
-      print('ユーザー登録エラー: $e');
+      debugPrint('ユーザー登録エラー: $e');
       return false;
     }
   }
@@ -47,13 +47,13 @@ class UserFirestore {
         );
 
         Authentication.myAccount = myAccount;
-        print('ユーザー取得完了');
+        debugPrint('ユーザー取得完了');
         return true;
       } else {
         return false;
       }
     } on FirebaseException catch (e) {
-      print('ユーザー取得エラー: $e');
+      debugPrint('ユーザー取得エラー: $e');
       return false;
     }
   }
@@ -74,10 +74,10 @@ class UserFirestore {
         myAccount.imagePath = updateAccount.imagePath;
         myAccount.updatedTime = Timestamp.now();
       }
-      print('update成功');
+      debugPrint('update成功');
       return true;
     } on FirebaseException catch (e) {
-      print('updateエラー: $e');
+      debugPrint('updateエラー: $e');
       return false;
     }
   }
