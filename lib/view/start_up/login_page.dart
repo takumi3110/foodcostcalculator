@@ -37,6 +37,7 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     // final bottomSpace = MediaQuery.of(context).viewInsets.bottom;
     return Scaffold(
+      backgroundColor: Colors.white,
       // resizeToAvoidBottomInset: false,
       body: SafeArea(
           child: Stack(

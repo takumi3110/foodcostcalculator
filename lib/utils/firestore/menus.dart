@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:foodcost/model/food.dart';
@@ -9,7 +11,7 @@ class MenuFirestore {
   static final _firestoreInstance = FirebaseFirestore.instance;
   static final CollectionReference menus = _firestoreInstance.collection('menus');
 
-  static Future<dynamic> addMenu(Menu newMenu) async {
+  static Future<dynamic> addMenu(Menu newMenu, File? image) async {
     try {
       final CollectionReference userMenus =
           _firestoreInstance.collection('users').doc(newMenu.userId).collection('my_menus');
@@ -25,6 +27,10 @@ class MenuFirestore {
         'created_time': newMenu.createdTime,
         'foods': foods
       });
+      if (image != null) {
+        var imageResult = await FunctionUtils.uploadImage(result.id, image);
+        await menus.doc(result.id).update({'image_path': imageResult});
+      }
       await userMenus.doc(result.id).set({'menu_id': result.id, 'created_time': newMenu.createdTime});
       debugPrint('メニュー登録完了');
       // return result.id;
