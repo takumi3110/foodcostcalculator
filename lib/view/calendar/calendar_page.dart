@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:foodcost/component/primary_button.dart';
 import 'package:foodcost/model/account.dart';
 import 'package:foodcost/model/food.dart';
 import 'package:foodcost/model/menu.dart';
@@ -113,6 +114,7 @@ class _CalendarPageState extends State<CalendarPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       key: _scaffoldKey,
       appBar: WidgetUtils.createAppBar('カレンダー', _scaffoldKey),
       drawer: WidgetUtils.sideMenuDrawer(context),
@@ -121,6 +123,7 @@ class _CalendarPageState extends State<CalendarPage> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 TableCalendar(
                   locale: 'ja_JP',
@@ -267,14 +270,22 @@ class _CalendarPageState extends State<CalendarPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        ElevatedButton(
-                          onPressed: () {
-                            setState(() {
-                              isHasCode = true;
-                            });
-                          },
-                          style: ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white),
-                          child: const Text('YES'),
+                        // ElevatedButton(
+                        //   onPressed: () {
+                        //     setState(() {
+                        //       isHasCode = true;
+                        //     });
+                        //   },
+                        //   style: ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white),
+                        //   child: const Text('YES'),
+                        // ),
+                        PrimaryButton(
+                            onPressed: () {
+                              setState(() {
+                                isHasCode = true;
+                              });
+                            },
+                            childText: 'YES'
                         ),
                         ElevatedButton(
                             onPressed: () async{
@@ -359,16 +370,24 @@ class _CalendarPageState extends State<CalendarPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     Text('【$groupName】\nに参加しました！'),
-                    ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            isHasCode = false;
-                            _myAccount.isInitialAccess = false;
+                    PrimaryButton(onPressed: () {
+                      setState(() {
+                        isHasCode = false;
+                        _myAccount.isInitialAccess = false;
 
-                          });
-                        },
-                        child: const Text('始める', style: TextStyle(fontWeight: FontWeight.bold),)
-                    )
+                      });
+                    },
+                        childText: '始める'),
+                    // ElevatedButton(
+                    //     onPressed: () {
+                    //       setState(() {
+                    //         isHasCode = false;
+                    //         _myAccount.isInitialAccess = false;
+                    //
+                    //       });
+                    //     },
+                    //     child: const Text('始める', style: TextStyle(fontWeight: FontWeight.bold),)
+                    // )
                   ],
                 ),
               ),

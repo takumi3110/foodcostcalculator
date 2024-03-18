@@ -63,6 +63,7 @@ class _AccountPageState extends State<AccountPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text(
           'マイページ',
@@ -289,6 +290,10 @@ class _AccountPageState extends State<AccountPage> {
                     ),
                   if (_myAccount.groupId == null)
                     ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                        foregroundColor: Colors.white,
+                      ),
                         onPressed: () async {
                           var result = await Navigator.push(
                               context, MaterialPageRoute(builder: (context) => EditAccountPage(isOwner: _isOwner,)));
@@ -301,7 +306,7 @@ class _AccountPageState extends State<AccountPage> {
                           }
                         },
                         icon: const Icon(Icons.supervisor_account),
-                        label: const Text('グループを作成')),
+                        label: const Text('グループを作成', style: TextStyle(fontWeight: FontWeight.bold),)),
                   if (_myAccount.groupId != null)
                     ElevatedButton.icon(
                         onPressed: () async {

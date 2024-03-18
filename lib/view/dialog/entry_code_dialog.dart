@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:foodcost/component/cancel_button.dart';
 import 'package:foodcost/utils/authentication.dart';
 import 'package:foodcost/utils/firestore/groups.dart';
 import 'package:foodcost/utils/widget_utils.dart';
@@ -36,20 +37,18 @@ class _EntryCodeDialogState extends State<EntryCodeDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      surfaceTintColor: Colors.white,
+      backgroundColor: Colors.white,
+      surfaceTintColor: Colors.transparent,
       title: const Text(
         '招待コードを入力してください',
         style: TextStyle(fontSize: 18),
       ),
       actions: [
-        ElevatedButton(
-            onPressed: () {
-              if (!_isVerifying) {
-                Navigator.pop(context);
-              }
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.grey, foregroundColor: Colors.white),
-            child: const Text('閉じる'))
+        CancelButton(onPressed: () {
+          if (!_isVerifying) {
+            Navigator.pop(context);
+          }
+        }, text: '閉じる')
       ],
       content: SizedBox(
               height: 70,

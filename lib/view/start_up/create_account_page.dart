@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:foodcost/component/primary_button.dart';
 import 'package:foodcost/model/account.dart';
 import 'package:foodcost/utils/authentication.dart';
 import 'package:foodcost/utils/extension.dart';
@@ -143,11 +144,46 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                     const SizedBox(
                       height: 50,
                     ),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.orangeAccent,
-                        foregroundColor: Colors.white
-                      ),
+                    // ElevatedButton(
+                    //   style: ElevatedButton.styleFrom(
+                    //     backgroundColor: Colors.orangeAccent,
+                    //     foregroundColor: Colors.white
+                    //   ),
+                    //     onPressed: () async {
+                    //       // 入力されてない時は作動しない
+                    //       if (nameController.text.isNotEmpty &&
+                    //           emailController.text.isNotEmpty &&
+                    //           passController.text.isNotEmpty) {
+                    //         setState(() {
+                    //           _isLoading = true;
+                    //         });
+                    //         var result =
+                    //             await Authentication.signUp(email: emailController.text, pass: passController.text);
+                    //         if (result is UserCredential) {
+                    //           var createAccountResult = await createAccount(result.user!.uid);
+                    //           if (createAccountResult == true) {
+                    //             final actionCodeSettings = ActionCodeSettings(
+                    //               url: 'https://foodcostcalculator-3f6ab.firebaseapp.com/__/auth/action?mode=action&oobCode=code',
+                    //               iOSBundleId:'com.garitto.foodcost',
+                    //               androidPackageName: 'com.garitto.foodcost',
+                    //               handleCodeInApp: true,
+                    //             );
+                    //             result.user!.sendEmailVerification();
+                    //             Navigator.pushReplacement(
+                    //                 context,
+                    //                 MaterialPageRoute(
+                    //                     builder: (context) =>
+                    //                         CheckEmailPage(email: emailController.text, pass: passController.text, user: result.user!,)));
+                    //             // Navigator.pop(context);
+                    //           }
+                    //         }
+                    //         setState(() {
+                    //           _isLoading = false;
+                    //         });
+                    //       }
+                    //     },
+                    //     child: const Text('アカウント作成', style: TextStyle(fontWeight: FontWeight.bold),)),
+                    PrimaryButton(
                         onPressed: () async {
                           // 入力されてない時は作動しない
                           if (nameController.text.isNotEmpty &&
@@ -157,7 +193,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                               _isLoading = true;
                             });
                             var result =
-                                await Authentication.signUp(email: emailController.text, pass: passController.text);
+                            await Authentication.signUp(email: emailController.text, pass: passController.text);
                             if (result is UserCredential) {
                               var createAccountResult = await createAccount(result.user!.uid);
                               if (createAccountResult == true) {
@@ -181,7 +217,8 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                             });
                           }
                         },
-                        child: const Text('アカウント作成', style: TextStyle(fontWeight: FontWeight.bold),)),
+                        childText: 'アカウント作成'
+                    ),
                     const SizedBox(height: 20,),
                     // TextButton.icon(
                     //   icon: const Icon(Icons.arrow_back, color: Colors.grey,),

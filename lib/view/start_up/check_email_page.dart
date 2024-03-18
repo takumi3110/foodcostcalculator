@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:foodcost/component/primary_button.dart';
 import 'package:foodcost/utils/authentication.dart';
 import 'package:foodcost/utils/firestore/users.dart';
 import 'package:foodcost/utils/widget_utils.dart';
@@ -45,34 +46,59 @@ class _CheckEmailPageState extends State<CheckEmailPage> {
               const SizedBox(
                 height: 10,
               ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  foregroundColor: Colors.white
-                ),
-                  onPressed: () async {
-                    setState(() {
-                      _isLoading = true;
-                    });
-                    var result = await Authentication.emailSignIn(email: widget.email, password: widget.pass);
-                    if (result is UserCredential) {
-                      if (result.user != null && result.user!.emailVerified == true) {
-                        // while (Navigator.canPop(context)) {
-                        //   Navigator.pop(context);
-                        // }
-                        await UserFirestore.getUser(result.user!.uid);
-                        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const CalendarPage()));
-                      } else {
-                        setState(() {
-                          _isVerified = true;
-                        });
+              // ElevatedButton(
+              //   style: ElevatedButton.styleFrom(
+              //     backgroundColor: Colors.green,
+              //     foregroundColor: Colors.white
+              //   ),
+              //     onPressed: () async {
+              //       setState(() {
+              //         _isLoading = true;
+              //       });
+              //       var result = await Authentication.emailSignIn(email: widget.email, password: widget.pass);
+              //       if (result is UserCredential) {
+              //         if (result.user != null && result.user!.emailVerified == true) {
+              //           // while (Navigator.canPop(context)) {
+              //           //   Navigator.pop(context);
+              //           // }
+              //           await UserFirestore.getUser(result.user!.uid);
+              //           Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const CalendarPage()));
+              //         } else {
+              //           setState(() {
+              //             _isVerified = true;
+              //           });
+              //         }
+              //       }
+              //       setState(() {
+              //         _isLoading = false;
+              //       });
+              //     },
+              //     child: const Text('認証完了', style: TextStyle(fontWeight: FontWeight.bold),)
+              // ),
+              PrimaryButton(
+                    onPressed: () async {
+                      setState(() {
+                        _isLoading = true;
+                      });
+                      var result = await Authentication.emailSignIn(email: widget.email, password: widget.pass);
+                      if (result is UserCredential) {
+                        if (result.user != null && result.user!.emailVerified == true) {
+                          // while (Navigator.canPop(context)) {
+                          //   Navigator.pop(context);
+                          // }
+                          await UserFirestore.getUser(result.user!.uid);
+                          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const CalendarPage()));
+                        } else {
+                          setState(() {
+                            _isVerified = true;
+                          });
+                        }
                       }
-                    }
-                    setState(() {
-                      _isLoading = false;
-                    });
-                  },
-                  child: const Text('認証完了', style: TextStyle(fontWeight: FontWeight.bold),)
+                      setState(() {
+                        _isLoading = false;
+                      });
+                    },
+                  childText: '認証完了'
               ),
               if (_isVerified == true)
                 const Center(child: Text('メールを確認して認証してください。',style: TextStyle(color: Colors.red),)),
