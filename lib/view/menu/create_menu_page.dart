@@ -117,106 +117,8 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
         title: const Text(
           'メニュー登録',
         ),
-        // title: Text(Timestamp.now().toDate().toString()),
-        // backgroundColor: ,
         elevation: 1,
         actions: [
-          // ElevatedButton(
-          //   onPressed: () async {
-          //     // menuにfoodをネストする
-          //     List<Food> newFoods = [];
-          //     for (var food in foodControllers) {
-          //       if (food['name']!.text.isNotEmpty &&
-          //           food['unitPrice']!.text.isNotEmpty &&
-          //           food['costCount']!.text.isNotEmpty &&
-          //           food['price']!.text.isNotEmpty) {
-          //         Food newFood = Food(
-          //           name: food['name']!.text,
-          //           unitPrice: int.parse(food['unitPrice']!.text),
-          //           costCount: food['costCount']!.text,
-          //           price: int.parse(food['price']!.text),
-          //         );
-          //         newFoods.add(newFood);
-          //       }
-          //     }
-          //     if (menuController.text.isNotEmpty && newFoods.isNotEmpty) {
-          //       setState(() {
-          //         _isLoading = true;
-          //       });
-          //       String imagePath = selectedMenu != null ? selectedMenu!.imagePath : '';
-          //       // TODO:imageの名前をメニューIDにしたい
-          //       if (image != null || isImageEdit == true) {
-          //         var result = await FunctionUtils.uploadImage('${_selectedDay}_${menuController.text}', image!);
-          //         imagePath = result;
-          //       }
-          //       Menu newMenu = Menu(
-          //           id: menuId,
-          //           name: menuController.text,
-          //           userId: Authentication.myAccount!.id,
-          //           totalAmount: allPrice,
-          //           createdTime: Timestamp.fromDate(_selectedDay),
-          //           imagePath: imagePath,
-          //           foods: newFoods);
-          //       bool result = false;
-          //       if (selectedMenu != null) {
-          //         // TODO:foodの変更をチェック
-          //         if (selectedMenu!.name != menuController.text) {
-          //           result = await MenuFirestore.updateMenu(newMenu);
-          //         } else {
-          //           result = true;
-          //         }
-          //       } else {
-          //         result = await MenuFirestore.addMenu(newMenu);
-          //       }
-          //       if (result == true) {
-          //         Navigator.pop(context);
-          //       } else {
-          //         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('登録に失敗しました。')));
-          //       }
-          //       // if (result != null) {
-          //       //   //   imageあれば登録
-          //       //   if (image != null) {
-          //       //     String imagePath = await FunctionUtils.uploadImage(result, image!);
-          //       //     await MenuFirestore.updateMenuImage(result, imagePath);
-          //       //   }
-          //       //   // food登録
-          //       //   List<Food> newFoods = [];
-          //       //   for (var food in foodControllers) {
-          //       //     if (food['name']!.text.isNotEmpty &&
-          //       //         food['unitPrice']!.text.isNotEmpty &&
-          //       //         food['costCount']!.text.isNotEmpty &&
-          //       //         food['price']!.text.isNotEmpty) {
-          //       //       Food newFood = Food(
-          //       //         name: food['name']!.text,
-          //       //         unitPrice: int.parse(food['unitPrice']!.text),
-          //       //         costCount: food['costCount']!.text,
-          //       //         price: int.parse(food['price']!.text),
-          //       //         menuId: result,
-          //       //       );
-          //       //       newFoods.add(newFood);
-          //       //     }
-          //       //   }
-          //       //   var foodResult = await FoodFirestore.addFood(newFoods);
-          //       //   if (foodResult == true) {
-          //       //     Navigator.pop(context);
-          //       //   }
-          //       // } else {
-          //       //   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('登録に失敗しました。')));
-          //       // }
-          //       setState(() {
-          //         _isLoading = false;
-          //       });
-          //     } else {
-          //       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('メニューと1つ以上の食材を登録してください。')));
-          //       null;
-          //     }
-          //   },
-          //   style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-          //   child: const Text(
-          //     '保存',
-          //     style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-          //   ),
-          // )
           PrimaryButton(
               onPressed: () async {
                 // menuにfoodをネストする
@@ -239,66 +141,32 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
                   setState(() {
                     _isLoading = true;
                   });
-                  String imagePath = selectedMenu != null ? selectedMenu!.imagePath : '';
-                  // TODO:imageの名前をメニューIDにしたい
-                  if (image != null || isImageEdit == true) {
-                    var result = await FunctionUtils.uploadImage('${_selectedDay}_${menuController.text}', image!);
-                    imagePath = result;
-                  }
                   Menu newMenu = Menu(
                       id: menuId,
                       name: menuController.text,
                       userId: Authentication.myAccount!.id,
                       totalAmount: allPrice,
                       createdTime: Timestamp.fromDate(_selectedDay),
-                      imagePath: imagePath,
+                      imagePath: selectedMenu != null ? selectedMenu!.imagePath : '',
                       foods: newFoods);
                   bool result = false;
                   if (selectedMenu != null) {
                     // TODO:foodの変更をチェック
-                    if (selectedMenu!.name != menuController.text) {
+                    if (selectedMenu!.name != menuController.text || isImageEdit == true) {
+                      if (image != null || isImageEdit == true) {
+                        var result = await FunctionUtils.uploadImage(menuId, image!);
+                        newMenu.imagePath = result;
+                      }
                       result = await MenuFirestore.updateMenu(newMenu);
-                    } else {
-                      result = true;
                     }
                   } else {
-                    result = await MenuFirestore.addMenu(newMenu);
+                    result = await MenuFirestore.addMenu(newMenu, image);
                   }
                   if (result == true) {
                     Navigator.pop(context);
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('登録に失敗しました。')));
                   }
-                  // if (result != null) {
-                  //   //   imageあれば登録
-                  //   if (image != null) {
-                  //     String imagePath = await FunctionUtils.uploadImage(result, image!);
-                  //     await MenuFirestore.updateMenuImage(result, imagePath);
-                  //   }
-                  //   // food登録
-                  //   List<Food> newFoods = [];
-                  //   for (var food in foodControllers) {
-                  //     if (food['name']!.text.isNotEmpty &&
-                  //         food['unitPrice']!.text.isNotEmpty &&
-                  //         food['costCount']!.text.isNotEmpty &&
-                  //         food['price']!.text.isNotEmpty) {
-                  //       Food newFood = Food(
-                  //         name: food['name']!.text,
-                  //         unitPrice: int.parse(food['unitPrice']!.text),
-                  //         costCount: food['costCount']!.text,
-                  //         price: int.parse(food['price']!.text),
-                  //         menuId: result,
-                  //       );
-                  //       newFoods.add(newFood);
-                  //     }
-                  //   }
-                  //   var foodResult = await FoodFirestore.addFood(newFoods);
-                  //   if (foodResult == true) {
-                  //     Navigator.pop(context);
-                  //   }
-                  // } else {
-                  //   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('登録に失敗しました。')));
-                  // }
                   setState(() {
                     _isLoading = false;
                   });
