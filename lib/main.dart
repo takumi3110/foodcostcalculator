@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
         title: 'Mamma no Jenco.',
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrangeAccent),
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.limeAccent),
           useMaterial3: true,
         ),
         home: const OpeningPage()

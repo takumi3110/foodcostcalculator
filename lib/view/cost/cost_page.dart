@@ -1,6 +1,10 @@
+import 'dart:ui';
+
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:foodcost/component/cancel_button.dart';
+import 'package:foodcost/component/primary_button.dart';
 import 'package:foodcost/model/account.dart';
 import 'package:foodcost/model/menu.dart';
 import 'package:foodcost/model/target.dart';
@@ -171,58 +175,97 @@ class _CostPageTrialState extends State<CostPageTrial> {
           context: context,
           builder: (_) {
             return AlertDialog(
-              // backgroundColor: Colors.white,
-              surfaceTintColor: Colors.white,
+              backgroundColor: Colors.white,
+              surfaceTintColor: Colors.transparent,
               title: const Text('目標金額の設定'),
               actions: [
-                ElevatedButton(
-                    onPressed: () async {
-                      if (
-                      targetMonthAmountController.text.isNotEmpty
-                          && targetDayAmountController.text.isNotEmpty
+                PrimaryButton(onPressed: () async {
+                  if (
+                  targetMonthAmountController.text.isNotEmpty
+                      && targetDayAmountController.text.isNotEmpty
                       && targetDayAmount != double.parse(targetDayAmountController.text)
                       && targetMonthAmount != int.parse(targetMonthAmountController.text)
-                      ) {
-                        Target newTarget = Target(
-                          id: targetId,
-                            monthAmount: int.parse(targetMonthAmountController.text),
-                            dayAmount: int.parse(targetDayAmountController.text),
-                            userId: myAccount.id);
-                        // resultに代入
-                        bool result = false;
-                        if (targetId.isNotEmpty) {
-                          result = await TargetFirestore.updateTarget(newTarget);
-                        } else {
-                          var getResult = await TargetFirestore.addTarget(newTarget);
-                          setState(() {
-                            if (getResult != null) {
-                              result = true;
-                              targetId = getResult.id;
-                            }
-                          });
+                  ) {
+                    Target newTarget = Target(
+                        id: targetId,
+                        monthAmount: int.parse(targetMonthAmountController.text),
+                        dayAmount: int.parse(targetDayAmountController.text),
+                        userId: myAccount.id);
+                    // resultに代入
+                    bool result = false;
+                    if (targetId.isNotEmpty) {
+                      result = await TargetFirestore.updateTarget(newTarget);
+                    } else {
+                      var getResult = await TargetFirestore.addTarget(newTarget);
+                      setState(() {
+                        if (getResult != null) {
+                          result = true;
+                          targetId = getResult.id;
                         }
-                        if (result == true) {
-                          setState(() {
-                            targetDayAmount = double.parse(targetDayAmountController.text);
-                            targetMonthAmount = int.parse(targetMonthAmountController.text);
-                          });
-                          Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('目標金額を更新しました。'))
-                          );
-                        }
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                      foregroundColor: Colors.white,
-                    ),
-                    child: const Text('保存')),
-                ElevatedButton(
+                      });
+                    }
+                    if (result == true) {
+                      setState(() {
+                        targetDayAmount = double.parse(targetDayAmountController.text);
+                        targetMonthAmount = int.parse(targetMonthAmountController.text);
+                      });
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('目標金額を更新しました。'))
+                      );
+                    }
+                  }
+                }, childText: '保存'),
+                // ElevatedButton(
+                //     onPressed: () async {
+                //       if (
+                //       targetMonthAmountController.text.isNotEmpty
+                //           && targetDayAmountController.text.isNotEmpty
+                //       && targetDayAmount != double.parse(targetDayAmountController.text)
+                //       && targetMonthAmount != int.parse(targetMonthAmountController.text)
+                //       ) {
+                //         Target newTarget = Target(
+                //           id: targetId,
+                //             monthAmount: int.parse(targetMonthAmountController.text),
+                //             dayAmount: int.parse(targetDayAmountController.text),
+                //             userId: myAccount.id);
+                //         // resultに代入
+                //         bool result = false;
+                //         if (targetId.isNotEmpty) {
+                //           result = await TargetFirestore.updateTarget(newTarget);
+                //         } else {
+                //           var getResult = await TargetFirestore.addTarget(newTarget);
+                //           setState(() {
+                //             if (getResult != null) {
+                //               result = true;
+                //               targetId = getResult.id;
+                //             }
+                //           });
+                //         }
+                //         if (result == true) {
+                //           setState(() {
+                //             targetDayAmount = double.parse(targetDayAmountController.text);
+                //             targetMonthAmount = int.parse(targetMonthAmountController.text);
+                //           });
+                //           Navigator.pop(context);
+                //           ScaffoldMessenger.of(context).showSnackBar(
+                //               const SnackBar(content: Text('目標金額を更新しました。'))
+                //           );
+                //         }
+                //       }
+                //     },
+                //     style: ElevatedButton.styleFrom(
+                //       backgroundColor: Colors.green,
+                //       foregroundColor: Colors.white,
+                //     ),
+                //     child: const Text('保存')),
+
+                CancelButton(
                     onPressed: () {
                       Navigator.pop(context);
                     },
-                    child: const Text('キャンセル'))
+                    text: 'キャンセル'
+                )
               ],
               content: SizedBox(
                 height: deviceHeight * 0.2,
@@ -255,6 +298,7 @@ class _CostPageTrialState extends State<CostPageTrial> {
     }
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text('今月の食費'),
         elevation: 1,
@@ -264,9 +308,12 @@ class _CostPageTrialState extends State<CostPageTrial> {
           padding: const EdgeInsets.only(top: 8.0, left: 8.0, right: 8.0, bottom: 40.0),
           child: SingleChildScrollView(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
+              // crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                ElevatedButton(onPressed: showTargetDialog, child: const Text('目標金額を設定')),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 5.0),
+                  child: ElevatedButton(onPressed: showTargetDialog, child: const Text('目標金額を設定')),
+                ),
                 AspectRatio(
                   aspectRatio: 1.66,
                   child: Padding(

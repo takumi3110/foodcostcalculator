@@ -18,7 +18,7 @@ class WidgetUtils {
     // Account myAccount = Authentication.myAccount!;
 
     return AppBar(
-      backgroundColor: Colors.transparent,
+      // backgroundColor: Colors.transparent,
       elevation: 1,
       iconTheme: const IconThemeData(color: Colors.black),
       title: Text(
@@ -50,6 +50,7 @@ class WidgetUtils {
       ),
     );
   }
+
 
   static SizedBox sideMenuDrawer(BuildContext context) {
     // Account myAccount = Authentication.myAccount!;

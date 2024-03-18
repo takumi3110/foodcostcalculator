@@ -3,6 +3,9 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:foodcost/component/cancel_button.dart';
+import 'package:foodcost/component/error_text.dart';
+import 'package:foodcost/component/primary_button.dart';
 import 'package:foodcost/model/account.dart';
 import 'package:foodcost/model/group.dart';
 import 'package:foodcost/utils/authentication.dart';
@@ -58,8 +61,8 @@ class _EditAccountPageState extends State<EditAccountPage> {
         context: context,
         builder: (_) {
           return AlertDialog(
-            // backgroundColor: Colors.white,
-            surfaceTintColor: Colors.white,
+            backgroundColor: Colors.white,
+            surfaceTintColor: Colors.transparent,
             title: const Text('アカウント削除'),
             content: const Text('本当に削除しますか？'),
             actions: [
@@ -86,15 +89,9 @@ class _EditAccountPageState extends State<EditAccountPage> {
                     'はい',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   )),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.grey,
-                  foregroundColor: Colors.white
-                ),
-                  onPressed: () {
-                    Navigator.pop(context, false);
-                  },
-                  child: const Text('いいえ', style: TextStyle(fontWeight: FontWeight.bold),))
+              CancelButton(onPressed: () {
+                Navigator.pop(context, false);
+              }, text: 'いいえ'),
             ],
           );
         });
@@ -126,6 +123,7 @@ class _EditAccountPageState extends State<EditAccountPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text('アカウント編集'),
         elevation: 1,
@@ -232,7 +230,7 @@ class _EditAccountPageState extends State<EditAccountPage> {
                                       ),
                                     ),
                                     if (_isEmailError)
-                                      const Text('正しい形式で入力してください。', style: TextStyle(color: Colors.red, fontSize: 12),)
+                                      const ErrorText(text: '正しい形式で入力してください。'),
                                   ],
                                 ),
                               ],
@@ -291,61 +289,55 @@ class _EditAccountPageState extends State<EditAccountPage> {
                   const SizedBox(
                     height: 20.0,
                   ),
-                  ElevatedButton(
-                      onPressed: () async {
-                        setState(() {
-                          _isLoading = true;
-                        });
-                        bool accountResult = false;
-                        bool groupResult = false;
-                        if (!_isEmailError && (nameController.text != _myAccount.name || emailController.text != _myAccount.email || image != null)) {
-                          if ((nameController.text.isNotEmpty && emailController.text.isNotEmpty) || image != null) {
-                            String? imagePath = _myAccount.imagePath;
-                            if (image != null) {
-                              imagePath = await FunctionUtils.uploadImage(_myAccount.id, image!);
-                            }
-                            Account updateAccount = Account(
-                                id: _myAccount.id,
-                                name: nameController.text,
-                                email: emailController.text,
-                                imagePath: imagePath,
-                              isInitialAccess: false
-                            );
-                            accountResult = await UserFirestore.updateUser(updateAccount);
-                          }
+                  PrimaryButton(onPressed: () async {
+                    setState(() {
+                      _isLoading = true;
+                    });
+                    bool accountResult = false;
+                    bool groupResult = false;
+                    if (!_isEmailError && (nameController.text != _myAccount.name || emailController.text != _myAccount.email || image != null)) {
+                      if ((nameController.text.isNotEmpty && emailController.text.isNotEmpty) || image != null) {
+                        String? imagePath = _myAccount.imagePath;
+                        if (image != null) {
+                          imagePath = await FunctionUtils.uploadImage(_myAccount.id, image!);
                         }
-                        if (groupNameController.text.isNotEmpty && groupNameController.text != (group != null ? group!.name: '')) {
-                          // グループ登録
-                          // 招待コード作成
-                          // TODO: グループのオーナーじゃない場合は編集できない。編集しようとするとオーナーに言えと警告
-                          String code = group != null ? group!.code: '';
-                          const String charset = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-                          final Random random = Random.secure();
-                          code = List.generate(5, (_) => charset[random.nextInt(charset.length)]).join();
-                          Group newGroup = Group(
-                            id: group != null ? group!.id: '',
-                            name: groupNameController.text,
-                            code: code,
-                          );
-                          if (group != null) {
-                            groupResult = await GroupFirestore.updateGroup(newGroup);
-                          } else {
-                            groupResult = await GroupFirestore.createGroup(newGroup);
-                          }
-                        }
-                        // accountResultかグループのresultがtrueなら戻る
-                        if (groupResult == true || accountResult == true) {
-                          Navigator.pop(context, true);
-                        }
-                        setState(() {
-                          _isLoading = false;
-                        });
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: _isEmailError ? Colors.grey: Colors.green,
-                        foregroundColor: Colors.white
-                      ),
-                      child: const Text('更新', style: TextStyle(fontWeight: FontWeight.bold),)),
+                        Account updateAccount = Account(
+                            id: _myAccount.id,
+                            name: nameController.text,
+                            email: emailController.text,
+                            imagePath: imagePath,
+                            isInitialAccess: false
+                        );
+                        accountResult = await UserFirestore.updateUser(updateAccount);
+                      }
+                    }
+                    if (groupNameController.text.isNotEmpty && groupNameController.text != (group != null ? group!.name: '')) {
+                      // グループ登録
+                      // 招待コード作成
+                      // TODO: グループのオーナーじゃない場合は編集できない。編集しようとするとオーナーに言えと警告
+                      String code = group != null ? group!.code: '';
+                      const String charset = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+                      final Random random = Random.secure();
+                      code = List.generate(5, (_) => charset[random.nextInt(charset.length)]).join();
+                      Group newGroup = Group(
+                        id: group != null ? group!.id: '',
+                        name: groupNameController.text,
+                        code: code,
+                      );
+                      if (group != null) {
+                        groupResult = await GroupFirestore.updateGroup(newGroup);
+                      } else {
+                        groupResult = await GroupFirestore.createGroup(newGroup);
+                      }
+                    }
+                    // accountResultかグループのresultがtrueなら戻る
+                    if (groupResult == true || accountResult == true) {
+                      Navigator.pop(context, true);
+                    }
+                    setState(() {
+                      _isLoading = false;
+                    });
+                  }, childText: '更新', isError: _isEmailError),
                 ],
               ),
             ),

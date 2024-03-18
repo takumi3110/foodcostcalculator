@@ -43,6 +43,7 @@ class _OpeningPageState extends State<OpeningPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: StreamBuilder<User?>(
         // stream: FirebaseAuth.instance.authStateChanges(),
         stream: _stream,
