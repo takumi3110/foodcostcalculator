@@ -381,7 +381,18 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
                                             }
                                             foodControllers[index]['price']!.text = sumPrice.toString();
                                           }
+                                          // 最後尾の名前が入力されてれば行を追加
+                                          if (foodControllers.last['name']!.text.isNotEmpty
+                                              && costCount!.text.isNotEmpty) {
+                                            foodControllers.add({
+                                              'name': TextEditingController(),
+                                              'unitPrice': TextEditingController(),
+                                              'costCount': TextEditingController(),
+                                              'price': TextEditingController(),
+                                            });
+                                          }
                                         }
+
                                       }
                                     });
                                   }),
