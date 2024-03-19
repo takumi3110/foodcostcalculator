@@ -13,6 +13,7 @@ import 'package:foodcost/utils/widget_utils.dart';
 import 'package:foodcost/view/calendar/calendar_page.dart';
 import 'package:foodcost/view/start_up/check_email_page.dart';
 import 'package:foodcost/view/start_up/create_account_page.dart';
+import 'package:foodcost/view/start_up/forget_password_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -31,7 +32,7 @@ class _LoginPageState extends State<LoginPage> {
   bool _isNotMailVerified = false;
   bool _isLineLoginError = false;
   bool _isGoogleLoginError = false;
-  bool _isValidEmail = false;
+  bool _isValidEmail = true;
 
   @override
   Widget build(BuildContext context) {
@@ -126,8 +127,21 @@ class _LoginPageState extends State<LoginPage> {
                                   context, MaterialPageRoute(builder: (context) => const CreateAccountPage()));
                             })
                     ])),
-                    const SizedBox(
-                      height: 50,
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: RichText(text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: 'パスワードを忘れた場合',
+                            style: const TextStyle(color: Colors.blue),
+                            recognizer: TapGestureRecognizer()..onTap = () {
+                              Navigator.push(
+                                context, MaterialPageRoute(builder: (context) => const ForgetPasswordPage())
+                              );
+                            }
+                          )
+                        ]
+                      )),
                     ),
                     // ElevatedButton(
                     //     onPressed: () async {
@@ -172,85 +186,90 @@ class _LoginPageState extends State<LoginPage> {
                     //     },
                     //     child: const Text('メールアドレスでログイン')
                     // ),
-                    PrimaryButton(
-                        onPressed: () async {
-                          if (emailController.text.isNotEmpty && passController.text.isNotEmpty) {
-                            setState(() {
-                              _isLoading = true;
-                            });
-                            var result = await Authentication.emailSignIn(
-                                email: emailController.text, password: passController.text);
-                            // resultがUserCredentialタイプだったらtrue
-                            if (result is UserCredential) {
-                              if (result.user != null) {
-                                if (result.user!.emailVerified == true) {
-                                  var getUserResult = await UserFirestore.getUser(result.user!.uid);
-                                  if (getUserResult == true) {
-                                    Navigator.pushReplacement(
-                                        context, MaterialPageRoute(builder: (context) => const CalendarPage()));
-                                  }
-                                } else {
-                                  debugPrint('メール認証なし');
-                                  // result.user!.sendEmailVerification();
-                                  setState(() {
-                                    _isNotMailVerified = true;
-                                  });
-                                }
-                              } else {
-                                setState(() {
-                                  _isMailLoginError = true;
-                                });
-                              }
-                            } else {
-                              setState(() {
-                                _isMailLoginError = true;
-                              });
-                            }
-                            setState(() {
-                              _isLoading = false;
-                            });
-                          } else {
-                            null;
-                          }
-                        },
-                        childText: 'メールアドレスでログイン',
-                      isError: _isMailLoginError,
-                    ),
-                    if (_isNotMailVerified)
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 20.0),
+                      child: Column(
                         children: [
-                          const ErrorText(text: 'メールの認証が完了していません。'),
-                          RichText(
-                              text: TextSpan(style: const TextStyle(color: Colors.black), children: [
-                            TextSpan(
-                                text: 'ここをタップ',
-                                style: const TextStyle(color: Colors.blue),
-                                recognizer: TapGestureRecognizer()
-                                  ..onTap = () {
-                                    if (Authentication.currentFirebaseUser != null &&
-                                        emailController.text.isNotEmpty &&
-                                        passController.text.isNotEmpty) {
-                                      Authentication.currentFirebaseUser!.sendEmailVerification();
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) => CheckEmailPage(
-                                                    email: emailController.text,
-                                                    pass: passController.text,
-                                                    user: Authentication.currentFirebaseUser!,
-                                                  )));
+                          PrimaryButton(
+                              onPressed: () async {
+                                if (emailController.text.isNotEmpty && passController.text.isNotEmpty) {
+                                  setState(() {
+                                    _isLoading = true;
+                                  });
+                                  var result = await Authentication.emailSignIn(
+                                      email: emailController.text, password: passController.text);
+                                  // resultがUserCredentialタイプだったらtrue
+                                  if (result is UserCredential) {
+                                    if (result.user != null) {
+                                      if (result.user!.emailVerified == true) {
+                                        var getUserResult = await UserFirestore.getUser(result.user!.uid);
+                                        if (getUserResult == true) {
+                                          Navigator.pushReplacement(
+                                              context, MaterialPageRoute(builder: (context) => const CalendarPage()));
+                                        }
+                                      } else {
+                                        debugPrint('メール認証なし');
+                                        // result.user!.sendEmailVerification();
+                                        setState(() {
+                                          _isNotMailVerified = true;
+                                        });
+                                      }
+                                    } else {
+                                      setState(() {
+                                        _isMailLoginError = true;
+                                      });
                                     }
-                                  }),
-                            const TextSpan(text: 'して認証を完了してください。', style: TextStyle(color: Colors.red))
-                          ])),
+                                  } else {
+                                    setState(() {
+                                      _isMailLoginError = true;
+                                    });
+                                  }
+                                  setState(() {
+                                    _isLoading = false;
+                                  });
+                                } else {
+                                  null;
+                                }
+                              },
+                              childText: 'メールアドレスでログイン',
+                          ),if (_isNotMailVerified)
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                const ErrorText(text: 'メールの認証が完了していません。'),
+                                RichText(
+                                    text: TextSpan(style: const TextStyle(color: Colors.black), children: [
+                                      TextSpan(
+                                          text: 'ここをタップ',
+                                          style: const TextStyle(color: Colors.blue),
+                                          recognizer: TapGestureRecognizer()
+                                            ..onTap = () {
+                                              if (Authentication.currentFirebaseUser != null &&
+                                                  emailController.text.isNotEmpty &&
+                                                  passController.text.isNotEmpty) {
+                                                Authentication.currentFirebaseUser!.sendEmailVerification();
+                                                Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                        builder: (context) => CheckEmailPage(
+                                                          email: emailController.text,
+                                                          pass: passController.text,
+                                                          user: Authentication.currentFirebaseUser!,
+                                                        )));
+                                              }
+                                            }),
+                                      const TextSpan(text: 'して認証を完了してください。', style: TextStyle(color: Colors.red))
+                                    ])),
+                              ],
+                            ),
+                          if (_isMailLoginError)
+                            const Center(
+                              child: ErrorText(text: '正しいメールアドレスとパスワードを入力してください。'),
+                            ),
+
                         ],
                       ),
-                    if (_isMailLoginError)
-                    const Center(
-                      child: ErrorText(text: '正しいメールアドレスとパスワードを入力してください。'),
                     ),
-                    const SizedBox(height: 20),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 18.0),
                       child: Column(

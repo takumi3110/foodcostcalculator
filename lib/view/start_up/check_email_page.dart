@@ -29,6 +29,7 @@ class _CheckEmailPageState extends State<CheckEmailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text('メールアドレス確認'),
         elevation: 1,
@@ -46,35 +47,6 @@ class _CheckEmailPageState extends State<CheckEmailPage> {
               const SizedBox(
                 height: 10,
               ),
-              // ElevatedButton(
-              //   style: ElevatedButton.styleFrom(
-              //     backgroundColor: Colors.green,
-              //     foregroundColor: Colors.white
-              //   ),
-              //     onPressed: () async {
-              //       setState(() {
-              //         _isLoading = true;
-              //       });
-              //       var result = await Authentication.emailSignIn(email: widget.email, password: widget.pass);
-              //       if (result is UserCredential) {
-              //         if (result.user != null && result.user!.emailVerified == true) {
-              //           // while (Navigator.canPop(context)) {
-              //           //   Navigator.pop(context);
-              //           // }
-              //           await UserFirestore.getUser(result.user!.uid);
-              //           Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const CalendarPage()));
-              //         } else {
-              //           setState(() {
-              //             _isVerified = true;
-              //           });
-              //         }
-              //       }
-              //       setState(() {
-              //         _isLoading = false;
-              //       });
-              //     },
-              //     child: const Text('認証完了', style: TextStyle(fontWeight: FontWeight.bold),)
-              // ),
               PrimaryButton(
                     onPressed: () async {
                       setState(() {
@@ -83,9 +55,9 @@ class _CheckEmailPageState extends State<CheckEmailPage> {
                       var result = await Authentication.emailSignIn(email: widget.email, password: widget.pass);
                       if (result is UserCredential) {
                         if (result.user != null && result.user!.emailVerified == true) {
-                          // while (Navigator.canPop(context)) {
-                          //   Navigator.pop(context);
-                          // }
+                          while (Navigator.canPop(context)) {
+                            Navigator.pop(context);
+                          }
                           await UserFirestore.getUser(result.user!.uid);
                           Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const CalendarPage()));
                         } else {
