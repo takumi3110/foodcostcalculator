@@ -36,6 +36,16 @@ class Authentication {
     }
   }
 
+  static Future<bool> passwordReset(String email) async {
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+      return true;
+    } on FirebaseException catch (e) {
+      debugPrint('リセットメール送信エラー: $e');
+      return false;
+    }
+  }
+
   static Future<dynamic> lineSignIn() async {
     try {
       // LINEにログインして、結果からアクセストークンを取得
