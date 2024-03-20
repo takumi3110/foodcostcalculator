@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -17,14 +15,14 @@ import 'package:foodcost/utils/firestore/targets.dart';
 import 'package:foodcost/view/calendar/calendar_page.dart';
 import 'package:intl/intl.dart';
 
-class CostPageTrial extends StatefulWidget {
-  const CostPageTrial({super.key});
+class CostPage extends StatefulWidget {
+  const CostPage({super.key});
 
   @override
-  State<CostPageTrial> createState() => _CostPageTrialState();
+  State<CostPage> createState() => _CostPageState();
 }
 
-class _CostPageTrialState extends State<CostPageTrial> {
+class _CostPageState extends State<CostPage> {
   Account myAccount = Authentication.myAccount!;
   List<Menu> menus = [];
   List<Map<String, dynamic>> menuRankings = [];

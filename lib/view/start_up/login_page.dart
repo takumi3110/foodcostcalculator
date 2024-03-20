@@ -143,49 +143,6 @@ class _LoginPageState extends State<LoginPage> {
                         ]
                       )),
                     ),
-                    // ElevatedButton(
-                    //     onPressed: () async {
-                    //       if (emailController.text.isNotEmpty && passController.text.isNotEmpty) {
-                    //         setState(() {
-                    //           _isLoading = true;
-                    //         });
-                    //         var result = await Authentication.emailSignIn(
-                    //             email: emailController.text, password: passController.text);
-                    //         // resultがUserCredentialタイプだったらtrue
-                    //         if (result is UserCredential) {
-                    //           if (result.user != null) {
-                    //             if (result.user!.emailVerified == true) {
-                    //               var getUserResult = await UserFirestore.getUser(result.user!.uid);
-                    //               if (getUserResult == true) {
-                    //                 Navigator.pushReplacement(
-                    //                     context, MaterialPageRoute(builder: (context) => const CalendarPage()));
-                    //               }
-                    //             } else {
-                    //               debugPrint('メール認証なし');
-                    //               // result.user!.sendEmailVerification();
-                    //               setState(() {
-                    //                 _isNotMailVerified = true;
-                    //               });
-                    //             }
-                    //           } else {
-                    //             setState(() {
-                    //               _isMailLoginError = true;
-                    //             });
-                    //           }
-                    //         } else {
-                    //           setState(() {
-                    //             _isMailLoginError = true;
-                    //           });
-                    //         }
-                    //         setState(() {
-                    //           _isLoading = false;
-                    //         });
-                    //       } else {
-                    //         null;
-                    //       }
-                    //     },
-                    //     child: const Text('メールアドレスでログイン')
-                    // ),
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 20.0),
                       child: Column(
