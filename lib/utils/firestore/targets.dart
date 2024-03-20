@@ -4,7 +4,7 @@ import 'package:foodcost/model/target.dart';
 
 class TargetFirestore {
   static final _firestoreInstance = FirebaseFirestore.instance;
-  static final CollectionReference targets = _firestoreInstance.collection('target');
+  static final CollectionReference targets = _firestoreInstance.collection('targets');
 
   static Future<dynamic> addTarget(Target newTarget) async {
     try {

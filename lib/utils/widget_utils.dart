@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:foodcost/component/side_menu_list_tile.dart';
 import 'package:foodcost/model/menu.dart';
+import 'package:foodcost/model/side_menu.dart';
 import 'package:foodcost/utils/authentication.dart';
 import 'package:foodcost/utils/firestore/users.dart';
 import 'package:foodcost/view/account/account_page.dart';
@@ -8,6 +10,7 @@ import 'package:foodcost/view/calendar/calendar_page.dart';
 import 'package:foodcost/view/cost/cost_page.dart';
 import 'package:foodcost/view/dialog/entry_code_dialog.dart';
 import 'package:foodcost/view/menu/create_menu_page.dart';
+import 'package:foodcost/view/news/news_page.dart';
 import 'package:foodcost/view/start_up/login_page.dart';
 import 'package:intl/intl.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -51,9 +54,60 @@ class WidgetUtils {
     );
   }
 
-
   static SizedBox sideMenuDrawer(BuildContext context) {
     // Account myAccount = Authentication.myAccount!;
+    final List<SideMenu> menuList = [
+      SideMenu(
+          title: 'お知らせ',
+          icons: Icons.notifications_rounded,
+          onTap: () {
+        Navigator.push(context, MaterialPageRoute(builder: (context) => const NewsPage()));
+      }
+      ),
+      SideMenu(
+          title: 'カレンダー',
+          icons: Icons.calendar_month_rounded,
+          onTap: () {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const CalendarPage()));
+          }
+      ),
+      SideMenu(
+          title: '今月の食費',
+          icons: Icons.assessment_rounded,
+          onTap: () {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const CostPage()));
+          }
+      ),
+      SideMenu(
+          title: 'マイページ',
+          icons: Icons.account_box_rounded,
+          onTap: () {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const AccountPage()));
+          }
+      ),
+      SideMenu(
+          title: '招待コード入力',
+          icons: Icons.edit_note_rounded,
+          onTap: () {
+            showDialog(context: context, builder: (_) {
+              return const EntryCodeDialog();
+            });
+          }
+      ),
+      SideMenu(
+          title: 'ログアウト',
+          icons: Icons.logout_rounded,
+          onTap: () {
+            Authentication.signOut();
+            while (Navigator.canPop(context)) {
+              Navigator.pop(context);
+            }
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginPage()));
+          }
+      )
+    ];
+    
+
     return SizedBox(
       width: 230,
       child: Drawer(
@@ -66,15 +120,6 @@ class WidgetUtils {
                 builder: (context, snapshot) {
                   if (snapshot.hasData && snapshot.data!.data() != null) {
                     Map<String, dynamic> data = snapshot.data!.data() as Map<String, dynamic>;
-                    // myAccount = Account(
-                    //   name: data['name'],
-                    //   email: data['email'],
-                    //   createdTime: data['created_time'],
-                    //   groupId: data['group_id'],
-                    //   imagePath: data['image_path'],
-                    //   isInitialAccess: data['is_initial_access'],
-                    //   updatedTime: data['updated_time']
-                    // );
                     return UserAccountsDrawerHeader(
                       accountName: Text(
                         // myAccount.name,
@@ -98,83 +143,14 @@ class WidgetUtils {
                   }
                 }
               ),
-              ListTile(
-                title: const Row(
-                  children: [
-                    Icon(Icons.calendar_month),
-                    SizedBox(
-                      width: 15.0,
-                    ),
-                    Text('カレンダー')
-                  ],
+              // TODO: お知らせだけFutureで取得して、新規があればわかりやすく表示？
+              // TODO: NewsPageに渡すのも中身だけ渡してもいいかも
+              for(var menu in menuList)
+                SideMenuListTile(
+                    icons: menu.icons,
+                    menuTitle: menu.title,
+                    onTap: menu.onTap
                 ),
-                onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const CalendarPage()));
-                },
-              ),
-              ListTile(
-                title: const Row(
-                  children: [
-                    Icon(Icons.bar_chart),
-                    SizedBox(
-                      width: 15.0,
-                    ),
-                    Text('今月の食費'),
-                  ],
-                ),
-                onTap: () {
-                  // Navigator.push(context, MaterialPageRoute(builder: (context) => const CostPage()));
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const CostPageTrial()));
-                },
-              ),
-              ListTile(
-                title: const Row(
-                  children: [
-                    Icon(Icons.account_box),
-                    SizedBox(
-                      width: 15.0,
-                    ),
-                    Text('マイページ'),
-                  ],
-                ),
-                onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const AccountPage()));
-                },
-              ),
-              ListTile(
-                title: const Row(
-                  children: [
-                    Icon(Icons.edit_note),
-                    SizedBox(
-                      width: 15.0,
-                    ),
-                    Text('招待コード入力'),
-                  ],
-                ),
-                onTap: () {
-                  showDialog(context: context, builder: (_) {
-                    return const EntryCodeDialog();
-                  });
-                },
-              ),
-              ListTile(
-                title: const Row(
-                  children: [
-                    Icon(Icons.logout),
-                    SizedBox(
-                      width: 15.0,
-                    ),
-                    Text('ログアウト'),
-                  ],
-                ),
-                onTap: () {
-                  Authentication.signOut();
-                  while (Navigator.canPop(context)) {
-                    Navigator.pop(context);
-                  }
-                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginPage()));
-                },
-              ),
             ],
           ),
         ),

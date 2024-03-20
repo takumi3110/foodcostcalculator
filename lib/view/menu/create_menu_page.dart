@@ -51,7 +51,7 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
   late DateTime _selectedDay;
 
   final formatter = NumberFormat('#,###');
-  final dateFormatter = DateFormat('yyyy-MM-dd');
+  final dateFormatter = DateFormat('yyyy年 M月 d日');
 
   ImageProvider? getImage() {
     if (image == null) {
