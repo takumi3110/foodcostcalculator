@@ -81,7 +81,6 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                           SizedBox(
                             width: 300,
                             child: TextField(
-                              // TODO: バリデーションと認証
                               controller: emailController,
                               decoration: const InputDecoration(hintText: 'メールアドレス'),
                               inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-z0-9@.+_-]'))],

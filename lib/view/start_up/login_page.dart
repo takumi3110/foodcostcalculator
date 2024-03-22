@@ -52,12 +52,12 @@ class _LoginPageState extends State<LoginPage> {
                 width: double.infinity,
                 child: Column(
                   children: [
-                    const SizedBox(
-                      height: 50,
-                    ),
-                    const Text(
-                      'まんまのじぇんこ(仮)',
-                      style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 30.0),
+                      child: const Text(
+                        'まんまのじぇんこ(仮)',
+                        style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+                      ),
                     ),
                     LoginTextField(
                         hintText: 'メールアドレス',
