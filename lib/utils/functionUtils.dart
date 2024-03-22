@@ -5,9 +5,17 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class FunctionUtils {
+  // ギャラリーから画像を取得
   static Future<dynamic> getImageFromGallery() async{
     ImagePicker picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    return pickedFile;
+  }
+
+  // カメラを使用する
+  static Future<dynamic> getImageFromCamera() async {
+    ImagePicker picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.camera);
     return pickedFile;
   }
 

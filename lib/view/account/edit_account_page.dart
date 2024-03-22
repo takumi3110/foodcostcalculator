@@ -15,9 +15,11 @@ import 'package:foodcost/utils/firestore/users.dart';
 import 'package:foodcost/utils/functionUtils.dart';
 import 'package:foodcost/utils/widget_utils.dart';
 import 'package:foodcost/view/start_up/login_page.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class EditAccountPage extends StatefulWidget {
   final bool isOwner;
+
   const EditAccountPage({super.key, required this.isOwner});
 
   @override
@@ -54,47 +56,6 @@ class _EditAccountPageState extends State<EditAccountPage> {
     } else {
       return FileImage(image!);
     }
-  }
-
-  void _showAlertDialog() async {
-    await showDialog(
-        context: context,
-        builder: (_) {
-          return AlertDialog(
-            backgroundColor: Colors.white,
-            surfaceTintColor: Colors.transparent,
-            title: const Text('アカウント削除'),
-            content: const Text('本当に削除しますか？'),
-            actions: [
-              ElevatedButton(
-                  onPressed: () async{
-                    setState(() {
-                      _isLoading = true;
-                    });
-                    await UserFirestore.deleteUser(_myAccount.id);
-                    await Authentication.deleteAuth();
-                    while (Navigator.canPop(context)) {
-                      Navigator.pop(context);
-                    }
-                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginPage()));
-                    setState(() {
-                      _isLoading = false;
-                    });
-                  },
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
-                      foregroundColor: Colors.white
-                  ),
-                  child: const Text(
-                    'はい',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  )),
-              CancelButton(onPressed: () {
-                Navigator.pop(context, false);
-              }, text: 'いいえ'),
-            ],
-          );
-        });
   }
 
   void getGroup(String groupId) async {
@@ -160,19 +121,21 @@ class _EditAccountPageState extends State<EditAccountPage> {
                       children: [
                         GestureDetector(
                           onTap: () async {
-                            var result = await FunctionUtils.getImageFromGallery();
-                            if (result != null) {
-                              setState(() {
-                                image = File(result.path);
-                              });
-                            }
+                            // var result = await FunctionUtils.getImageFromGallery();
+                            // if (result != null) {
+                            //   setState(() {
+                            //     image = File(result.path);
+                            //   });
+                            // }
+                            // _showCupertinoModalBottomSheet();
+                            _showBarModalBottomSheet();
                           },
                           child: CircleAvatar(
-                            radius: 40,
+                            radius: 70,
                             foregroundImage: getImage(),
                             child: const Icon(
                               Icons.add_a_photo_outlined,
-                              size: 30,
+                              size: 40,
                             ),
                           ),
                         ),
@@ -186,7 +149,7 @@ class _EditAccountPageState extends State<EditAccountPage> {
                               width: 100,
                               child: Text('名前', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                             ),
-                            const SizedBox(width: 30.0),
+                            const SizedBox(width: 10.0),
                             SizedBox(
                               width: 220,
                               child: TextField(
@@ -208,7 +171,7 @@ class _EditAccountPageState extends State<EditAccountPage> {
                                   width: 100,
                                   child: Text('メール', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                                 ),
-                                const SizedBox(width: 30.0),
+                                const SizedBox(width: 10.0),
                                 Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
@@ -222,22 +185,22 @@ class _EditAccountPageState extends State<EditAccountPage> {
                                         onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
                                         controller: emailController,
                                         onChanged: (String value) {
-                                            setState(() {
-                                              _isEmailError = !value.isValidEmail();
-                                            });
+                                          setState(() {
+                                            _isEmailError = !value.isValidEmail();
+                                          });
                                         },
-
                                       ),
                                     ),
-                                    if (_isEmailError)
-                                      const ErrorText(text: '正しい形式で入力してください。'),
+                                    if (_isEmailError) const ErrorText(text: '正しい形式で入力してください。'),
                                   ],
                                 ),
                               ],
                             ),
                           ),
                         if (_myAccount.email.isEmpty)
-                          const SizedBox(height: 20,),
+                          const SizedBox(
+                            height: 20,
+                          ),
                         Container(
                           padding: const EdgeInsets.symmetric(vertical: 5.0),
                           alignment: Alignment.center,
@@ -252,7 +215,7 @@ class _EditAccountPageState extends State<EditAccountPage> {
                               width: 100,
                               child: Text('グループ名', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                             ),
-                            const SizedBox(width: 30.0),
+                            const SizedBox(width: 10.0),
                             SizedBox(
                               width: 220,
                               child: Column(
@@ -277,7 +240,10 @@ class _EditAccountPageState extends State<EditAccountPage> {
                                     controller: groupNameController,
                                   ),
                                   if (_isGroupError)
-                                    const Text('オーナーではないので編集できません', style: TextStyle(color: Colors.red, fontSize: 12),)
+                                    const Text(
+                                      'オーナーではないので編集できません',
+                                      style: TextStyle(color: Colors.red, fontSize: 12),
+                                    )
                                 ],
                               ),
                             ),
@@ -289,63 +255,189 @@ class _EditAccountPageState extends State<EditAccountPage> {
                   const SizedBox(
                     height: 20.0,
                   ),
-                  PrimaryButton(onPressed: () async {
-                    setState(() {
-                      _isLoading = true;
-                    });
-                    bool accountResult = false;
-                    bool groupResult = false;
-                    if (!_isEmailError && (nameController.text != _myAccount.name || emailController.text != _myAccount.email || image != null)) {
-                      if ((nameController.text.isNotEmpty && emailController.text.isNotEmpty) || image != null) {
-                        String? imagePath = _myAccount.imagePath;
-                        if (image != null) {
-                          imagePath = await FunctionUtils.uploadImage(_myAccount.id, image!);
+                  PrimaryButton(
+                      onPressed: () async {
+                        setState(() {
+                          _isLoading = true;
+                        });
+                        bool accountResult = false;
+                        bool groupResult = false;
+                        if (!_isEmailError &&
+                            (nameController.text != _myAccount.name ||
+                                emailController.text != _myAccount.email ||
+                                image != null)) {
+                          if ((nameController.text.isNotEmpty && emailController.text.isNotEmpty) || image != null) {
+                            String? imagePath = _myAccount.imagePath;
+                            if (image != null) {
+                              imagePath = await FunctionUtils.uploadImage(_myAccount.id, image!);
+                            }
+                            Account updateAccount = Account(
+                                id: _myAccount.id,
+                                name: nameController.text,
+                                email: emailController.text,
+                                imagePath: imagePath,
+                                isInitialAccess: false);
+                            accountResult = await UserFirestore.updateUser(updateAccount);
+                          }
                         }
-                        Account updateAccount = Account(
-                            id: _myAccount.id,
-                            name: nameController.text,
-                            email: emailController.text,
-                            imagePath: imagePath,
-                            isInitialAccess: false
-                        );
-                        accountResult = await UserFirestore.updateUser(updateAccount);
-                      }
-                    }
-                    if (groupNameController.text.isNotEmpty && groupNameController.text != (group != null ? group!.name: '')) {
-                      // グループ登録
-                      // 招待コード作成
-                      // TODO: グループのオーナーじゃない場合は編集できない。編集しようとするとオーナーに言えと警告
-                      String code = group != null ? group!.code: '';
-                      const String charset = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-                      final Random random = Random.secure();
-                      code = List.generate(5, (_) => charset[random.nextInt(charset.length)]).join();
-                      Group newGroup = Group(
-                        id: group != null ? group!.id: '',
-                        name: groupNameController.text,
-                        code: code,
-                      );
-                      if (group != null) {
-                        groupResult = await GroupFirestore.updateGroup(newGroup);
-                      } else {
-                        groupResult = await GroupFirestore.createGroup(newGroup);
-                      }
-                    }
-                    // accountResultかグループのresultがtrueなら戻る
-                    if (groupResult == true || accountResult == true) {
-                      Navigator.pop(context, true);
-                    }
-                    setState(() {
-                      _isLoading = false;
-                    });
-                  }, childText: '更新', isError: _isEmailError),
+                        if (groupNameController.text.isNotEmpty &&
+                            groupNameController.text != (group != null ? group!.name : '')) {
+                          // グループ登録
+                          // 招待コード作成
+                          // TODO: グループのオーナーじゃない場合は編集できない。編集しようとするとオーナーに言えと警告
+                          String code = group != null ? group!.code : '';
+                          const String charset = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+                          final Random random = Random.secure();
+                          code = List.generate(5, (_) => charset[random.nextInt(charset.length)]).join();
+                          Group newGroup = Group(
+                            id: group != null ? group!.id : '',
+                            name: groupNameController.text,
+                            code: code,
+                          );
+                          if (group != null) {
+                            groupResult = await GroupFirestore.updateGroup(newGroup);
+                          } else {
+                            groupResult = await GroupFirestore.createGroup(newGroup);
+                          }
+                        }
+                        // accountResultかグループのresultがtrueなら戻る
+                        if (groupResult == true || accountResult == true) {
+                          Navigator.pop(context, true);
+                        }
+                        setState(() {
+                          _isLoading = false;
+                        });
+                      },
+                      childText: '更新',
+                      isError: _isEmailError),
                 ],
               ),
             ),
           ),
           WidgetUtils.loadingStack(_isLoading)
-        ]
-        ),
+        ]),
       ),
     );
+  }
+
+  void _showAlertDialog() async {
+    await showDialog(
+        context: context,
+        builder: (_) {
+          return AlertDialog(
+            backgroundColor: Colors.white,
+            surfaceTintColor: Colors.transparent,
+            title: const Text('アカウント削除'),
+            content: const Text('本当に削除しますか？'),
+            actions: [
+              ElevatedButton(
+                  onPressed: () async {
+                    setState(() {
+                      _isLoading = true;
+                    });
+                    await UserFirestore.deleteUser(_myAccount.id);
+                    await Authentication.deleteAuth();
+                    while (Navigator.canPop(context)) {
+                      Navigator.pop(context);
+                    }
+                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginPage()));
+                    setState(() {
+                      _isLoading = false;
+                    });
+                  },
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
+                  child: const Text(
+                    'はい',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  )),
+              CancelButton(
+                  onPressed: () {
+                    Navigator.pop(context, false);
+                  },
+                  text: 'いいえ'),
+            ],
+          );
+        });
+  }
+
+  Future<dynamic> _showCupertinoModalBottomSheet() {
+    return showCupertinoModalBottomSheet(
+        backgroundColor: Colors.white,
+        context: context,
+        builder: (context) {
+          return Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CircleAvatar(
+                  radius: 120,
+                  // TODO: 画像を選んで戻ってきたら更新されない
+                  // foregroundImage: getImage(),
+                  foregroundImage: image != null ? FileImage(image!): null,
+                  child: const Icon(
+                    Icons.person,
+                    size: 120,
+                  ),
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                ElevatedButton(
+                    onPressed: () {
+                      debugPrint('$image');
+                       _showBarModalBottomSheet();
+                       // Navigator.pop(context);
+                    },
+                    child: const Text('写真を選択または撮影'))
+              ],
+            ),
+          );
+        });
+  }
+
+  Future<dynamic> _showBarModalBottomSheet() {
+    return showBarModalBottomSheet(
+        barrierColor: Colors.black54,
+        context: context,
+        builder: (context) {
+          return SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ListTile(
+                    title: const Text('写真ライブラリ'),
+                    leading: const Icon(Icons.photo_rounded, size: 30,),
+                    onTap: () async{
+                      var result = await FunctionUtils.getImageFromGallery();
+                      if (result != null) {
+                        setState(() {
+                          image = File(result.path);
+                        });
+                        Navigator.pop(context);
+                      }
+                    },
+                  ),
+                  // const Divider(),
+                  ListTile(
+                    title: const Text('写真を撮る'),
+                    leading: const Icon(Icons.photo_camera_rounded, size: 30,),
+                    onTap: () async {
+                      var result = await FunctionUtils.getImageFromCamera();
+                      if (result != null) {
+                        setState(() {
+                          image = File(result.path);
+                        });
+                        Navigator.pop(context);
+                      }
+                    },
+                  ),
+                ],
+              ),
+            ),
+          );
+        });
   }
 }

@@ -48,11 +48,9 @@
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>NSPhotoLibraryUsageDescription</key>
-    <string>写真フォルダへのアクセスが必要です</string>
+    <string>アプリに表示、使用するため写真フォルダへのアクセスが必要です。</string>
    	<key>NSCameraUsageDescription</key>
-   	<string>カメラのアクセスを許可しますか</string>
-   	<key>NSMicrophoneUsageDescription</key>
-   	<string>マイクを許可しますか</string>
+   	<string>アプリに表示、使用する写真を撮影するためにカメラへのアクセスが必要です。</string>
    	<key>CFBundleURLTypes</key>
     <array>
       <dict>

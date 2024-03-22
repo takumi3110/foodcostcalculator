@@ -12,6 +12,7 @@ import 'package:foodcost/utils/widget_utils.dart';
 import 'dart:io';
 
 import 'package:foodcost/view/start_up/check_email_page.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class CreateAccountPage extends StatefulWidget {
   const CreateAccountPage({super.key});
@@ -54,17 +55,12 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                     ),
                     GestureDetector(
                       onTap: () async {
-                        var result = await FunctionUtils.getImageFromGallery();
-                        if (result != null) {
-                          setState(() {
-                            image = File(result.path);
-                          });
-                        }
+                        _showBarModalBottomSheet();
                       },
                       child: CircleAvatar(
                         foregroundImage: image == null ? null : FileImage(image!),
-                        radius: 40,
-                        child: const Icon(Icons.add),
+                        radius: 70,
+                        child: const Icon(Icons.add_a_photo_outlined, size: 60,),
                       ),
                     ),
                     Padding(
@@ -221,5 +217,50 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
       debugPrint('アカウント作成エラー: $e');
       return false;
     }
+  }
+
+  Future<dynamic> _showBarModalBottomSheet() {
+    return showBarModalBottomSheet(
+        barrierColor: Colors.black54,
+        context: context,
+        builder: (context) {
+          return SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ListTile(
+                    title: const Text('写真ライブラリ'),
+                    leading: const Icon(Icons.photo_rounded, size: 30,),
+                    onTap: () async{
+                      var result = await FunctionUtils.getImageFromGallery();
+                      if (result != null) {
+                        setState(() {
+                          image = File(result.path);
+                        });
+                        Navigator.pop(context);
+                      }
+                    },
+                  ),
+                  // const Divider(),
+                  ListTile(
+                    title: const Text('写真を撮る'),
+                    leading: const Icon(Icons.photo_camera_rounded, size: 30,),
+                    onTap: () async {
+                      var result = await FunctionUtils.getImageFromCamera();
+                      if (result != null) {
+                        setState(() {
+                          image = File(result.path);
+                        });
+                        Navigator.pop(context);
+                      }
+                    },
+                  ),
+                ],
+              ),
+            ),
+          );
+        });
   }
 }
