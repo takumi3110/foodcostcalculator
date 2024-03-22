@@ -17,7 +17,7 @@ class SideMenuListTile extends StatelessWidget {
     return ListTile(
       title: Row(
         children: [
-          Icon(icons, color: Colors.lightGreen, size: 32,),
+          Icon(icons, color: Colors.teal, size: 32,),
           const SizedBox(
             width: 15.0,
           ),
