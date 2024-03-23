@@ -77,7 +77,7 @@ class _EditAccountPageState extends State<EditAccountPage> {
       getGroup(_myAccount.groupId!);
     }
     setState(() {
-      _isOwner = widget.isOwner;
+      _isOwner = _myAccount.groupId == null ? true: widget.isOwner;
     });
   }
 

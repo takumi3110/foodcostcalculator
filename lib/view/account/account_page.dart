@@ -126,15 +126,20 @@ class _AccountPageState extends State<AccountPage> {
                       // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             const SizedBox(
                                 width: 80.0,
                                 child: Text('名前', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14.0))),
                             const SizedBox(
-                              width: 30.0,
+                              width: 10.0,
                             ),
-                            Text('${_myAccount.name}さん', style: const TextStyle(fontSize: 18.0))
+                            SizedBox(
+                                width: 260,
+                                child: Text(
+                                    '${_myAccount.name}さん',
+                                    style: const TextStyle(fontSize: 18.0, overflow: TextOverflow.ellipsis)
+                                ))
                           ],
                         ),
                         const SizedBox(
@@ -142,32 +147,50 @@ class _AccountPageState extends State<AccountPage> {
                         ),
                         if (_myAccount.email.isNotEmpty)
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               const SizedBox(
                                   width: 80.0,
                                   child: Text('メール', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14.0))),
                               const SizedBox(
-                                width: 30.0,
+                                width: 10.0,
                               ),
-                              Text(_myAccount.email, style: const TextStyle(fontSize: 18.0))
+                              SizedBox(
+                                  width: 260,
+                                  child: Text(
+                                      _myAccount.email,
+                                      style: const TextStyle(fontSize: 18.0, overflow: TextOverflow.ellipsis)
+                                  )
+                              )
                             ],
                           ),
                         const SizedBox(
                           height: 10.0,
                         ),
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const SizedBox(
+                            SizedBox(
                               width: 80.0,
-                              child: Text(
-                                'グループ',
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14.0),
+                              child: Row(
+                                children: [
+                                  const Text(
+                                    'グループ',
+                                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14.0),
+                                  ),
+                                  if (_isOwner)
+                                  const Row(
+                                    children: [
+                                      SizedBox(width: 5,),
+                                      Icon(Icons.star, size: 14, color: Colors.amberAccent,),
+                                    ],
+                                  ),
+
+                                ],
                               ),
                             ),
                             const SizedBox(
-                              width: 30.0,
+                              width: 10.0,
                             ),
                             StreamBuilder<DocumentSnapshot>(
                                 stream: _myAccount.groupId != null
@@ -180,9 +203,15 @@ class _AccountPageState extends State<AccountPage> {
                                         Group(id: _myAccount.groupId, name: data['name'], code: data['code']);
                                     _group = getGroup;
                                     final groupName = data['name'];
-                                    return Text(
-                                      groupName,
-                                      style: const TextStyle(fontSize: 18.0),
+                                    return SizedBox(
+                                      width: 260,
+                                      child: Text(
+                                        groupName,
+                                        softWrap: true,
+                                        maxLines: 3,
+                                        overflow: TextOverflow.clip,
+                                        style: const TextStyle(fontSize: 18.0),
+                                      ),
                                     );
                                   } else {
                                     return Container();
