@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:foodcost/component/primary_button.dart';
 import 'package:foodcost/model/food.dart';
 import 'package:foodcost/model/menu.dart';
+import 'package:foodcost/model/select_picture_modal.dart';
 import 'package:foodcost/utils/authentication.dart';
 import 'package:foodcost/utils/firestore/menus.dart';
 import 'package:foodcost/utils/functionUtils.dart';
@@ -175,7 +176,7 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
                   null;
                 }
               },
-          childText: '保存')
+              childText: '保存')
         ],
       ),
       body: SafeArea(
@@ -202,16 +203,14 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
                             GestureDetector(
-                              onTap: () async {
-                                var result = await FunctionUtils.getImageFromGallery();
-                                setState(() {
-                                  isImageEdit = true;
-                                  if (result != null) {
-                                    image = File(result.path);
-                                  } else {
-                                    isImageEdit = false;
-                                  }
-                                });
+                              onTap: () {
+                                setImage(String path) {
+                                  setState(() {
+                                    image = File(path);
+                                  });
+                                }
+
+                                WidgetUtils.selectPictureModalBottomSheet(context, setImage);
                               },
                               child: CircleAvatar(
                                 foregroundImage: getImage(),
@@ -382,8 +381,8 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
                                             foodControllers[index]['price']!.text = sumPrice.toString();
                                           }
                                           // 最後尾の名前が入力されてれば行を追加
-                                          if (foodControllers.last['name']!.text.isNotEmpty
-                                              && costCount!.text.isNotEmpty) {
+                                          if (foodControllers.last['name']!.text.isNotEmpty &&
+                                              costCount!.text.isNotEmpty) {
                                             foodControllers.add({
                                               'name': TextEditingController(),
                                               'unitPrice': TextEditingController(),
@@ -392,7 +391,6 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
                                             });
                                           }
                                         }
-
                                       }
                                     });
                                   }),

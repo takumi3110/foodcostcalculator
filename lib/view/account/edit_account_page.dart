@@ -15,7 +15,6 @@ import 'package:foodcost/utils/firestore/users.dart';
 import 'package:foodcost/utils/functionUtils.dart';
 import 'package:foodcost/utils/widget_utils.dart';
 import 'package:foodcost/view/start_up/login_page.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class EditAccountPage extends StatefulWidget {
   final bool isOwner;
@@ -126,7 +125,12 @@ class _EditAccountPageState extends State<EditAccountPage> {
                         GestureDetector(
                           onTap: () async {
                             // _showCupertinoModalBottomSheet();
-                            _showBarModalBottomSheet();
+                            setImage(String path) {
+                              setState(() {
+                                image = File(path);
+                              });
+                            }
+                            WidgetUtils.selectPictureModalBottomSheet(context, setImage);
                           },
                           child: CircleAvatar(
                             radius: 70,
@@ -402,90 +406,90 @@ class _EditAccountPageState extends State<EditAccountPage> {
         });
   }
 
-  Future<dynamic> _showCupertinoModalBottomSheet() {
-    return showCupertinoModalBottomSheet(
-        backgroundColor: Colors.white,
-        context: context,
-        builder: (context) {
-          return Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                CircleAvatar(
-                  radius: 120,
-                  // TODO: 画像を選んで戻ってきたら更新されない
-                  // foregroundImage: getImage(),
-                  foregroundImage: image != null ? FileImage(image!) : null,
-                  child: const Icon(
-                    Icons.person,
-                    size: 120,
-                  ),
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                ElevatedButton(
-                    onPressed: () {
-                      debugPrint('$image');
-                      _showBarModalBottomSheet();
-                      // Navigator.pop(context);
-                    },
-                    child: const Text('写真を選択または撮影'))
-              ],
-            ),
-          );
-        });
-  }
+  // Future<dynamic> _showCupertinoModalBottomSheet() {
+  //   return showCupertinoModalBottomSheet(
+  //       backgroundColor: Colors.white,
+  //       context: context,
+  //       builder: (context) {
+  //         return Padding(
+  //           padding: const EdgeInsets.all(20.0),
+  //           child: Column(
+  //             mainAxisAlignment: MainAxisAlignment.center,
+  //             children: [
+  //               CircleAvatar(
+  //                 radius: 120,
+  //                 // TODO: 画像を選んで戻ってきたら更新されない
+  //                 // foregroundImage: getImage(),
+  //                 foregroundImage: image != null ? FileImage(image!) : null,
+  //                 child: const Icon(
+  //                   Icons.person,
+  //                   size: 120,
+  //                 ),
+  //               ),
+  //               const SizedBox(
+  //                 height: 20,
+  //               ),
+  //               ElevatedButton(
+  //                   onPressed: () {
+  //                     debugPrint('$image');
+  //                     _showBarModalBottomSheet();
+  //                     // Navigator.pop(context);
+  //                   },
+  //                   child: const Text('写真を選択または撮影'))
+  //             ],
+  //           ),
+  //         );
+  //       });
+  // }
 
-  Future<dynamic> _showBarModalBottomSheet() {
-    return showBarModalBottomSheet(
-        barrierColor: Colors.black54,
-        context: context,
-        builder: (context) {
-          return SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  ListTile(
-                    title: const Text('写真ライブラリ'),
-                    leading: const Icon(
-                      Icons.photo_rounded,
-                      size: 30,
-                    ),
-                    onTap: () async {
-                      var result = await FunctionUtils.getImageFromGallery();
-                      if (result != null) {
-                        setState(() {
-                          image = File(result.path);
-                        });
-                        Navigator.pop(context);
-                      }
-                    },
-                  ),
-                  // const Divider(),
-                  ListTile(
-                    title: const Text('写真を撮る'),
-                    leading: const Icon(
-                      Icons.photo_camera_rounded,
-                      size: 30,
-                    ),
-                    onTap: () async {
-                      var result = await FunctionUtils.getImageFromCamera();
-                      if (result != null) {
-                        setState(() {
-                          image = File(result.path);
-                        });
-                        Navigator.pop(context);
-                      }
-                    },
-                  ),
-                ],
-              ),
-            ),
-          );
-        });
-  }
+  // Future<dynamic> _showBarModalBottomSheet() {
+  //   return showBarModalBottomSheet(
+  //       barrierColor: Colors.black54,
+  //       context: context,
+  //       builder: (context) {
+  //         return SafeArea(
+  //           child: Padding(
+  //             padding: const EdgeInsets.all(20.0),
+  //             child: Column(
+  //               mainAxisSize: MainAxisSize.min,
+  //               children: [
+  //                 ListTile(
+  //                   title: const Text('写真ライブラリ'),
+  //                   leading: const Icon(
+  //                     Icons.photo_rounded,
+  //                     size: 30,
+  //                   ),
+  //                   onTap: () async {
+  //                     var result = await FunctionUtils.getImageFromGallery();
+  //                     if (result != null) {
+  //                       setState(() {
+  //                         image = File(result.path);
+  //                       });
+  //                       Navigator.pop(context);
+  //                     }
+  //                   },
+  //                 ),
+  //                 // const Divider(),
+  //                 ListTile(
+  //                   title: const Text('写真を撮る'),
+  //                   leading: const Icon(
+  //                     Icons.photo_camera_rounded,
+  //                     size: 30,
+  //                   ),
+  //                   onTap: () async {
+  //                     var result = await FunctionUtils.getImageFromCamera();
+  //                     if (result != null) {
+  //                       setState(() {
+  //                         image = File(result.path);
+  //                       });
+  //                       Navigator.pop(context);
+  //                     }
+  //                   },
+  //                 ),
+  //               ],
+  //             ),
+  //           ),
+  //         );
+  //       });
+  // }
 }
