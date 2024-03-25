@@ -2,9 +2,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:foodcost/component/side_menu_list_tile.dart';
 import 'package:foodcost/model/menu.dart';
+import 'package:foodcost/model/select_picture_modal.dart';
 import 'package:foodcost/model/side_menu.dart';
 import 'package:foodcost/utils/authentication.dart';
 import 'package:foodcost/utils/firestore/users.dart';
+import 'package:foodcost/utils/functionUtils.dart';
 import 'package:foodcost/view/account/account_page.dart';
 import 'package:foodcost/view/calendar/calendar_page.dart';
 import 'package:foodcost/view/cost/cost_page.dart';
@@ -14,6 +16,7 @@ import 'package:foodcost/view/news/news_page.dart';
 import 'package:foodcost/view/start_up/login_page.dart';
 import 'package:intl/intl.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class WidgetUtils {
 
@@ -187,41 +190,46 @@ class WidgetUtils {
     );
   }
 
-  static ListView menuListTile(List<Menu> menus) {
+  static dynamic menuListTile(List<Menu> menus) {
     final formatter = NumberFormat('#,###');
 
-    return ListView.builder(
+    return menus.isNotEmpty ? ListView.builder(
         shrinkWrap: true,
         itemCount: menus.length,
         itemBuilder: (context, index) {
           // Map<String, dynamic> data = snapshot.data!.docs[index].data() as Map<String, dynamic>;
-          return Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: ListTile(
-                  onTap: () {
-                    final selectedDay =
-                        menus[index].createdTime != null ? menus[index].createdTime!.toDate() : DateTime.now();
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => CreateMenuPage(
-                                  selectedDay: selectedDay,
-                                  selectedMenu: menus[index],
-                                )));
-                  },
-                  title: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [Text(menus[index].name), Text('${formatter.format(menus[index].totalAmount)} 円')],
+          return
+            Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: ListTile(
+                    onTap: () {
+                      final selectedDay =
+                      menus[index].createdTime != null ? menus[index].createdTime!.toDate() : DateTime.now();
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => CreateMenuPage(
+                                selectedDay: selectedDay,
+                                selectedMenu: menus[index],
+                              )));
+                    },
+                    title: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [Text(menus[index].name), Text('${formatter.format(menus[index].totalAmount)} 円')],
+                    ),
                   ),
                 ),
-              ),
-              // if (index == getMenus.length) const Divider()
-              const Divider(),
-            ],
-          );
-        });
+                // if (index == getMenus.length) const Divider()
+                const Divider(),
+              ],
+            );
+        }): const Padding(
+          padding: EdgeInsets.all(20.0),
+          child: Text('登録がありません。'),
+        );
+
   }
 
   static Container welcomeModal(Column child) {
@@ -244,4 +252,97 @@ class WidgetUtils {
       child: child,
     );
   }
+
+  static Future<dynamic> selectPictureModalBottomSheet(BuildContext context, Function setImage) {
+    List<SelectPictureModal> selectList = [
+      SelectPictureModal(
+        title: '写真ライブラリ',
+        icon: Icons.photo_rounded,
+        onTap: () async {
+          var result = await FunctionUtils.getImageFromGallery();
+          if (result != null) {
+            setImage(result.path);
+            Navigator.pop(context);
+          }
+        },
+      ),
+      SelectPictureModal(
+        title: '写真を撮る',
+        icon: Icons.photo_camera_rounded,
+        onTap: () async {
+          var result = await FunctionUtils.getImageFromCamera();
+          if (result != null) {
+            setImage(result.path);
+            Navigator.pop(context);
+          }
+        },
+      ),
+    ];
+
+    return showBarModalBottomSheet(
+        barrierColor: Colors.black54,
+        context: context,
+        builder: (context) {
+          return SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: selectList.length,
+                    itemBuilder: (context, index) {
+                      return ListTile(
+                        title: Text(selectList[index].title),
+                        leading: Icon(
+                          selectList[index].icon,
+                          size: 30,
+                        ),
+                        onTap: selectList[index].onTap
+                      );
+                    }
+                  ),
+                ],
+              ),
+            ),
+          );
+        });
+  }
+
+  // Future<dynamic> _showCupertinoModalBottomSheet(BuildContext context) {
+  //   return showCupertinoModalBottomSheet(
+  //       backgroundColor: Colors.white,
+  //       context: context,
+  //       builder: (context) {
+  //         return Padding(
+  //           padding: const EdgeInsets.all(20.0),
+  //           child: Column(
+  //             mainAxisAlignment: MainAxisAlignment.center,
+  //             children: [
+  //               CircleAvatar(
+  //                 radius: 120,
+  //                 // TODO: 画像を選んで戻ってきたら更新されない
+  //                 // foregroundImage: getImage(),
+  //                 foregroundImage: image != null ? FileImage(image!) : null,
+  //                 child: const Icon(
+  //                   Icons.person,
+  //                   size: 120,
+  //                 ),
+  //               ),
+  //               const SizedBox(
+  //                 height: 20,
+  //               ),
+  //               ElevatedButton(
+  //                   onPressed: () {
+  //                     debugPrint('$image');
+  //                     _showBarModalBottomSheet();
+  //                     // Navigator.pop(context);
+  //                   },
+  //                   child: const Text('写真を選択または撮影'))
+  //             ],
+  //           ),
+  //         );
+  //       });
+  // }
 }
