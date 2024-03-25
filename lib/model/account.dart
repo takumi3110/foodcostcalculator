@@ -12,8 +12,8 @@ class Account {
 
   Account(
       {this.id = '',
-      this.name = '',
-      this.email = '',
+      required this.name,
+      required this.email,
       this.imagePath,
       this.isInitialAccess = false,
       this.groupId,

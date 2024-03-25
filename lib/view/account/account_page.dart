@@ -137,7 +137,7 @@ class _AccountPageState extends State<AccountPage> {
                             SizedBox(
                                 width: 260,
                                 child: Text(
-                                    '${_myAccount.name}さん',
+                                    '${_myAccount.name} さん',
                                     style: const TextStyle(fontSize: 18.0, overflow: TextOverflow.ellipsis)
                                 ))
                           ],
@@ -354,12 +354,15 @@ class _AccountPageState extends State<AccountPage> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.green,
                           foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10)
+                            )
                         ),
                         icon: const Icon(
-                          // Icons.add_comment_rounded,
                           Icons.messenger_rounded,
                           color: Colors.white,
                         ),
+
                         label: const Text(
                           'LINEでメンバーを招待',
                           style: TextStyle(fontWeight: FontWeight.bold),

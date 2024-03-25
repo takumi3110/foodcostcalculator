@@ -21,7 +21,8 @@ class GroupFirestore {
         final CollectionReference groupMembers = groups.doc(result.id).collection('members');
         await groupMembers
             .doc(myAccount.id)
-            .set({'name': myAccount.name, 'image_path': myAccount.imagePath, 'is_owner': true});
+            // .set({'name': myAccount.name, 'image_path': myAccount.imagePath, 'is_owner': true});
+            .set({'is_owner': true});
         // ユーザーのグループIDに追加
         await UserFirestore.users.doc(myAccount.id).update({'group_id': result.id});
         Authentication.myAccount!.groupId = result.id;
@@ -75,8 +76,9 @@ class GroupFirestore {
       QuerySnapshot snapshot = await members.get();
       for (var doc in snapshot.docs) {
         Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+        final user = await UserFirestore.users.doc(doc.id).get();
         memberList
-            .add(Member(id: doc.id, name: data['name'], imagePath: data['image_path'], isOwner: data['is_owner']));
+            .add(Member(id: doc.id, name: user['name'], imagePath: user['image_path'], isOwner: data['is_owner']));
       }
       if (memberList.isNotEmpty) {
         debugPrint('メンバー取得完了');
@@ -107,7 +109,7 @@ class GroupFirestore {
         final CollectionReference myGroup = groups.doc(group.id).collection('members');
         await myGroup
             .doc(myAccount.id)
-            .set({'name': myAccount.name, 'image_path': myAccount.imagePath, 'is_owner': false});
+            .set({'is_owner': false});
         await UserFirestore.users.doc(myAccount.id).update({
           'group_id': group.id,
           'is_initial_access': false,

@@ -32,8 +32,12 @@ class _EditAccountPageState extends State<EditAccountPage> {
 
   TextEditingController nameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
+  bool _isNameError = false;
   bool _isEmailError = false;
   bool _isGroupError = false;
+
+  bool _isChangeName = false;
+  bool _isChangeEmail = false;
 
   // group
   TextEditingController groupNameController = TextEditingController();
@@ -77,7 +81,7 @@ class _EditAccountPageState extends State<EditAccountPage> {
       getGroup(_myAccount.groupId!);
     }
     setState(() {
-      _isOwner = _myAccount.groupId == null ? true: widget.isOwner;
+      _isOwner = _myAccount.groupId == null ? true : widget.isOwner;
     });
   }
 
@@ -121,12 +125,6 @@ class _EditAccountPageState extends State<EditAccountPage> {
                       children: [
                         GestureDetector(
                           onTap: () async {
-                            // var result = await FunctionUtils.getImageFromGallery();
-                            // if (result != null) {
-                            //   setState(() {
-                            //     image = File(result.path);
-                            //   });
-                            // }
                             // _showCupertinoModalBottomSheet();
                             _showBarModalBottomSheet();
                           },
@@ -150,14 +148,28 @@ class _EditAccountPageState extends State<EditAccountPage> {
                               child: Text('名前', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                             ),
                             const SizedBox(width: 10.0),
-                            SizedBox(
-                              width: 220,
-                              child: TextField(
-                                keyboardType: TextInputType.name,
-                                onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
-                                controller: nameController,
-                              ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                SizedBox(
+                                  width: 220,
+                                  child: TextField(
+                                    keyboardType: TextInputType.name,
+                                    onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
+                                    controller: nameController,
+                                    onChanged: (String value) {
+                                        setState(() {
+                                          _isNameError = value.isEmpty;
+                                          _isChangeName = _myAccount.name != value;
+                                        });
+                                    },
+                                  ),
+                                ),
+                                if (_isNameError)
+                                  const ErrorText(text: '名前を入力してください。')
+                              ],
                             ),
+
                           ],
                         ),
                         // const SizedBox(height: 20.0,),
@@ -173,7 +185,7 @@ class _EditAccountPageState extends State<EditAccountPage> {
                                 ),
                                 const SizedBox(width: 10.0),
                                 Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     SizedBox(
                                       width: 220,
@@ -187,6 +199,7 @@ class _EditAccountPageState extends State<EditAccountPage> {
                                         onChanged: (String value) {
                                           setState(() {
                                             _isEmailError = !value.isValidEmail();
+                                            _isChangeEmail = _myAccount.email != value;
                                           });
                                         },
                                       ),
@@ -219,7 +232,7 @@ class _EditAccountPageState extends State<EditAccountPage> {
                             SizedBox(
                               width: 220,
                               child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   TextField(
                                     keyboardType: TextInputType.text,
@@ -262,11 +275,17 @@ class _EditAccountPageState extends State<EditAccountPage> {
                         });
                         bool accountResult = false;
                         bool groupResult = false;
-                        if (!_isEmailError &&
-                            (nameController.text != _myAccount.name ||
-                                emailController.text != _myAccount.email ||
-                                image != null)) {
-                          if ((nameController.text.isNotEmpty && emailController.text.isNotEmpty) || image != null) {
+                        final isError = !_isNameError && !_isEmailError;
+                        // final isChangeName = nameController.text != _myAccount.name;
+                        // if ((!_isEmailError && !_isNameError) &&
+                        //     (nameController.text != _myAccount.name ||
+                        //         emailController.text != _myAccount.email ||
+                        //         image != null)) {
+                        if (isError && _isChangeName || _isChangeEmail || image != null)  {
+                          if ((_myAccount.email.isNotEmpty
+                                  ? (nameController.text.isNotEmpty && emailController.text.isNotEmpty)
+                                  : nameController.text.isNotEmpty) ||
+                              image != null) {
                             String? imagePath = _myAccount.imagePath;
                             if (image != null) {
                               imagePath = await FunctionUtils.uploadImage(_myAccount.id, image!);
@@ -277,14 +296,37 @@ class _EditAccountPageState extends State<EditAccountPage> {
                                 email: emailController.text,
                                 imagePath: imagePath,
                                 isInitialAccess: false);
-                            accountResult = await UserFirestore.updateUser(updateAccount);
+                            var result = await UserFirestore.updateUser(updateAccount);
+                            if (result == true) {
+                              accountResult = result;
+                            } else {
+                              ScaffoldMessenger.of(context).showMaterialBanner(MaterialBanner(
+                                backgroundColor: Colors.deepOrange,
+                                content: const Text(
+                                  'アカウントの更新に失敗しました。',
+                                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                                ),
+                                actions: [
+                                  GestureDetector(
+                                    child: const Icon(Icons.close, color: Colors.white),
+                                    onTap: () {
+                                      ScaffoldMessenger.of(context).removeCurrentMaterialBanner();
+                                    },
+                                  )
+                                ],
+                                onVisible: () {
+                                  Future.delayed(const Duration(seconds: 5),
+                                      () => ScaffoldMessenger.of(context).removeCurrentMaterialBanner());
+                                },
+                              ));
+                            }
                           }
                         }
                         if (groupNameController.text.isNotEmpty &&
                             groupNameController.text != (group != null ? group!.name : '')) {
                           // グループ登録
                           // 招待コード作成
-                          // TODO: グループのオーナーじゃない場合は編集できない。編集しようとするとオーナーに言えと警告
+                          // グループのオーナーじゃない場合は編集できない。編集しようとするとオーナーに言えと警告
                           String code = group != null ? group!.code : '';
                           const String charset = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
                           final Random random = Random.secure();
@@ -374,7 +416,7 @@ class _EditAccountPageState extends State<EditAccountPage> {
                   radius: 120,
                   // TODO: 画像を選んで戻ってきたら更新されない
                   // foregroundImage: getImage(),
-                  foregroundImage: image != null ? FileImage(image!): null,
+                  foregroundImage: image != null ? FileImage(image!) : null,
                   child: const Icon(
                     Icons.person,
                     size: 120,
@@ -386,8 +428,8 @@ class _EditAccountPageState extends State<EditAccountPage> {
                 ElevatedButton(
                     onPressed: () {
                       debugPrint('$image');
-                       _showBarModalBottomSheet();
-                       // Navigator.pop(context);
+                      _showBarModalBottomSheet();
+                      // Navigator.pop(context);
                     },
                     child: const Text('写真を選択または撮影'))
               ],
@@ -409,8 +451,11 @@ class _EditAccountPageState extends State<EditAccountPage> {
                 children: [
                   ListTile(
                     title: const Text('写真ライブラリ'),
-                    leading: const Icon(Icons.photo_rounded, size: 30,),
-                    onTap: () async{
+                    leading: const Icon(
+                      Icons.photo_rounded,
+                      size: 30,
+                    ),
+                    onTap: () async {
                       var result = await FunctionUtils.getImageFromGallery();
                       if (result != null) {
                         setState(() {
@@ -423,7 +468,10 @@ class _EditAccountPageState extends State<EditAccountPage> {
                   // const Divider(),
                   ListTile(
                     title: const Text('写真を撮る'),
-                    leading: const Icon(Icons.photo_camera_rounded, size: 30,),
+                    leading: const Icon(
+                      Icons.photo_camera_rounded,
+                      size: 30,
+                    ),
                     onTap: () async {
                       var result = await FunctionUtils.getImageFromCamera();
                       if (result != null) {
