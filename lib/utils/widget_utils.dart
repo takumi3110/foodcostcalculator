@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:foodcost/component/side_menu_list_tile.dart';
 import 'package:foodcost/model/menu.dart';
@@ -217,7 +218,26 @@ class WidgetUtils {
                     },
                     title: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [Text(menus[index].name), Text('${formatter.format(menus[index].totalAmount)} 円')],
+                      children: [
+                        Row(
+                          children: [
+                            FutureBuilder(
+                              future: UserFirestore.getAccountImage(menus[index].userId),
+                              builder: (context, snapshot) {
+                                return CircleAvatar(
+                                  radius: 15,
+                                  foregroundImage: snapshot.hasData ? FunctionUtils.getForeGroundImage(snapshot.data): null,
+                                  child: const Icon(Icons.person, size: 20,),
+                                );
+                              },
+                            ),
+                            const SizedBox(width: 10,),
+                            Text(menus[index].name),
+                          ],
+                        ),
+
+                        Text('${formatter.format(menus[index].totalAmount)} 円')
+                      ],
                     ),
                   ),
                 ),
@@ -234,6 +254,7 @@ class WidgetUtils {
 
   static Container welcomeModal(Column child) {
     return Container(
+      color: Colors.white,
       width: 324,
       height: 200,
       padding: const EdgeInsets.all(10.0),

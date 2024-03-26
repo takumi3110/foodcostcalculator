@@ -190,7 +190,9 @@ class _CalendarPageState extends State<CalendarPage> {
                       valueListenable: _selectedEvents,
                       builder: (context, value, _) {
                         return StreamBuilder<QuerySnapshot>(
-                            stream: MenuFirestore.menus.where('user_id', isEqualTo: _myAccount.id).snapshots(),
+                            // stream: MenuFirestore.menus.where('user_id', isEqualTo: _myAccount.id).snapshots(),
+                            stream: _myAccount.groupId != null ? MenuFirestore.menus.where('group_id', isEqualTo: _myAccount.groupId).snapshots()
+                                : MenuFirestore.menus.where('user_id', isEqualTo: _myAccount.id).snapshots(),
                             builder: (context, snapshot) {
                               if (snapshot.hasData) {
                                 num allTotalAmount = 0;
@@ -213,6 +215,7 @@ class _CalendarPageState extends State<CalendarPage> {
                                       id: doc.id,
                                       name: data['name'],
                                       userId: data['user_id'],
+                                      groupId: data['group_id'],
                                       totalAmount: data['total_amount'],
                                       imagePath: data['image_path'],
                                       createdTime: data['created_time'],
@@ -392,23 +395,6 @@ class _CalendarPageState extends State<CalendarPage> {
                 ),
               ),
             ),
-          // if (isVerified && groupName != null)
-          //   Center(
-          //     child: WidgetUtils.welcomeModal(
-          //         Column(
-          //           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          //           children: [
-          //               Text('${groupName}に招待されました！'),
-          //             ElevatedButton(
-          //                 onPressed: () {
-          //                   _myAccount.isInitialAccess = false;
-          //                 },
-          //                 child: const Text('始める', style: TextStyle(fontWeight: FontWeight.bold),)
-          //             )
-          //           ],
-          //         )
-          //     ),
-          //   )
         ]
         ),
       ),

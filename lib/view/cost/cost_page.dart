@@ -103,7 +103,8 @@ class _CostPageState extends State<CostPage> {
 
   // グラフの数値を作成
   void createAmounts() async {
-    final results = await MenuFirestore.getMenus(myAccount.id);
+    final results = myAccount.groupId != null ? await MenuFirestore.getMenus(myAccount.groupId!, true)
+        : await MenuFirestore.getMenus(myAccount.id, false);
     if (results != null) {
       setState(() {
         List<num> amounts = [];
@@ -376,6 +377,7 @@ class _CostPageState extends State<CostPage> {
                             gridData: FlGridData(
                               show: true,
                               horizontalInterval: 1,
+                              // checkToShowHorizontalLine: (value) => numberFormatter.format(value) == numberFormatter.format(targetDayAmount),
                               checkToShowHorizontalLine: (value) => value == targetDayAmount,
                               // getDrawingHorizontalLine: (value) => FlLine(
                               //   color: AppColors.borderColor.withOpacity(0.1),
@@ -470,6 +472,7 @@ class _CostPageState extends State<CostPage> {
                         alignment: Alignment.center,
                         padding: const EdgeInsets.symmetric(horizontal: 5.0),
                         child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.end,
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
@@ -477,11 +480,13 @@ class _CostPageState extends State<CostPage> {
                               style: const TextStyle(fontSize: 20.0),
                             ),
                             const SizedBox(
-                              width: 10.0,
+                              width: 20.0,
                             ),
                             Text(
-                              '今月はあと${numberFormatter.format(targetMonthAmount - allTotalAmount)}円',
-                              style: const TextStyle(color: Colors.red),
+                              '残り ${numberFormatter.format(targetMonthAmount - allTotalAmount)}円',
+                              style: TextStyle(
+                                  color: (targetMonthAmount - allTotalAmount) > 0 ? Colors.blueAccent: Colors.red
+                              ),
                             )
                           ],
                         ),

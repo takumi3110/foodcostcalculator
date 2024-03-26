@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:foodcost/model/account.dart';
 import 'package:foodcost/model/group.dart';
 import 'package:foodcost/utils/authentication.dart';
+import 'package:foodcost/utils/firestore/menus.dart';
 import 'package:foodcost/utils/firestore/users.dart';
 
 class GroupFirestore {
@@ -26,6 +27,8 @@ class GroupFirestore {
         // ユーザーのグループIDに追加
         await UserFirestore.users.doc(myAccount.id).update({'group_id': result.id});
         Authentication.myAccount!.groupId = result.id;
+      //   TODO: 自分が登録してるメニュー全部にgroupIdを追加
+        await MenuFirestore.updateMenuAddGroup(result.id);
       }
       debugPrint('グループ登録完了');
       return true;
@@ -103,7 +106,7 @@ class GroupFirestore {
         }
       }
       if (groupList.isNotEmpty) {
-        //   TODO: groupのメンバーに追加する処理
+        // groupのメンバーに追加する処理
         Account myAccount = Authentication.myAccount!;
         final group = groupList[0];
         final CollectionReference myGroup = groups.doc(group.id).collection('members');
@@ -114,8 +117,12 @@ class GroupFirestore {
           'group_id': group.id,
           'is_initial_access': false,
         });
-        // myAccount.groupId = group.id;
+        // 大元のAuthentication.myAccountを更新
         Authentication.myAccount!.groupId = group.id;
+        // それまで作ったメニューにグループIDを追加
+        if (group.id != null) {
+          await MenuFirestore.updateMenuAddGroup(group.id!);
+        }
         return group;
       } else {
         return null;
