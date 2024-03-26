@@ -5,9 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:foodcost/component/primary_button.dart';
 import 'package:foodcost/model/food.dart';
 import 'package:foodcost/model/menu.dart';
-import 'package:foodcost/model/select_picture_modal.dart';
 import 'package:foodcost/utils/authentication.dart';
 import 'package:foodcost/utils/firestore/menus.dart';
+import 'package:foodcost/utils/firestore/users.dart';
 import 'package:foodcost/utils/functionUtils.dart';
 import 'package:foodcost/utils/widget_utils.dart';
 import 'package:intl/intl.dart';
@@ -57,8 +57,8 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
   ImageProvider? getImage() {
     if (image == null) {
       if (widget.selectedMenu != null) {
-        if (widget.selectedMenu!.imagePath != '') {
-          return NetworkImage(widget.selectedMenu!.imagePath);
+        if (widget.selectedMenu!.imagePath != null) {
+          return NetworkImage(widget.selectedMenu!.imagePath!);
         } else {
           return null;
         }
@@ -146,6 +146,7 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
                       id: menuId,
                       name: menuController.text,
                       userId: Authentication.myAccount!.id,
+                      groupId: Authentication.myAccount!.groupId,
                       totalAmount: allPrice,
                       createdTime: Timestamp.fromDate(_selectedDay),
                       imagePath: selectedMenu != null ? selectedMenu!.imagePath : '',
@@ -225,52 +226,77 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
                             SizedBox(
                               width: 220,
                               child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   TextField(
+                                    keyboardType: TextInputType.text,
                                     controller: menuController,
                                     decoration: const InputDecoration(hintText: 'メニュー名'),
                                   ),
-                                  // TextField(
-                                  //   keyboardType: TextInputType.number,
-                                  //   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                                  //   decoration: const InputDecoration(hintText: '日付'),
-                                  // )
+                                  const SizedBox(height: 10,),
+                                  if (selectedMenu != null)
+                                  StreamBuilder<DocumentSnapshot>(
+                                    stream: UserFirestore.users.doc(selectedMenu!.userId).snapshots(),
+                                    builder: (context, snapshot) {
+                                      if (snapshot.hasData) {
+                                        Map<String, dynamic> data = snapshot.data!.data() as Map<String, dynamic>;
+                                        return userInfo(data, '作成者');
+                                      } else {
+                                        return const SizedBox();
+                                      }
+                                    }
+                                  )
                                 ],
                               ),
                             ),
                           ],
                         ),
                       ),
-                      Container(
-                        alignment: Alignment.center,
-                        width: double.infinity,
-                        decoration:
-                            const BoxDecoration(border: Border(bottom: BorderSide(color: Colors.orange, width: 3))),
-                        child: const Text(
-                          '食材',
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 10.0),
+                        child: Container(
+                          alignment: Alignment.center,
+                          width: double.infinity,
+                          decoration:
+                              const BoxDecoration(border: Border(top: BorderSide(color: Colors.orange, width: 3))),
+                          // child: const Text(
+                          //   '食材',
+                          //   style: TextStyle(fontWeight: FontWeight.bold),
+                          // ),
                         ),
                       ),
-                      const SizedBox(
-                        height: 10,
-                      ),
                       Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20.0),
+                        padding: const EdgeInsets.only(top: 10, bottom: 20, right: 25.0),
                         child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.end,
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            const Text('合計金額'),
+                            const Text('合計金額', style: TextStyle(fontSize: 16),),
                             const SizedBox(
                               width: 20,
                             ),
                             Text(
                               formatter.format(allPrice).toString(),
-                              style: const TextStyle(fontSize: 18),
+                              style: const TextStyle(fontSize: 22),
                             ),
-                            const Text('円')
+                            const Text('円', style: TextStyle(fontSize: 16),)
                           ],
                         ),
                       ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Row(
+                    children: [
+                      const SizedBox(width: 50,),
+                      header('材料名', 110),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                        child: header('金額', 70),
+                      ),
+                      header('使った量', 90)
                     ],
                   ),
                 ),
@@ -425,6 +451,32 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget userInfo (Map<String, dynamic> data, title) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        Text('$title:', style: const TextStyle(fontSize: 12),),
+        const SizedBox(width: 5,),
+        CircleAvatar(
+          radius: 10,
+          foregroundImage: data['image_path'] != null ? FunctionUtils.getForeGroundImage(data['image_path']): null,
+          child: const Icon(Icons.person, size: 10,),
+        ),
+        const SizedBox(width: 2,),
+        Text('${data['name']} さん', style: const TextStyle(fontSize: 12),),
+      ],
+    );
+  }
+
+  Widget header(String title, double width) {
+    return SizedBox(
+        width: width,
+        child: Align(
+            alignment: Alignment.center,
+            child: Text(title, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),))
     );
   }
 }

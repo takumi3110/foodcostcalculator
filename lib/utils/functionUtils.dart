@@ -19,6 +19,14 @@ class FunctionUtils {
     return pickedFile;
   }
 
+  static ImageProvider? getForeGroundImage(imagePath) {
+    if (imagePath != null) {
+      return NetworkImage(imagePath);
+    } else {
+      return null;
+    }
+  }
+
   static Future<dynamic> uploadImage(String id, File image) async {
     try {
       final FirebaseStorage storageInstance = FirebaseStorage.instance;

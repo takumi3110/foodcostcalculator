@@ -31,7 +31,7 @@ class UserFirestore {
     }
   }
 
-  static Future<dynamic> getUser(String uid) async {
+  static Future<bool> getUser(String uid) async {
     try {
       DocumentSnapshot documentSnapshot = await users.doc(uid).get();
       if (documentSnapshot.data() != null) {
@@ -55,6 +55,22 @@ class UserFirestore {
     } on FirebaseException catch (e) {
       debugPrint('ユーザー取得エラー: $e');
       return false;
+    }
+  }
+
+  static Future<dynamic> getAccountImage(String uid) async {
+    try {
+      DocumentSnapshot snapshot = await users.doc(uid).get();
+      if (snapshot.data() != null) {
+        Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
+        final String anotherAccountImage = data['image_path'];
+        return anotherAccountImage;
+      } else {
+        return null;
+      }
+    } on FirebaseException catch (e) {
+      debugPrint('ユーザーイメージ取得エラー: $e');
+      return null;
     }
   }
 

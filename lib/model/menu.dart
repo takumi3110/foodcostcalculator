@@ -5,18 +5,24 @@ class Menu {
   String id;
   String name;
   String userId;
+  String? updatedUserId;
+  String? groupId;
   int? totalAmount;
-  String imagePath;
+  String? imagePath;
   Timestamp? createdTime;
+  Timestamp? updatedTime;
   List<Food> foods;
 
   Menu({
     this.id = '',
     required this.name,
-    this.userId = '',
+    required this.userId,
+    this.updatedUserId,
+    this.groupId,
     this.totalAmount,
     this.createdTime,
-    this.imagePath = '',
+    this.updatedTime,
+    this.imagePath,
     required this.foods
   });
 }
