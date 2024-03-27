@@ -12,6 +12,7 @@ import 'package:foodcost/utils/calendar_utils.dart';
 import 'package:foodcost/utils/chart_utils.dart';
 import 'package:foodcost/utils/firestore/menus.dart';
 import 'package:foodcost/utils/firestore/targets.dart';
+import 'package:foodcost/utils/firestore/users.dart';
 import 'package:foodcost/view/calendar/calendar_page.dart';
 import 'package:intl/intl.dart';
 
@@ -147,8 +148,11 @@ class _CostPageState extends State<CostPage> {
 
   // 目標金額を取得
   void getTargetAmounts() async {
-    final result = await TargetFirestore.getTarget(myAccount.id);
+    final Target? result = await TargetFirestore.getTarget(myAccount.id);
     if (result != null) {
+      if (myAccount.groupId != null && myAccount.groupId == result.groupId) {
+        await TargetFirestore.addTargetToUserCollection(myAccount.id, result.id);
+      }
       setState(() {
         targetDayAmountController.text = result.dayAmount.toString();
         targetMonthAmountController.text = result.monthAmount.toString();

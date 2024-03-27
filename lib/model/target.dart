@@ -5,6 +5,7 @@ class Target {
   int monthAmount;
   int dayAmount;
   String userId;
+  String? groupId;
   Timestamp? updatedTime;
 
   Target({
@@ -12,6 +13,7 @@ class Target {
     required this.monthAmount,
     required this.dayAmount,
     required this.userId,
+    this.groupId,
     this.updatedTime
   });
 }

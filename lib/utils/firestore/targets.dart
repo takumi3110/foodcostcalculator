@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:foodcost/model/target.dart';
+import 'package:foodcost/utils/authentication.dart';
 
 class TargetFirestore {
   static final _firestoreInstance = FirebaseFirestore.instance;
@@ -8,22 +9,34 @@ class TargetFirestore {
 
   static Future<dynamic> addTarget(Target newTarget) async {
     try {
-      final CollectionReference userTarget =
-          _firestoreInstance.collection('users').doc(newTarget.userId).collection('my_target');
       var result = await targets.add({
         'month_amount': newTarget.monthAmount,
         'day_amount': newTarget.dayAmount,
         'user_id': newTarget.userId,
+        'group_id': newTarget.groupId,
         'updated_time': Timestamp.now()
       });
-      await userTarget.doc(result.id).set({
-        'target_id': result.id,
-      });
+      await addTargetToUserCollection(newTarget.userId, result.id);
       debugPrint('目標金額登録完了');
       return result;
     } on FirebaseException catch (e) {
       debugPrint('目標金額登録エラー: $e');
       return null;
+    }
+  }
+
+  // TODO: groupに加入した時コレクションに追加
+  // TODO: groupにいて、目標金額を設定した時コレクションに追加
+  static Future<void> addTargetToUserCollection(String uid, String targetId) async{
+    try {
+      final CollectionReference userTarget =
+      _firestoreInstance.collection('users').doc(uid).collection('my_targets');
+      await userTarget.doc(targetId).set({
+        'target_id': targetId,
+      });
+      debugPrint('目標金額をユーザーコレクションに追加しました。');
+    } on FirebaseException catch (e) {
+      debugPrint('目標金額をユーザーコレクションに追加できません。: $e');
     }
   }
 
@@ -46,26 +59,49 @@ class TargetFirestore {
   static Future<dynamic> getTarget(String accountId) async {
     try {
       final CollectionReference userTarget =
-          _firestoreInstance.collection('users').doc(accountId).collection('my_target');
+          _firestoreInstance.collection('users').doc(accountId).collection('my_targets');
       final userTargetSnapshot = await userTarget.get();
       if (userTargetSnapshot.docs.isNotEmpty) {
-        Map<String, dynamic> userTargetData = userTargetSnapshot.docs[0].data() as Map<String, dynamic>;
+        for (var doc in userTargetSnapshot.docs) {
+          Map<String, dynamic> userTargetData = doc.data() as Map<String, dynamic>;
+          final targetSnapshot = await targets.doc(userTargetData['target_id']).get();
+          Map<String, dynamic> targetData = targetSnapshot.data() as Map<String, dynamic>;
+          Target target = Target(
+              id: targetSnapshot.id,
+              monthAmount: targetData['month_amount'],
+              dayAmount: targetData['day_amount'],
+              userId: targetData['user_id'],
+              groupId: targetData['group_id'],
+              updatedTime: targetData['updated_time']
+          );
+          if (Authentication.myAccount != null) {
+            if (Authentication.myAccount!.groupId != null && Authentication.myAccount!.groupId! == targetData['groupId']) {
+              debugPrint('グループ目標金額取得完了');
+              return target;
+            } else {
+              debugPrint('目標金額取得完了');
+              return target;
+            }
+          } else {
+            return null;
+          }
+        }
+        // Map<String, dynamic> userTargetData = userTargetSnapshot.docs[0].data() as Map<String, dynamic>;
         // var myTarget = await targets.where('user_id', isEqualTo: accountId).get();
         // myTarget.docs.forEach((doc) {
         //   Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-        final targetSnapshot = await targets.doc(userTargetData['target_id']).get();
-        Map<String, dynamic> targetData = targetSnapshot.data() as Map<String, dynamic>;
-        Target target = Target(
-            id: targetSnapshot.id,
-            monthAmount: targetData['month_amount'],
-            dayAmount: targetData['day_amount'],
-            userId: targetData['user_id'],
-            updatedTime: targetData['updated_time']
-        );
+        // final targetSnapshot = await targets.doc(userTargetData['target_id']).get();
+        // Map<String, dynamic> targetData = targetSnapshot.data() as Map<String, dynamic>;
+        // Target target = Target(
+        //     id: targetSnapshot.id,
+        //     monthAmount: targetData['month_amount'],
+        //     dayAmount: targetData['day_amount'],
+        //     userId: targetData['user_id'],
+        //     groupId: targetData['group_id'],
+        //     updatedTime: targetData['updated_time']
+        // );
         //
         // });
-        debugPrint('目標金額取得完了');
-        return target;
       } else {
         return null;
       }
@@ -77,7 +113,7 @@ class TargetFirestore {
 
   static Future<void> deleteTarget(String accountId) async {
     try {
-      final CollectionReference myTargets = _firestoreInstance.collection('users').doc(accountId).collection('my_target');
+      final CollectionReference myTargets = _firestoreInstance.collection('users').doc(accountId).collection('my_targets');
       var snapshot = await myTargets.get();
       for (var doc in snapshot.docs) {
         await targets.doc(doc.id).delete();
