@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:foodcost/model/target.dart';
 import 'package:foodcost/utils/authentication.dart';
+import 'package:foodcost/utils/firestore/groups.dart';
+import 'package:foodcost/utils/firestore/users.dart';
 
 class TargetFirestore {
   static final _firestoreInstance = FirebaseFirestore.instance;
@@ -12,11 +14,20 @@ class TargetFirestore {
       var result = await targets.add({
         'month_amount': newTarget.monthAmount,
         'day_amount': newTarget.dayAmount,
-        'user_id': newTarget.userId,
+        'created_user_id': newTarget.createdUserId,
         'group_id': newTarget.groupId,
         'updated_time': Timestamp.now()
       });
-      await addTargetToUserCollection(newTarget.userId, result.id);
+      // groupにいて、目標金額を設定した時コレクションに追加
+      if (newTarget.groupId != null) {
+        final CollectionReference membersCollection = GroupFirestore.groups.doc(newTarget.groupId).collection('members');
+        final memberSnapshots = await membersCollection.get();
+        for(var doc in memberSnapshots.docs) {
+          await addTargetToUserCollection(doc.id, result.id);
+        }
+      } else {
+        await addTargetToUserCollection(newTarget.createdUserId, result.id);
+      }
       debugPrint('目標金額登録完了');
       return result;
     } on FirebaseException catch (e) {
@@ -26,11 +37,10 @@ class TargetFirestore {
   }
 
   // TODO: groupに加入した時コレクションに追加
-  // TODO: groupにいて、目標金額を設定した時コレクションに追加
   static Future<void> addTargetToUserCollection(String uid, String targetId) async{
     try {
       final CollectionReference userTarget =
-      _firestoreInstance.collection('users').doc(uid).collection('my_targets');
+      UserFirestore.users.doc(uid).collection('my_targets');
       await userTarget.doc(targetId).set({
         'target_id': targetId,
       });
@@ -59,7 +69,7 @@ class TargetFirestore {
   static Future<dynamic> getTarget(String accountId) async {
     try {
       final CollectionReference userTarget =
-          _firestoreInstance.collection('users').doc(accountId).collection('my_targets');
+          UserFirestore.users.doc(accountId).collection('my_targets');
       final userTargetSnapshot = await userTarget.get();
       if (userTargetSnapshot.docs.isNotEmpty) {
         for (var doc in userTargetSnapshot.docs) {
@@ -70,7 +80,7 @@ class TargetFirestore {
               id: targetSnapshot.id,
               monthAmount: targetData['month_amount'],
               dayAmount: targetData['day_amount'],
-              userId: targetData['user_id'],
+              createdUserId: targetData['created_user_id'],
               groupId: targetData['group_id'],
               updatedTime: targetData['updated_time']
           );

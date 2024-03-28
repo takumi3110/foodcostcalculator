@@ -4,6 +4,7 @@ import 'package:foodcost/model/account.dart';
 import 'package:foodcost/model/group.dart';
 import 'package:foodcost/utils/authentication.dart';
 import 'package:foodcost/utils/firestore/menus.dart';
+import 'package:foodcost/utils/firestore/targets.dart';
 import 'package:foodcost/utils/firestore/users.dart';
 
 class GroupFirestore {
@@ -119,9 +120,14 @@ class GroupFirestore {
         });
         // 大元のAuthentication.myAccountを更新
         Authentication.myAccount!.groupId = group.id;
-        // それまで作ったメニューにグループIDを追加
         if (group.id != null) {
+          // それまで作ったメニューにグループIDを追加
           await MenuFirestore.updateMenuAddGroup(group.id!);
+          // TODO:目標金額があれば、my_targetsに追加
+          final targetSnapshots = await TargetFirestore.targets.where('group_id', isEqualTo: group.id).get();
+          for (var doc in targetSnapshots.docs) {
+            await TargetFirestore.addTargetToUserCollection(myAccount.id, doc.id);
+          }
         }
         return group;
       } else {
