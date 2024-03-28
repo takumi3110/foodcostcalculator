@@ -4,14 +4,16 @@ class Target {
   String id;
   int monthAmount;
   int dayAmount;
-  String userId;
+  String createdUserId;
+  String? groupId;
   Timestamp? updatedTime;
 
   Target({
     this.id = '',
     required this.monthAmount,
     required this.dayAmount,
-    required this.userId,
+    required this.createdUserId,
+    this.groupId,
     this.updatedTime
   });
 }

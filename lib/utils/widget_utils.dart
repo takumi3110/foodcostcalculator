@@ -148,7 +148,6 @@ class WidgetUtils {
                 }
               ),
               // TODO: お知らせだけFutureで取得して、新規があればわかりやすく表示？
-              // TODO: NewsPageに渡すのも中身だけ渡してもいいかも
               for(var menu in menuList)
                 SideMenuListTile(
                     icons: menu.icons,
