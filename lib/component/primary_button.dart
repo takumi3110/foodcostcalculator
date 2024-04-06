@@ -16,7 +16,7 @@ class PrimaryButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
-        backgroundColor: isError ? Colors.white38 : Colors.blueAccent,
+        backgroundColor: isError ? Colors.white38 : Colors.greenAccent,
         foregroundColor: Colors.white
       ),
         onPressed:onPressed,

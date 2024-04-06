@@ -48,106 +48,80 @@ class _LoginPageState extends State<LoginPage> {
             child: Padding(
               padding: const EdgeInsets.all(10.0),
               // padding: EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0, bottom: bottomSpace * 0.3),
-              child: SizedBox(
-                width: double.infinity,
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 30.0),
-                      child: const Text(
-                        'まんまのじぇんこ(仮)',
-                        style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+              child: Center(
+                child: SizedBox(
+                  width: double.infinity,
+                  child: Column(
+                    children: [
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 50.0),
+                        child: Text(
+                          'まんまのじぇんこ',
+                          style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold, fontFamily: 'AmeChan', color: Colors.green,),
+                        ),
                       ),
-                    ),
-                    LoginTextField(
-                        hintText: 'メールアドレス',
-                        textInputType: TextInputType.emailAddress,
-                        textEditingController: emailController,
-                      onChanged: (String value) {
-                          setState(() {
-                            _isValidEmail = value.isValidEmail();
-                          });
-                      },
-                    ),
-                    if (!_isValidEmail)
-                      const ErrorText(text: '正しい形式で入力してください。'),
-                    LoginTextField(
-                      hintText: 'パスワード',
-                      textInputType: TextInputType.visiblePassword,
-                      textEditingController: passController,
-                      isObscureText: _isObscureText,
-                      suffixIcon: IconButton(
-                          onPressed: () {
+                      LoginTextField(
+                          hintText: 'メールアドレス',
+                          textInputType: TextInputType.emailAddress,
+                          textEditingController: emailController,
+                        onChanged: (String value) {
                             setState(() {
-                              _isObscureText = !_isObscureText;
+                              _isValidEmail = value.isValidEmail();
                             });
-                          },
-                          icon: Icon(_isObscureText ? Icons.visibility_off : Icons.visibility)),
-                    ),
-                    // Padding(
-                    //   padding: const EdgeInsets.symmetric(vertical: 30.0),
-                    //   child: SizedBox(
-                    //     width: 300,
-                    //     child: TextField(
-                    //       keyboardType: TextInputType.emailAddress,
-                    //       controller: emailController,
-                    //       decoration: const InputDecoration(hintText: 'メールアドレス'),
-                    //     ),
-                    //   ),
-                    // ),
-                    // SizedBox(
-                    //   width: 300,
-                    //   child: TextField(
-                    //     keyboardType: TextInputType.visiblePassword,
-                    //     controller: passController,
-                    //     decoration: InputDecoration(
-                    //         hintText: 'パスワード',
-                    //         suffixIcon: IconButton(
-                    //             onPressed: () {
-                    //               setState(() {
-                    //                 _isObscureText = !_isObscureText;
-                    //               });
-                    //             },
-                    //             icon: Icon(_isObscureText ? Icons.visibility_off : Icons.visibility))),
-                    //     obscureText: _isObscureText,
-                    //   ),
-                    // ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    RichText(
-                        text: TextSpan(style: const TextStyle(color: Colors.black), children: [
-                      const TextSpan(text: 'アカウントを作成していない方は'),
-                      TextSpan(
-                          text: 'こちら',
-                          style: const TextStyle(color: Colors.blue),
-                          recognizer: TapGestureRecognizer()
-                            ..onTap = () {
-                              Navigator.push(
-                                  context, MaterialPageRoute(builder: (context) => const CreateAccountPage()));
-                            })
-                    ])),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: RichText(text: TextSpan(
-                        children: [
-                          TextSpan(
-                            text: 'パスワードを忘れた場合',
-                            style: const TextStyle(color: Colors.blue),
-                            recognizer: TapGestureRecognizer()..onTap = () {
-                              Navigator.push(
-                                context, MaterialPageRoute(builder: (context) => const ForgetPasswordPage())
-                              );
-                            }
-                          )
-                        ]
-                      )),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 20.0),
-                      child: Column(
-                        children: [
-                          PrimaryButton(
+                        },
+                      ),
+                      if (!_isValidEmail)
+                        const ErrorText(text: '正しい形式で入力してください。'),
+                      LoginTextField(
+                        hintText: 'パスワード',
+                        textInputType: TextInputType.visiblePassword,
+                        textEditingController: passController,
+                        isObscureText: _isObscureText,
+                        suffixIcon: IconButton(
+                            onPressed: () {
+                              setState(() {
+                                _isObscureText = !_isObscureText;
+                              });
+                            },
+                            icon: Icon(_isObscureText ? Icons.visibility_off : Icons.visibility)),
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      RichText(
+                          text: TextSpan(style: const TextStyle(color: Colors.black), children: [
+                            const TextSpan(text: 'アカウントを作成していない方は'),
+                            TextSpan(
+                                text: 'こちら',
+                                style: const TextStyle(color: Colors.blue),
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap = () {
+                                    Navigator.push(
+                                        context, MaterialPageRoute(builder: (context) => const CreateAccountPage()));
+                                  })
+                          ])),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: RichText(text: TextSpan(
+                            children: [
+                              TextSpan(
+                                  text: 'パスワードを忘れた場合',
+                                  style: const TextStyle(color: Colors.blue),
+                                  recognizer: TapGestureRecognizer()..onTap = () {
+                                    Navigator.push(
+                                        context, MaterialPageRoute(builder: (context) => const ForgetPasswordPage())
+                                    );
+                                  }
+                              )
+                            ]
+                        )),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 20.0),
+                        child: Column(
+                          children: [
+
+                            PrimaryButton(
                               onPressed: () async {
                                 if (emailController.text.isNotEmpty && passController.text.isNotEmpty) {
                                   setState(() {
@@ -189,178 +163,178 @@ class _LoginPageState extends State<LoginPage> {
                                 }
                               },
                               childText: 'メールアドレスでログイン',
-                          ),if (_isNotMailVerified)
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                const ErrorText(text: 'メールの認証が完了していません。'),
-                                RichText(
-                                    text: TextSpan(style: const TextStyle(color: Colors.black), children: [
-                                      TextSpan(
-                                          text: 'ここをタップ',
-                                          style: const TextStyle(color: Colors.blue),
-                                          recognizer: TapGestureRecognizer()
-                                            ..onTap = () {
-                                              if (Authentication.currentFirebaseUser != null &&
-                                                  emailController.text.isNotEmpty &&
-                                                  passController.text.isNotEmpty) {
-                                                Authentication.currentFirebaseUser!.sendEmailVerification();
-                                                Navigator.push(
-                                                    context,
-                                                    MaterialPageRoute(
-                                                        builder: (context) => CheckEmailPage(
-                                                          email: emailController.text,
-                                                          pass: passController.text,
-                                                          user: Authentication.currentFirebaseUser!,
-                                                        )));
-                                              }
-                                            }),
-                                      const TextSpan(text: 'して認証を完了してください。', style: TextStyle(color: Colors.red))
-                                    ])),
-                              ],
-                            ),
-                          if (_isMailLoginError)
-                            const Center(
-                              child: ErrorText(text: '正しいメールアドレスとパスワードを入力してください。'),
-                            ),
-
-                        ],
+                            ),if (_isNotMailVerified)
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  const ErrorText(text: 'メールの認証が完了していません。'),
+                                  RichText(
+                                      text: TextSpan(style: const TextStyle(color: Colors.black), children: [
+                                        TextSpan(
+                                            text: 'ここをタップ',
+                                            style: const TextStyle(color: Colors.blue),
+                                            recognizer: TapGestureRecognizer()
+                                              ..onTap = () {
+                                                if (Authentication.currentFirebaseUser != null &&
+                                                    emailController.text.isNotEmpty &&
+                                                    passController.text.isNotEmpty) {
+                                                  Authentication.currentFirebaseUser!.sendEmailVerification();
+                                                  Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                          builder: (context) => CheckEmailPage(
+                                                            email: emailController.text,
+                                                            pass: passController.text,
+                                                            user: Authentication.currentFirebaseUser!,
+                                                          )));
+                                                }
+                                              }),
+                                        const TextSpan(text: 'して認証を完了してください。', style: TextStyle(color: Colors.red))
+                                      ])),
+                                ],
+                              ),
+                            if (_isMailLoginError)
+                              const Center(
+                                child: ErrorText(text: '正しいメールアドレスとパスワードを入力してください。'),
+                              ),
+                          ],
+                        ),
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 18.0),
-                      child: Column(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 5.0,
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                        child: Column(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 5.0,
+                              ),
+                              alignment: Alignment.center,
+                              decoration: const BoxDecoration(border: Border(top: BorderSide(color: Colors.grey))),
+                              width: double.infinity,
+                              child: const Text('他の方法でログインする'),
                             ),
-                            alignment: Alignment.center,
-                            decoration: const BoxDecoration(border: Border(top: BorderSide(color: Colors.grey))),
-                            width: double.infinity,
-                            child: const Text('他の方法でログインする'),
-                          ),
-                          // LINE Login
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Ink.image(
-                                  width: 45,
-                                  height: 45,
-                                  image: const AssetImage('images/line/btn_base.png'),
-                                  child: InkWell(
-                                      borderRadius: BorderRadius.circular(15),
-                                      onTap: () async {
-                                        setState(() {
-                                          _isLoading = true;
-                                        });
-                                        var result = await Authentication.lineSignIn();
-                                        if (result is UserCredential) {
-                                          var getUserResult = await UserFirestore.getUser(result.user!.uid);
-                                          if (getUserResult == true) {
-                                            Navigator.pushReplacement(
-                                                context, MaterialPageRoute(builder: (context) => const CalendarPage()));
-                                          } else {
-                                            setState(() {
-                                              _isLineLoginError = true;
-                                            });
-                                          }
-                                        } else {
-                                          setState(() {
-                                            _isLineLoginError = true;
-                                          });
-                                        }
-                                        setState(() {
-                                          _isLoading = false;
-                                        });
-                                      },
-                                      splashColor: const Color(0xff000000).withAlpha(30)),
-                                ),
-                                const SizedBox(
-                                  width: 10.0,
-                                ),
-                                Container(
-                                  width: 45,
-                                  height: 45,
-                                  padding: const EdgeInsets.all(3),
-                                  decoration: BoxDecoration(
-                                      border: Border.all(color: Colors.grey.shade400),
-                                      borderRadius: BorderRadius.circular(10)),
-                                  child: Ink.image(
-                                    // padding: EdgeInsets.all(8),
-                                    // width: 45,
-                                    // height: 45,
-                                    image: const AssetImage('images/google_logo.png'),
+                            // LINE Login
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Ink.image(
+                                    width: 45,
+                                    height: 45,
+                                    image: const AssetImage('assets/images/line/btn_base.png'),
                                     child: InkWell(
-                                        borderRadius: BorderRadius.circular(10),
+                                        borderRadius: BorderRadius.circular(15),
                                         onTap: () async {
                                           setState(() {
                                             _isLoading = true;
                                           });
-                                          var result = await Authentication.signInWithGoogle();
+                                          var result = await Authentication.lineSignIn();
                                           if (result is UserCredential) {
-                                            var getGoogleUserResult = await UserFirestore.getUser(result.user!.uid);
-                                            if (getGoogleUserResult == true) {
-                                              Navigator.pushReplacement(context,
-                                                  MaterialPageRoute(builder: (context) => const CalendarPage()));
+                                            var getUserResult = await UserFirestore.getUser(result.user!.uid);
+                                            if (getUserResult == true) {
+                                              Navigator.pushReplacement(
+                                                  context, MaterialPageRoute(builder: (context) => const CalendarPage()));
                                             } else {
-                                              // user作成処理
-                                              if (result.user != null) {
-                                                final user = result.user!;
-                                                Account newAccount = Account(
-                                                    id: user.uid,
-                                                    createdTime: Timestamp.now(),
-                                                    email: user.email!,
-                                                    groupId: null,
-                                                    imagePath: user.photoURL,
-                                                    isInitialAccess: true,
-                                                    name: user.displayName!,
-                                                    updatedTime: Timestamp.now());
-                                                var createGoogleUserResult = await UserFirestore.setUser(newAccount);
-                                                if (createGoogleUserResult == true) {
-                                                  Navigator.pushReplacement(context,
-                                                      MaterialPageRoute(builder: (context) => const CalendarPage()));
-                                                } else {
-                                                  setState(() {
-                                                    _isGoogleLoginError = true;
-                                                  });
-                                                }
-                                              } else {
-                                                setState(() {
-                                                  _isGoogleLoginError = true;
-                                                });
-                                              }
+                                              setState(() {
+                                                _isLineLoginError = true;
+                                              });
                                             }
                                           } else {
                                             setState(() {
-                                              _isGoogleLoginError = true;
+                                              _isLineLoginError = true;
                                             });
                                           }
                                           setState(() {
                                             _isLoading = false;
                                           });
                                         },
-                                        // highlightColor: Colors.red,
                                         splashColor: const Color(0xff000000).withAlpha(30)),
                                   ),
-                                ),
-                              ],
+                                  const SizedBox(
+                                    width: 10.0,
+                                  ),
+                                  Container(
+                                    width: 45,
+                                    height: 45,
+                                    padding: const EdgeInsets.all(3),
+                                    decoration: BoxDecoration(
+                                        border: Border.all(color: Colors.grey.shade400),
+                                        borderRadius: BorderRadius.circular(10)),
+                                    child: Ink.image(
+                                      // padding: EdgeInsets.all(8),
+                                      // width: 45,
+                                      // height: 45,
+                                      image: const AssetImage('assets/images/google_logo.png'),
+                                      child: InkWell(
+                                          borderRadius: BorderRadius.circular(10),
+                                          onTap: () async {
+                                            setState(() {
+                                              _isLoading = true;
+                                            });
+                                            var result = await Authentication.signInWithGoogle();
+                                            if (result is UserCredential) {
+                                              var getGoogleUserResult = await UserFirestore.getUser(result.user!.uid);
+                                              if (getGoogleUserResult == true) {
+                                                Navigator.pushReplacement(context,
+                                                    MaterialPageRoute(builder: (context) => const CalendarPage()));
+                                              } else {
+                                                // user作成処理
+                                                if (result.user != null) {
+                                                  final user = result.user!;
+                                                  Account newAccount = Account(
+                                                      id: user.uid,
+                                                      createdTime: Timestamp.now(),
+                                                      email: user.email!,
+                                                      groupId: null,
+                                                      imagePath: user.photoURL,
+                                                      isInitialAccess: true,
+                                                      name: user.displayName!,
+                                                      updatedTime: Timestamp.now());
+                                                  var createGoogleUserResult = await UserFirestore.setUser(newAccount);
+                                                  if (createGoogleUserResult == true) {
+                                                    Navigator.pushReplacement(context,
+                                                        MaterialPageRoute(builder: (context) => const CalendarPage()));
+                                                  } else {
+                                                    setState(() {
+                                                      _isGoogleLoginError = true;
+                                                    });
+                                                  }
+                                                } else {
+                                                  setState(() {
+                                                    _isGoogleLoginError = true;
+                                                  });
+                                                }
+                                              }
+                                            } else {
+                                              setState(() {
+                                                _isGoogleLoginError = true;
+                                              });
+                                            }
+                                            setState(() {
+                                              _isLoading = false;
+                                            });
+                                          },
+                                          // highlightColor: Colors.red,
+                                          splashColor: const Color(0xff000000).withAlpha(30)),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                          if (_isLineLoginError == true)
-                            const Center(
-                              child: ErrorText(text: 'LINE認証できませんでした。'),
-                            ),
-                          if (_isGoogleLoginError == true)
-                            const Center(
-                              child: ErrorText(text: 'Googleの認証ができませんでした。')
-                            ),
-                        ],
+                            if (_isLineLoginError == true)
+                              const Center(
+                                child: ErrorText(text: 'LINE認証できませんでした。'),
+                              ),
+                            if (_isGoogleLoginError == true)
+                              const Center(
+                                  child: ErrorText(text: 'Googleの認証ができませんでした。')
+                              ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),

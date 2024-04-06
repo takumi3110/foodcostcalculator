@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:foodcost/component/side_menu_list_tile.dart';
 import 'package:foodcost/model/menu.dart';
@@ -17,6 +16,7 @@ import 'package:foodcost/view/news/news_page.dart';
 import 'package:foodcost/view/start_up/login_page.dart';
 import 'package:intl/intl.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:lottie/lottie.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class WidgetUtils {
@@ -161,6 +161,15 @@ class WidgetUtils {
     );
   }
 
+  static SizedBox loadingImage() {
+    return SizedBox(
+        width: 100,
+        height: 100,
+        // child: Lottie.asset('assets/images/rice_bowl.json')
+        child: Lottie.asset('assets/images/rice_bowl_green.json')
+    );
+  }
+
   static Stack loadingStack(bool isLoading) {
     return Stack(
       children: [
@@ -171,7 +180,8 @@ class WidgetUtils {
           ),
         if (isLoading)
           Center(
-            child: LoadingAnimationWidget.twoRotatingArc(color: Colors.deepOrange, size: 70),
+            // child: LoadingAnimationWidget.twoRotatingArc(color: Colors.deepOrange, size: 70),
+            child: loadingImage()
           ),
       ],
     );
