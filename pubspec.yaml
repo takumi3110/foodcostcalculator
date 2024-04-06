@@ -47,6 +47,7 @@ dependencies:
   loading_animation_widget: ^1.2.0+4
   image_picker: ^1.0.7
   modal_bottom_sheet: ^3.0.0
+  lottie: ^3.1.0
 
 
 dev_dependencies:
@@ -61,6 +62,7 @@ dev_dependencies:
   flutter_lints: ^3.0.1
   firebase_core: ^2.24.2
   firebase_storage: ^11.6.0
+  build_runner: ^2.4.9
 
 
 # For information on the generic Dart part of this file, see the
@@ -74,8 +76,8 @@ flutter:
   # the material Icons class.
   uses-material-design: true
   assets:
-    - images/
-    - images/line/
+    - assets/images/
+    - assets/images/line/
 
   # To add assets to your application, add an assets section, like this:
    # assets:
@@ -108,3 +110,7 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+  fonts:
+    - family: AmeChan
+      fonts:
+        - asset: assets/fonts/AmeChanPopMaruLight-Regular.otf

@@ -4,9 +4,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:foodcost/utils/authentication.dart';
 import 'package:foodcost/utils/firestore/users.dart';
+import 'package:foodcost/utils/widget_utils.dart';
 import 'package:foodcost/view/calendar/calendar_page.dart';
 import 'package:foodcost/view/start_up/login_page.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:lottie/lottie.dart';
 
 class OpeningPage extends StatefulWidget {
   const OpeningPage({super.key});
@@ -20,8 +21,8 @@ class _OpeningPageState extends State<OpeningPage> {
     late final StreamController<User?> controller;
     controller = StreamController<User?> (
       onListen: () async {
-        await Future<void>.delayed(const Duration(seconds: 1));
-        debugPrint('duration 1seconds');
+        await Future<void>.delayed(const Duration(seconds: 5));
+        debugPrint('duration 5seconds');
         FirebaseAuth.instance.authStateChanges().listen((User? user) {
           if (user == null) {
             debugPrint('user is null');
@@ -59,15 +60,17 @@ class _OpeningPageState extends State<OpeningPage> {
                 debugPrint('none');
                 nextPage = const LoginPage();
               case ConnectionState.waiting:
-                //     TODO: loading画面
+                // loading画面
                 debugPrint('waiting');
                 nextPage = Center(
-                  // child: SizedBox(
-                  //   width: 60,
-                  //   height: 60,
-                  //   child: CircularProgressIndicator(),
-                  // ),
-                  child: LoadingAnimationWidget.twoRotatingArc(color: Colors.deepOrange, size: 70),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      WidgetUtils.loadingImage(),
+                      const Text('まんまのじぇんこ', style: TextStyle(fontFamily: 'AmeChan', fontSize: 24),)
+                    ],
+                  ),
                 );
               case ConnectionState.active:
                 debugPrint('active');
