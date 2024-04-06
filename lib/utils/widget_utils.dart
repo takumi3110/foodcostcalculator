@@ -165,8 +165,7 @@ class WidgetUtils {
     return SizedBox(
         width: 100,
         height: 100,
-        // child: Lottie.asset('assets/images/rice_bowl.json')
-        child: Lottie.asset('assets/images/rice_bowl_green.json')
+        child: Lottie.asset('assets/images/green_rice_bowl.json')
     );
   }
 

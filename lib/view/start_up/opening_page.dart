@@ -21,8 +21,8 @@ class _OpeningPageState extends State<OpeningPage> {
     late final StreamController<User?> controller;
     controller = StreamController<User?> (
       onListen: () async {
-        await Future<void>.delayed(const Duration(seconds: 4));
-        debugPrint('duration 4seconds');
+        await Future<void>.delayed(const Duration(seconds: 5));
+        debugPrint('duration 5seconds');
         FirebaseAuth.instance.authStateChanges().listen((User? user) {
           if (user == null) {
             debugPrint('user is null');
