@@ -48,6 +48,7 @@ dependencies:
   image_picker: ^1.0.7
   modal_bottom_sheet: ^3.0.0
   lottie: ^3.1.0
+  flutter_launcher_icons: ^0.13.1
 
 
 dev_dependencies:
@@ -114,3 +115,8 @@ flutter:
     - family: AmeChan
       fonts:
         - asset: assets/fonts/AmeChanPopMaruLight-Regular.otf
+
+
+flutter_launcher_icons:
+  ios: true
+  image_path: "assets/images/ios_icon.png"

@@ -7,7 +7,6 @@ import 'package:foodcost/utils/firestore/users.dart';
 import 'package:foodcost/utils/widget_utils.dart';
 import 'package:foodcost/view/calendar/calendar_page.dart';
 import 'package:foodcost/view/start_up/login_page.dart';
-import 'package:lottie/lottie.dart';
 
 class OpeningPage extends StatefulWidget {
   const OpeningPage({super.key});
