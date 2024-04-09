@@ -30,7 +30,7 @@ class WidgetUtils {
       iconTheme: const IconThemeData(color: Colors.black),
       title: Text(
         title,
-        style: const TextStyle(color: Colors.black),
+        style: const TextStyle(color: Colors.black, fontFamily: 'AmeChan', fontSize: 28),
       ),
       leading: IconButton(
         icon: StreamBuilder<DocumentSnapshot>(
@@ -135,10 +135,15 @@ class WidgetUtils {
                         data['email'],
                         style: const TextStyle(color: Colors.black),
                       ),
-                      currentAccountPicture: CircleAvatar(
-                        // foregroundImage: myAccount.imagePath != null ? NetworkImage(myAccount.imagePath!): null,
-                        foregroundImage: data['image_path'] != null ? NetworkImage(data['image_path']!): null,
-                        child: const Icon(Icons.person, size: 50,),
+                      currentAccountPicture: GestureDetector(
+                        onTap: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => const AccountPage()));
+                        },
+                        child: CircleAvatar(
+                          // foregroundImage: myAccount.imagePath != null ? NetworkImage(myAccount.imagePath!): null,
+                          foregroundImage: data['image_path'] != null ? NetworkImage(data['image_path']!): null,
+                          child: const Icon(Icons.person, size: 50,),
+                        ),
                       ),
                       decoration: const BoxDecoration(color: Colors.white),
                     );
@@ -179,8 +184,8 @@ class WidgetUtils {
           ),
         if (isLoading)
           Center(
-            // child: LoadingAnimationWidget.twoRotatingArc(color: Colors.deepOrange, size: 70),
-            child: loadingImage()
+            child: LoadingAnimationWidget.fourRotatingDots(color: Colors.lightGreen, size: 70),
+            // child: loadingImage()
           ),
       ],
     );
@@ -193,18 +198,18 @@ class WidgetUtils {
         const Text('認証中...'),
         // const SizedBox(height: 10,),
         Center(
-          child: LoadingAnimationWidget.fourRotatingDots(color: Colors.orangeAccent, size: 50),
+          child: LoadingAnimationWidget.fourRotatingDots(color: Colors.lightGreen, size: 50),
         ),
       ],
     );
   }
 
-  static dynamic menuListTile(List<Menu> menus) {
+  static dynamic menuListTile(List<Menu> menus, int itemCount) {
     final formatter = NumberFormat('#,###');
 
     return menus.isNotEmpty ? ListView.builder(
         shrinkWrap: true,
-        itemCount: menus.length,
+        itemCount: itemCount,
         itemBuilder: (context, index) {
           // Map<String, dynamic> data = snapshot.data!.docs[index].data() as Map<String, dynamic>;
           return
@@ -214,8 +219,7 @@ class WidgetUtils {
                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
                   child: ListTile(
                     onTap: () {
-                      final selectedDay =
-                      menus[index].createdTime != null ? menus[index].createdTime!.toDate() : DateTime.now();
+                      final selectedDay = menus[index].createdTime.toDate();
                       Navigator.push(
                           context,
                           MaterialPageRoute(

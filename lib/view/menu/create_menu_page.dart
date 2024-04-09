@@ -149,7 +149,7 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
                       groupId: Authentication.myAccount!.groupId,
                       totalAmount: allPrice,
                       createdTime: Timestamp.fromDate(_selectedDay),
-                      imagePath: selectedMenu != null ? selectedMenu!.imagePath : '',
+                      imagePath: selectedMenu?.imagePath,
                       foods: newFoods);
                   bool result = false;
                   if (selectedMenu != null) {

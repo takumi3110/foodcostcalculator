@@ -18,14 +18,16 @@ class TargetFirestore {
         'group_id': newTarget.groupId,
         'updated_time': Timestamp.now()
       });
-      // groupにいて、目標金額を設定した時コレクションに追加
+      // 目標金額を設定した時コレクションに追加
       if (newTarget.groupId != null) {
+        // メンバーのコレクションに追加
         final CollectionReference membersCollection = GroupFirestore.groups.doc(newTarget.groupId).collection('members');
         final memberSnapshots = await membersCollection.get();
         for(var doc in memberSnapshots.docs) {
           await addTargetToUserCollection(doc.id, result.id);
         }
       } else {
+        // グループない時は個人で追加
         await addTargetToUserCollection(newTarget.createdUserId, result.id);
       }
       debugPrint('目標金額登録完了');
@@ -36,7 +38,7 @@ class TargetFirestore {
     }
   }
 
-  // TODO: groupに加入した時コレクションに追加
+  // groupに加入した時コレクションに追加
   static Future<void> addTargetToUserCollection(String uid, String targetId) async{
     try {
       final CollectionReference userTarget =

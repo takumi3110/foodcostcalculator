@@ -238,7 +238,7 @@ class _CalendarPageState extends State<CalendarPage> {
                                         style: const TextStyle(fontSize: 18.0),
                                       ),
                                     ),
-                                    WidgetUtils.menuListTile(getMenus)
+                                    WidgetUtils.menuListTile(getMenus, getMenus.length)
                                   ],
                                 );
                               } else {
@@ -331,7 +331,7 @@ class _CalendarPageState extends State<CalendarPage> {
                             setState(() {
                               isVerifying = true;
                             });
-                            var groupResult = await GroupFirestore.getGroupOnCode(value);
+                            var groupResult = await GroupFirestore.addGroupOnCode(value);
                             await Future<void>.delayed(const Duration(seconds: 3));
                             if (groupResult != null) {
                               setState(() {

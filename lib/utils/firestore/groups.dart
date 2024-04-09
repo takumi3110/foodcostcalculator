@@ -28,8 +28,14 @@ class GroupFirestore {
         // ユーザーのグループIDに追加
         await UserFirestore.users.doc(myAccount.id).update({'group_id': result.id});
         Authentication.myAccount!.groupId = result.id;
-      //   TODO: 自分が登録してるメニュー全部にgroupIdを追加
+      // 自分が登録してるメニュー全部にgroupIdを追加
         await MenuFirestore.updateMenuAddGroup(result.id);
+        // 目標金額があれば、目標金額にgroup_idを追加
+        final targetSnapshots = await TargetFirestore.targets.where('created_user_id', isEqualTo: myAccount.id).get();
+        for (var doc in targetSnapshots.docs) {
+          // await TargetFirestore.addTargetToUserCollection(myAccount.id, doc.id);
+          await TargetFirestore.targets.doc(doc.id).set({'group_id': result.id});
+        }
       }
       debugPrint('グループ登録完了');
       return true;
@@ -96,7 +102,7 @@ class GroupFirestore {
     }
   }
 
-  static Future<dynamic> getGroupOnCode(String code) async {
+  static Future<dynamic> addGroupOnCode(String code) async {
     try {
       List<Group> groupList = [];
       var snapshot = await groups.where('code', isEqualTo: code).get();
@@ -123,19 +129,21 @@ class GroupFirestore {
         if (group.id != null) {
           // それまで作ったメニューにグループIDを追加
           await MenuFirestore.updateMenuAddGroup(group.id!);
-          // TODO:目標金額があれば、my_targetsに追加
+          // 目標金額があれば、my_targetsに追加
           final targetSnapshots = await TargetFirestore.targets.where('group_id', isEqualTo: group.id).get();
           for (var doc in targetSnapshots.docs) {
             await TargetFirestore.addTargetToUserCollection(myAccount.id, doc.id);
           }
         }
+        debugPrint('グループに参加しました。');
         return group;
       } else {
+        debugPrint('コードに適合するグループがないです。');
         return null;
       }
     } on FirebaseException catch (e) {
-      debugPrint('グループ取得エラー: $e');
-      return false;
+      debugPrint('グループ参加エラー: $e');
+      return null;
     }
   }
 
