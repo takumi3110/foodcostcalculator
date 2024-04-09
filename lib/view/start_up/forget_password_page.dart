@@ -22,10 +22,7 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text('パスワードの再発行'),
-        elevation: 1,
-      ),
+      appBar: WidgetUtils.createAppBar('さいはっこう'),
       body: SafeArea(
         child: Stack(
           children: [

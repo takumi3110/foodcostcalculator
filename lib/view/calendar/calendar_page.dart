@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:foodcost/component/primary_button.dart';
 import 'package:foodcost/model/account.dart';
 import 'package:foodcost/model/food.dart';
@@ -38,6 +40,9 @@ class _CalendarPageState extends State<CalendarPage> {
   // RangeSelectionMode _rangeSelectionMode = RangeSelectionMode.toggledOff;
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
+
+  // 日付のフォーマット
+  final dateFormatter = DateFormat('M月d日');
 
   // DateTime? _rangeStart;
   // DateTime? _rangeEnd;
@@ -116,14 +121,43 @@ class _CalendarPageState extends State<CalendarPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       key: _scaffoldKey,
-      appBar: WidgetUtils.createAppBar('カレンダー', _scaffoldKey),
+      // appBar: WidgetUtils.createAppBar('カレンダー', _scaffoldKey),
+      appBar: AppBar(
+        // backgroundColor: Colors.transparent,
+        elevation: 1,
+        iconTheme: const IconThemeData(color: Colors.black),
+        title: WidgetUtils.appTitle('カレンダー'),
+        leading: IconButton(
+          icon: StreamBuilder<DocumentSnapshot>(
+              stream: Authentication.myAccount != null
+                  ? UserFirestore.users.doc(Authentication.myAccount!.id).snapshots()
+                  : null,
+              builder: (context, snapshot) {
+                if (snapshot.hasData && snapshot.data!.data() != null) {
+                  Map<String, dynamic> data = snapshot.data!.data() as Map<String, dynamic>;
+                  return CircleAvatar(
+                    // foregroundImage: myAccount.imagePath != null ? NetworkImage(myAccount.imagePath!) : null,
+                    foregroundImage: data['image_path'] != null ? NetworkImage(data['image_path']) : null,
+                    child: const Icon(Icons.person),
+                  );
+                } else {
+                  return const CircleAvatar(
+                    child: Icon(Icons.person),
+                  );
+                }
+              }),
+          onPressed: () {
+            _scaffoldKey.currentState!.openDrawer();
+          },
+        ),
+      ),
       drawer: WidgetUtils.sideMenuDrawer(context),
       body: SafeArea(
         child: Stack(children: [
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 TableCalendar(
                   locale: 'ja_JP',
@@ -160,7 +194,8 @@ class _CalendarPageState extends State<CalendarPage> {
                   },
                   // format buttonを消す
                   headerStyle: const HeaderStyle(formatButtonVisible: false),
-                  calendarBuilders: CalendarBuilders(dowBuilder: (_, day) {
+                  calendarBuilders: CalendarBuilders(
+                      dowBuilder: (_, day) {
                     final text = DateFormat.E('ja').format(day);
                     if (day.weekday == DateTime.sunday) {
                       return Center(
@@ -175,11 +210,29 @@ class _CalendarPageState extends State<CalendarPage> {
                       );
                     }
                     return null;
+                  },
+                      headerTitleBuilder: (_, day) {
+                    final DateFormat dateFormatForMonth = DateFormat('yyyy年M月');
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Text(dateFormatForMonth.format(_focusedDay), style: const TextStyle(fontSize: 16),),
+                        TextButton(
+                            onPressed: () {
+                              setState(() {
+                                _selectedDay = DateTime.now();
+                                _focusedDay = DateTime.now();
+                              });
+                            },
+                            child: const Text('今日')
+                        ),
+                      ],
+                    );
                   }),
                 ),
-                const SizedBox(
-                  height: 8.0,
-                ),
+                // const SizedBox(
+                //   height: 8.0,
+                // ),
                 const Divider(),
                 Expanded(
                     child: SingleChildScrollView(
@@ -191,7 +244,8 @@ class _CalendarPageState extends State<CalendarPage> {
                       builder: (context, value, _) {
                         return StreamBuilder<QuerySnapshot>(
                             // stream: MenuFirestore.menus.where('user_id', isEqualTo: _myAccount.id).snapshots(),
-                            stream: _myAccount.groupId != null ? MenuFirestore.menus.where('group_id', isEqualTo: _myAccount.groupId).snapshots()
+                            stream: _myAccount.groupId != null
+                                ? MenuFirestore.menus.where('group_id', isEqualTo: _myAccount.groupId).snapshots()
                                 : MenuFirestore.menus.where('user_id', isEqualTo: _myAccount.id).snapshots(),
                             builder: (context, snapshot) {
                               if (snapshot.hasData) {
@@ -230,12 +284,37 @@ class _CalendarPageState extends State<CalendarPage> {
                                 return Column(
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   children: [
-                                    Container(
-                                      alignment: Alignment.centerRight,
-                                      padding: const EdgeInsets.symmetric(horizontal: 5.0),
-                                      child: Text(
-                                        '合計金額: ${formatter.format(allTotalAmount)} 円',
-                                        style: const TextStyle(fontSize: 18.0),
+                                    // Container(
+                                    //   alignment: Alignment.centerRight,
+                                    //   padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                                    //   child: Text(
+                                    //     '合計金額: ${formatter.format(allTotalAmount)} 円',
+                                    //     style: const TextStyle(fontSize: 18.0),
+                                    //   ),
+                                    // ),
+                                    Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: TextButton(
+                                          onPressed: () {
+                                            setState(() {
+                                              _selectedDay = DateTime.now();
+                                              _focusedDay = DateTime.now();
+                                            });
+                                          },
+                                          child: const Text('当日')
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(dateFormatter.format(_selectedDay!), style: const TextStyle(fontSize: 18.0),),
+                                          Text(
+                                            '合計金額: ${formatter.format(allTotalAmount)} 円',
+                                            style: const TextStyle(fontSize: 18.0),
+                                          ),
+                                        ],
                                       ),
                                     ),
                                     WidgetUtils.menuListTile(getMenus, getMenus.length)
@@ -273,28 +352,16 @@ class _CalendarPageState extends State<CalendarPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        // ElevatedButton(
-                        //   onPressed: () {
-                        //     setState(() {
-                        //       isHasCode = true;
-                        //     });
-                        //   },
-                        //   style: ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white),
-                        //   child: const Text('YES'),
-                        // ),
                         PrimaryButton(
                             onPressed: () {
                               setState(() {
                                 isHasCode = true;
                               });
                             },
-                            childText: 'YES'
-                        ),
+                            childText: 'YES'),
                         ElevatedButton(
-                            onPressed: () async{
-                              await UserFirestore.users.doc(_myAccount.id).update({
-                                'is_initial_access': false
-                              });
+                            onPressed: () async {
+                              await UserFirestore.users.doc(_myAccount.id).update({'is_initial_access': false});
                               if (Authentication.myAccount != null) {
                                 Authentication.myAccount!.isInitialAccess = false;
                               }
@@ -313,90 +380,88 @@ class _CalendarPageState extends State<CalendarPage> {
           if (isHasCode)
             Center(
               child: WidgetUtils.welcomeModal(
-                !isVerified ? Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    const Text('招待コードを入力してください。'),
-                    // const SizedBox(height: 10,),
-                    SizedBox(
-                      width: 120,
-                      child: TextField(
-                        // controller: codeController,
-                        keyboardType: TextInputType.text,
-                        // maxLength: 5,
-                        readOnly: isVerifying,
-                        textCapitalization: TextCapitalization.characters,
-                        onChanged: (String value) async {
-                          if (value.length == 5) {
-                            setState(() {
-                              isVerifying = true;
-                            });
-                            var groupResult = await GroupFirestore.addGroupOnCode(value);
-                            await Future<void>.delayed(const Duration(seconds: 3));
-                            if (groupResult != null) {
-                              setState(() {
-                                isVerified = true;
-                                groupName = groupResult.name;
-                              });
-                            } else {
-                              setState(() {
-                                isDifferentCode = true;
-                              });
-                            }
-                            setState(() {
-                              isVerifying = false;
-                            });
-                          }
-                        },
-                      ),
-                    ),
-                    if (isVerifying)
-                      WidgetUtils.loadingVerifying(),
-                    if (isDifferentCode)
-                      const Text(
-                        '正しい認証コードを入力してください。',
-                        style: TextStyle(color: Colors.red),
-                      ),
-                    // const SizedBox(height: 20,),
-                    if (!isVerifying)
-                      ElevatedButton(
-                          onPressed: () {
-                            setState(() {
-                              isHasCode = false;
-                            });
-                          },
-                          child: const Text('戻る')
+                !isVerified
+                    ? Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          const Text('招待コードを入力してください。'),
+                          // const SizedBox(height: 10,),
+                          SizedBox(
+                            width: 120,
+                            child: TextField(
+                              // controller: codeController,
+                              keyboardType: TextInputType.text,
+                              // maxLength: 5,
+                              readOnly: isVerifying,
+                              textCapitalization: TextCapitalization.characters,
+                              onChanged: (String value) async {
+                                if (value.length == 5) {
+                                  setState(() {
+                                    isVerifying = true;
+                                  });
+                                  var groupResult = await GroupFirestore.addGroupOnCode(value);
+                                  await Future<void>.delayed(const Duration(seconds: 3));
+                                  if (groupResult != null) {
+                                    setState(() {
+                                      isVerified = true;
+                                      groupName = groupResult.name;
+                                    });
+                                  } else {
+                                    setState(() {
+                                      isDifferentCode = true;
+                                    });
+                                  }
+                                  setState(() {
+                                    isVerifying = false;
+                                  });
+                                }
+                              },
+                            ),
+                          ),
+                          if (isVerifying) WidgetUtils.loadingVerifying(),
+                          if (isDifferentCode)
+                            const Text(
+                              '正しい認証コードを入力してください。',
+                              style: TextStyle(color: Colors.red),
+                            ),
+                          // const SizedBox(height: 20,),
+                          if (!isVerifying)
+                            ElevatedButton(
+                                onPressed: () {
+                                  setState(() {
+                                    isHasCode = false;
+                                  });
+                                },
+                                child: const Text('戻る'))
+                        ],
                       )
-                  ],
-                )
                     : Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Text('【$groupName】\nに参加しました！'),
-                    PrimaryButton(onPressed: () {
-                      setState(() {
-                        isHasCode = false;
-                        _myAccount.isInitialAccess = false;
-
-                      });
-                    },
-                        childText: '始める'),
-                    // ElevatedButton(
-                    //     onPressed: () {
-                    //       setState(() {
-                    //         isHasCode = false;
-                    //         _myAccount.isInitialAccess = false;
-                    //
-                    //       });
-                    //     },
-                    //     child: const Text('始める', style: TextStyle(fontWeight: FontWeight.bold),)
-                    // )
-                  ],
-                ),
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Text('【$groupName】\nに参加しました！'),
+                          PrimaryButton(
+                              onPressed: () {
+                                setState(() {
+                                  isHasCode = false;
+                                  _myAccount.isInitialAccess = false;
+                                });
+                              },
+                              childText: '始める'),
+                          // ElevatedButton(
+                          //     onPressed: () {
+                          //       setState(() {
+                          //         isHasCode = false;
+                          //         _myAccount.isInitialAccess = false;
+                          //
+                          //       });
+                          //     },
+                          //     child: const Text('始める', style: TextStyle(fontWeight: FontWeight.bold),)
+                          // )
+                        ],
+                      ),
               ),
             ),
-        ]
-        ),
+        ]),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {

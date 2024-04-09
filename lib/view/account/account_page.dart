@@ -64,13 +64,7 @@ class _AccountPageState extends State<AccountPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text(
-          'マイページ',
-          style: TextStyle(color: Colors.black, fontFamily: 'AmeChan', fontSize: 28),
-        ),
-        elevation: 1,
-      ),
+      appBar: WidgetUtils.createAppBar('マイページ'),
       body: SafeArea(
         child: SingleChildScrollView(
           child: SizedBox(

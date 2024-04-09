@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:foodcost/component/cancel_button.dart';
 import 'package:foodcost/model/news.dart';
 import 'package:foodcost/utils/firestore/news.dart';
+import 'package:foodcost/utils/widget_utils.dart';
 import 'package:intl/intl.dart';
 
 class NewsPage extends StatefulWidget {
@@ -19,10 +20,7 @@ class _NewsPageState extends State<NewsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text('お知らせ', style: TextStyle(fontFamily: 'AmeChan', fontSize: 28),),
-        elevation: 1,
-      ),
+      appBar: WidgetUtils.createAppBar('お知らせ'),
       body: Container(
         padding: const EdgeInsets.all(15.0),
         child: FutureBuilder(
