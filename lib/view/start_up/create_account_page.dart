@@ -36,10 +36,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text('新規登録'),
-        elevation: 1,
-      ),
+      appBar: WidgetUtils.createAppBar('しんきさくせい'),
       body: SafeArea(
         child: Stack(children: [
           SingleChildScrollView(

@@ -116,7 +116,8 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: const Text(
-          'メニュー登録',
+          'メニュー',
+          style: TextStyle(fontFamily: 'AmeChan', fontSize: 28),
         ),
         elevation: 1,
         actions: [
@@ -138,6 +139,23 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
                     newFoods.add(newFood);
                   }
                 }
+                // foodControllers.asMap().forEach((int index, Map<String, TextEditingController> food) {
+                //   if (food['name']!.text.isNotEmpty &&
+                //       food['unitPrice']!.text.isNotEmpty &&
+                //       food['costCount']!.text.isNotEmpty &&
+                //       food['price']!.text.isNotEmpty) {
+                //     Food newFood = Food(
+                //       name: food['name']!.text,
+                //       unitPrice: int.parse(food['unitPrice']!.text),
+                //       costCount: food['costCount']!.text,
+                //       price: int.parse(food['price']!.text),
+                //     );
+                //     if (selectedMenu != null){
+                //
+                //     }
+                //     newFoods.add(newFood);
+                //   }
+                // });
                 if (menuController.text.isNotEmpty && newFoods.isNotEmpty) {
                   setState(() {
                     _isLoading = true;
@@ -154,13 +172,18 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
                   bool result = false;
                   if (selectedMenu != null) {
                     // TODO:foodの変更をチェック
-                    if (selectedMenu!.name != menuController.text || isImageEdit == true) {
-                      if (image != null || isImageEdit == true) {
-                        var result = await FunctionUtils.uploadImage(menuId, image!);
-                        newMenu.imagePath = result;
-                      }
-                      result = await MenuFirestore.updateMenu(newMenu);
+                    // if (selectedMenu!.name != menuController.text || isImageEdit == true) {
+                    //   if (image != null || isImageEdit == true) {
+                    //     var result = await FunctionUtils.uploadImage(menuId, image!);
+                    //     newMenu.imagePath = result;
+                    //   }
+                    //   result = await MenuFirestore.updateMenu(newMenu);
+                    // }
+                    if (image != null || isImageEdit == true) {
+                      var result = await FunctionUtils.uploadImage(menuId, image!);
+                      newMenu.imagePath = result;
                     }
+                    result = await MenuFirestore.updateMenu(newMenu);
                   } else {
                     result = await MenuFirestore.addMenu(newMenu, image);
                   }

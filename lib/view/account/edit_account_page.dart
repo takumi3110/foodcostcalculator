@@ -88,10 +88,7 @@ class _EditAccountPageState extends State<EditAccountPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text('アカウント編集'),
-        elevation: 1,
-      ),
+      appBar: WidgetUtils.createAppBar('へんしゅう'),
       body: SafeArea(
         child: Stack(children: [
           SingleChildScrollView(

@@ -21,40 +21,48 @@ import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class WidgetUtils {
 
-  static AppBar createAppBar(String title, GlobalKey<ScaffoldState> key) {
+  static Text appTitle(String title) {
+    return Text(title, style: const TextStyle(fontFamily: 'AmeChan', fontSize: 28),);
+  }
+
+  static AppBar createAppBar(String title) {
     // Account myAccount = Authentication.myAccount!;
 
+    // return AppBar(
+    //   // backgroundColor: Colors.transparent,
+    //   elevation: 1,
+    //   iconTheme: const IconThemeData(color: Colors.black),
+    //   title: Text(
+    //     title,
+    //     style: const TextStyle(color: Colors.black, fontFamily: 'AmeChan', fontSize: 28),
+    //   ),
+    //   leading: IconButton(
+    //     icon: StreamBuilder<DocumentSnapshot>(
+    //       stream: Authentication.myAccount != null ? UserFirestore.users.doc(Authentication.myAccount!.id).snapshots(): null,
+    //       builder: (context, snapshot) {
+    //         if (snapshot.hasData && snapshot.data!.data() != null) {
+    //           Map<String, dynamic> data = snapshot.data!.data() as Map<String, dynamic>;
+    //           return CircleAvatar(
+    //             // foregroundImage: myAccount.imagePath != null ? NetworkImage(myAccount.imagePath!) : null,
+    //             foregroundImage: data['image_path'] != null ? NetworkImage(data['image_path']) : null,
+    //             child: const Icon(Icons.person),
+    //           );
+    //         } else {
+    //           return const CircleAvatar(
+    //             child: Icon(Icons.person),
+    //           );
+    //         }
+    //
+    //       }
+    //     ),
+    //     onPressed: () {
+    //       key.currentState!.openDrawer();
+    //     },
+    //   ),
+    // );
     return AppBar(
-      // backgroundColor: Colors.transparent,
+      title: appTitle(title),
       elevation: 1,
-      iconTheme: const IconThemeData(color: Colors.black),
-      title: Text(
-        title,
-        style: const TextStyle(color: Colors.black, fontFamily: 'AmeChan', fontSize: 28),
-      ),
-      leading: IconButton(
-        icon: StreamBuilder<DocumentSnapshot>(
-          stream: Authentication.myAccount != null ? UserFirestore.users.doc(Authentication.myAccount!.id).snapshots(): null,
-          builder: (context, snapshot) {
-            if (snapshot.hasData && snapshot.data!.data() != null) {
-              Map<String, dynamic> data = snapshot.data!.data() as Map<String, dynamic>;
-              return CircleAvatar(
-                // foregroundImage: myAccount.imagePath != null ? NetworkImage(myAccount.imagePath!) : null,
-                foregroundImage: data['image_path'] != null ? NetworkImage(data['image_path']) : null,
-                child: const Icon(Icons.person),
-              );
-            } else {
-              return const CircleAvatar(
-                child: Icon(Icons.person),
-              );
-            }
-
-          }
-        ),
-        onPressed: () {
-          key.currentState!.openDrawer();
-        },
-      ),
     );
   }
 

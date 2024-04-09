@@ -56,7 +56,7 @@ class _CostPageState extends State<CostPage> {
   final numberFormatter = NumberFormat('#,###');
 
   // 日付のフォーマット
-  final dateFormatter = DateFormat('M月dd日');
+  final dateFormatter = DateFormat('M月d日');
 
   void createDayList(int startDay) {
     // 引数dayが0より小さい時は1
@@ -277,10 +277,7 @@ class _CostPageState extends State<CostPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text('今月のグラフ', style: TextStyle(fontFamily: 'AmeChan', fontSize: 28),),
-        elevation: 1,
-      ),
+      appBar: WidgetUtils.createAppBar('今月のグラフ'),
       body: SafeArea(
         child: Stack(
           children: [
