@@ -67,7 +67,7 @@ class _AccountPageState extends State<AccountPage> {
       appBar: AppBar(
         title: const Text(
           'マイページ',
-          style: TextStyle(color: Colors.black),
+          style: TextStyle(color: Colors.black, fontFamily: 'AmeChan', fontSize: 28),
         ),
         elevation: 1,
       ),
@@ -413,8 +413,10 @@ class _AccountPageState extends State<AccountPage> {
                                   foods: foods);
                               getMenus.add(getMenu);
                             }
-
-                            return WidgetUtils.menuListTile(getMenus);
+                            // 日付順にソート
+                            getMenus.sort((a, b) => b.createdTime.compareTo(a.createdTime));
+                            final itemCount = getMenus.length > 4 ? 5: getMenus.length;
+                            return WidgetUtils.menuListTile(getMenus, itemCount);
                           } else {
                             return Container();
                           }

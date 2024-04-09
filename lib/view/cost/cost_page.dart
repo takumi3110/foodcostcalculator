@@ -65,6 +65,7 @@ class _CostPageState extends State<CostPage> {
     if (day == 1) {
       // 先月の最終日
       final prevMonthLastDate = DateTime(kToday.year, kToday.month, 0);
+      // final prevMonthLastDate = DateTime(kToday.year, 5, 0);
       // 1日の曜日取得
       final firstDate = DateTime(kToday.year, kToday.month, 1);
       final weekDay = firstDate.weekday;
@@ -88,6 +89,8 @@ class _CostPageState extends State<CostPage> {
         prevDates.addAll(dates);
         dateList = prevDates;
         // weekList = prevDates.addAll(dates);
+      } else {
+        dateList = List.generate(7, (index) => DateTime(kToday.year, kToday.month, index + day));
       }
     } else {
       // 基本はこれ
@@ -151,9 +154,9 @@ class _CostPageState extends State<CostPage> {
   void getTargetAmounts() async {
     var result = await TargetFirestore.getTarget(myAccount.id);
     if (result != null) {
-      if (myAccount.groupId != null && myAccount.groupId == result.groupId) {
-        await TargetFirestore.addTargetToUserCollection(myAccount.id, result.id);
-      }
+      // if (myAccount.groupId != null && myAccount.groupId == result.groupId) {
+      //   await TargetFirestore.addTargetToUserCollection(myAccount.id, result.id);
+      // }
       setState(() {
         targetDayAmountController.text = result.dayAmount.toString();
         targetMonthAmountController.text = result.monthAmount.toString();
@@ -275,7 +278,7 @@ class _CostPageState extends State<CostPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('今月の食費'),
+        title: const Text('今月のグラフ', style: TextStyle(fontFamily: 'AmeChan', fontSize: 28),),
         elevation: 1,
       ),
       body: SafeArea(
@@ -382,14 +385,14 @@ class _CostPageState extends State<CostPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        if (weekStartDay > 0)
+                        if (weekStartDay > 1)
                           SizedBox(
                             // width: 90,
                             height: 40,
                             child: TextButton(
                                 onPressed: () {
                                   // 週初めの日にちが1より大きくないと動作しないように
-                                  if (weekStartDay > 0) {
+                                  if (weekStartDay > 1) {
                                     // 前週の月曜
                                     final prevWeekStartDay = weekStartDay - 7;
                                     setState(() {
@@ -401,6 +404,8 @@ class _CostPageState extends State<CostPage> {
                                 },
                                 child: const Text('前週')),
                           ),
+                        if (weekStartDay == 1)
+                          const SizedBox(width: 60,),
                         if (weekStartDay <= 0)
                           const SizedBox(
                             height: 40,
@@ -461,11 +466,18 @@ class _CostPageState extends State<CostPage> {
                                   width: 20.0,
                                 ),
                                 Text(
-                                  '残り ${numberFormatter.format(targetMonthAmount - allTotalAmount)}円',
+                                  (targetMonthAmount - allTotalAmount) > 0 ? 'あと': '＋',
+                                  style: TextStyle(
+                                      color: (targetMonthAmount - allTotalAmount) > 0 ? Colors.blueAccent: Colors.red
+                                    // fontSize: 12
+                                  ),
+                                ),
+                                Text(
+                                  '${numberFormatter.format(targetMonthAmount - allTotalAmount)}円',
                                   style: TextStyle(
                                       color: (targetMonthAmount - allTotalAmount) > 0 ? Colors.blueAccent: Colors.red
                                   ),
-                                )
+                                ),
                               ],
                             ),
                           ),
@@ -503,22 +515,26 @@ class _CostPageState extends State<CostPage> {
                                                 Text(dateFormatter.format(dateTime)),
                                               ],
                                             ),
-                                            SizedBox(
-                                              // width: 120,
-                                              child: Row(
-                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                children: [
-                                                  Text('${numberFormatter.format(totalAmount)} 円'),
-                                                  // const SizedBox(width: 10,),
-                                                  Row(
-                                                    mainAxisAlignment: MainAxisAlignment.end,
+                                            Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              children: [
+                                                Text('${numberFormatter.format(totalAmount)} 円'),
+                                                // Text('${numberFormatter.format(10000000)} 円'),
+                                                const SizedBox(width: 10,),
+                                                SizedBox(
+                                                  width: 50,
+                                                  child: Row(
+                                                    mainAxisAlignment: MainAxisAlignment.start,
                                                     children: [
                                                       Icon(
                                                         isOver ? Icons.arrow_drop_up : Icons.arrow_drop_down,
+                                                        // isOver ? Icons.add : Icons.minimize,
                                                         color: isOver ? Colors.red : Colors.blue,
+                                                        size: 15,
                                                       ),
                                                       Text(
                                                         numberFormatter.format(totalAmount - targetDayAmount),
+                                                        // numberFormatter.format(1000),
                                                         style: TextStyle(
                                                           fontSize: 12,
                                                           color: isOver ? Colors.red : Colors.blue,
@@ -526,9 +542,9 @@ class _CostPageState extends State<CostPage> {
                                                       )
                                                     ],
                                                   ),
-                                                  // Text('${formatter.format(menuRankings[index]['diffAmount'])}')
-                                                ],
-                                              ),
+                                                ),
+                                                // Text('${formatter.format(menuRankings[index]['diffAmount'])}')
+                                              ],
                                             ),
                                           ],
                                         ),

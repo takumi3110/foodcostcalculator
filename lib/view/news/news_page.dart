@@ -20,7 +20,7 @@ class _NewsPageState extends State<NewsPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('お知らせ'),
+        title: const Text('お知らせ', style: TextStyle(fontFamily: 'AmeChan', fontSize: 28),),
         elevation: 1,
       ),
       body: Container(

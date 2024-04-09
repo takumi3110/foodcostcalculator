@@ -9,7 +9,7 @@ class Menu {
   String? groupId;
   int? totalAmount;
   String? imagePath;
-  Timestamp? createdTime;
+  Timestamp createdTime;
   Timestamp? updatedTime;
   List<Food> foods;
 
@@ -20,7 +20,7 @@ class Menu {
     this.updatedUserId,
     this.groupId,
     this.totalAmount,
-    this.createdTime,
+    required this.createdTime,
     this.updatedTime,
     this.imagePath,
     required this.foods

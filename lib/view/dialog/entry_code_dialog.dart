@@ -68,7 +68,7 @@ class _EntryCodeDialogState extends State<EntryCodeDialog> {
                                     _isDifferent = false;
                                     _isVerifying = true;
                                   });
-                                  var result = await GroupFirestore.getGroupOnCode(value);
+                                  var result = await GroupFirestore.addGroupOnCode(value);
                                   await Future.delayed(const Duration(seconds: 3));
                                   if (result != null) {
                                     setState(() {
