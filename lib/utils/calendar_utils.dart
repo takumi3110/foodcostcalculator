@@ -20,10 +20,10 @@ final kEvents = LinkedHashMap<DateTime, List<Event>>(
 
 // ここでデモのイベントを作っている
 final _createEvent = {
-  // for (var item in List.generate(300, (index) => index))
-  //   DateTime.utc(kFirstDay.year, kFirstDay.month, item * 2):
-  //       List.generate(item % 4 + 1, (index) => Event('Event $item | ${index + 1}'))
-  DateTime.utc(kFirstDay.year, 8, 22): [Event('event')]
+  for (var item in List.generate(300, (index) => index))
+    DateTime.utc(kFirstDay.year, kFirstDay.month, item * 2):
+        List.generate(item % 4 + 1, (index) => Event('Event $item | ${index + 1}'))
+  // DateTime.utc(kFirstDay.year, 8, 22): [const Event('event')]
 }..addAll({
   // 今日のイベントのみの表記
   kToday: [const Event('Today\'s Event 1'), const Event('Today\'sEvent 2')]
@@ -44,5 +44,5 @@ List<DateTime>  daysInRange(DateTime first, DateTime last) {
 
 
 final kToday = DateTime.now();
-final kFirstDay = DateTime(kToday.year, kToday.month - 3, kToday.day);
-final kLastDay = DateTime(kToday.year, kToday.month + 3, kToday.day);
+final kFirstDay = DateTime(kToday.year, kToday.month - 12, 1);
+final kLastDay = DateTime(kToday.year, kToday.month + 2, 0);
