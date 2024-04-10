@@ -284,26 +284,6 @@ class _CalendarPageState extends State<CalendarPage> {
                                 return Column(
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   children: [
-                                    // Container(
-                                    //   alignment: Alignment.centerRight,
-                                    //   padding: const EdgeInsets.symmetric(horizontal: 5.0),
-                                    //   child: Text(
-                                    //     '合計金額: ${formatter.format(allTotalAmount)} 円',
-                                    //     style: const TextStyle(fontSize: 18.0),
-                                    //   ),
-                                    // ),
-                                    Align(
-                                      alignment: Alignment.centerLeft,
-                                      child: TextButton(
-                                          onPressed: () {
-                                            setState(() {
-                                              _selectedDay = DateTime.now();
-                                              _focusedDay = DateTime.now();
-                                            });
-                                          },
-                                          child: const Text('当日')
-                                      ),
-                                    ),
                                     Padding(
                                       padding: const EdgeInsets.symmetric(horizontal: 20.0),
                                       child: Row(

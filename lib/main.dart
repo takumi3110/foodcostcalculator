@@ -1,4 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:foodcost/firebase_options.dart';
 import 'package:foodcost/view/start_up/opening_page.dart';
@@ -11,6 +12,30 @@ Future<void> main() async{
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  // 通知を受信する設定
+  FirebaseMessaging messaging = FirebaseMessaging.instance;
+  NotificationSettings settings = await messaging.requestPermission(
+    alert: true,
+    announcement: false,
+    badge: true,
+    carPlay: true,
+    criticalAlert: false,
+    provisional: false,
+    sound: true
+  );
+  debugPrint('user permission: ${settings.authorizationStatus}');
+
+  // トークンの取得。テスト用
+  // final token = await messaging.getToken();
+  // debugPrint(token);
+
+  // フォアグラウンドで通知が表示されるようにする
+  await messaging.setForegroundNotificationPresentationOptions(
+    alert: true,
+    badge: true,
+    sound: true,
+  );
+
   await initializeDateFormatting();
   runApp(const MyApp());
 }
@@ -22,7 +47,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        title: 'Mamma no Jenco.',
+        title: 'まんまのじぇんこ',
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.limeAccent),
           useMaterial3: true,
