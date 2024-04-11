@@ -132,18 +132,24 @@ class _LoginPageState extends State<LoginPage> {
                                   // resultがUserCredentialタイプだったらtrue
                                   if (result is UserCredential) {
                                     if (result.user != null) {
-                                      if (result.user!.emailVerified == true) {
-                                        var getUserResult = await UserFirestore.getUser(result.user!.uid);
-                                        if (getUserResult == true) {
-                                          Navigator.pushReplacement(
-                                              context, MaterialPageRoute(builder: (context) => const CalendarPage()));
-                                        }
-                                      } else {
-                                        debugPrint('メール認証なし');
-                                        // result.user!.sendEmailVerification();
-                                        setState(() {
-                                          _isNotMailVerified = true;
-                                        });
+                                      // if (result.user!.emailVerified == true) {
+                                      //   var getUserResult = await UserFirestore.getUser(result.user!.uid);
+                                      //   if (getUserResult == true) {
+                                      //     Navigator.pushReplacement(
+                                      //         context, MaterialPageRoute(builder: (context) => const CalendarPage()));
+                                      //   }
+                                      // } else {
+                                      //   debugPrint('メール認証なし');
+                                      //   // result.user!.sendEmailVerification();
+                                      //   setState(() {
+                                      //     _isNotMailVerified = true;
+                                      //   });
+                                      // }
+                                    //   テスト用
+                                      var getUserResult = await UserFirestore.getUser(result.user!.uid);
+                                      if (getUserResult == true) {
+                                        Navigator.pushReplacement(
+                                            context, MaterialPageRoute(builder: (context) => const CalendarPage()));
                                       }
                                     } else {
                                       setState(() {
