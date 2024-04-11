@@ -274,7 +274,6 @@ class WidgetUtils {
 
   static Container welcomeModal(Column child) {
     return Container(
-      color: Colors.white,
       width: 324,
       height: 200,
       padding: const EdgeInsets.all(10.0),
@@ -284,9 +283,9 @@ class WidgetUtils {
           // border: Border.all(color: Colors.grey),
           borderRadius: BorderRadius.circular(15),
           boxShadow: const [BoxShadow(
-              color: Colors.orangeAccent,
+              color: Colors.teal,
               offset: Offset(3, 3),
-              blurRadius: 10.0,
+              blurRadius: 6.0,
               spreadRadius: 0.5
           )]
       ),
