@@ -55,10 +55,12 @@ class _CheckEmailPageState extends State<CheckEmailPage> {
                       var result = await Authentication.emailSignIn(email: widget.email, password: widget.pass);
                       if (result is UserCredential) {
                         if (result.user != null && result.user!.emailVerified == true) {
+                          if (!context.mounted) return;
                           while (Navigator.canPop(context)) {
                             Navigator.pop(context);
                           }
                           await UserFirestore.getUser(result.user!.uid);
+                          if (!context.mounted) return;
                           Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const CalendarPage()));
                         } else {
                           setState(() {

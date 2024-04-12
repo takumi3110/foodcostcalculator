@@ -198,6 +198,7 @@ class _CostPageState extends State<CostPage> {
                         setState(() {
                           _isLoading = true;
                         });
+
                         Target newTarget = Target(
                           id: targetId,
                           monthAmount: int.parse(targetMonthAmountController.text),
@@ -222,15 +223,12 @@ class _CostPageState extends State<CostPage> {
                           setState(() {
                             targetDayAmount = double.parse(targetDayAmountController.text);
                             targetMonthAmount = int.parse(targetMonthAmountController.text);
-                          });
-                          Navigator.pop(context);
-                          setState(() {
                             _isLoading = false;
+                            Navigator.pop(context);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('目標金額を更新しました。'))
+                            );
                           });
-                          ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('目標金額を更新しました。'))
-                          );
-
                         }
 
                       }
@@ -569,7 +567,7 @@ class _CostPageState extends State<CostPage> {
     List<BarChartGroupData> barGroups = [];
     for (var date in dateList) {
       final filterMenus =
-          menus.where((menu) => menu.createdTime != null && menu.createdTime!.toDate().day == date.day).toList();
+          menus.where((menu) => menu.createdTime.toDate().day == date.day).toList();
       double dayAmount = 0;
       for (var menu in filterMenus) {
         if (menu.totalAmount != null) {

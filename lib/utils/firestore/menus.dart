@@ -7,7 +7,7 @@ import 'package:foodcost/model/food.dart';
 import 'package:foodcost/model/menu.dart';
 import 'package:foodcost/utils/authentication.dart';
 import 'package:foodcost/utils/firestore/foods.dart';
-import 'package:foodcost/utils/functionUtils.dart';
+import 'package:foodcost/utils/function_utils.dart';
 
 class MenuFirestore {
   static final _firestoreInstance = FirebaseFirestore.instance;

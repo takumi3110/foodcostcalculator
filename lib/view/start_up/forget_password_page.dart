@@ -69,6 +69,7 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
                             });
                             var result = await Authentication.passwordReset(emailController.text);
                             if (result == true) {
+                              if (!context.mounted) return;
                               while(Navigator.canPop(context)) {
                                 Navigator.pop(context);
                               }

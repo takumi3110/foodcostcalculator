@@ -6,7 +6,7 @@ import 'package:foodcost/model/select_picture_modal.dart';
 import 'package:foodcost/model/side_menu.dart';
 import 'package:foodcost/utils/authentication.dart';
 import 'package:foodcost/utils/firestore/users.dart';
-import 'package:foodcost/utils/functionUtils.dart';
+import 'package:foodcost/utils/function_utils.dart';
 import 'package:foodcost/view/account/account_page.dart';
 import 'package:foodcost/view/calendar/calendar_page.dart';
 import 'package:foodcost/view/cost/cost_page.dart';
@@ -298,24 +298,41 @@ class WidgetUtils {
       SelectPictureModal(
         title: '写真ライブラリ',
         icon: Icons.photo_rounded,
-        onTap: () async {
-          var result = await FunctionUtils.getImageFromGallery();
-          if (result != null) {
-            setImage(result.path);
-            Navigator.pop(context);
-          }
-        },
+        // onTap: () async {
+        //   var result = await FunctionUtils.getImageFromGallery();
+        //   if (result != null) {
+        //     setImage(result.path);
+        //     Navigator.pop(context);
+        //   }
+        // },
+        onTap: () {
+          FunctionUtils.getImageFromGallery().then((result) {
+            if (result != null) {
+              setImage(result.path);
+              Navigator.pop(context);
+            }
+          });
+        }
       ),
       SelectPictureModal(
         title: '写真を撮る',
         icon: Icons.photo_camera_rounded,
-        onTap: () async {
-          var result = await FunctionUtils.getImageFromCamera();
-          if (result != null) {
-            setImage(result.path);
-            Navigator.pop(context);
-          }
-        },
+        // onTap: () async {
+        //   var result = await FunctionUtils.getImageFromCamera();
+        //   if (result != null) {
+        //     setImage(result.path);
+        //     if (context.mounted) return;
+        //     Navigator.pop(context);
+        //   }
+        // },
+        onTap: () {
+          FunctionUtils.getImageFromCamera().then((result) {
+            if (result != null) {
+              setImage(result.path);
+              Navigator.pop(context);
+            }
+          });
+        }
       ),
     ];
 
