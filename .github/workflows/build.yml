@@ -23,6 +23,7 @@ jobs:
         run: flutter build ios --release --no-codesign
       - name: Export ipa
         run: |
+          cd ..
           xcodebuild -allowProvisioningUpdates
           flutter build ipa --export-method "app-store" --release
       - name: Upload to App Store Connect
