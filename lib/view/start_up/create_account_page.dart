@@ -6,7 +6,7 @@ import 'package:foodcost/model/account.dart';
 import 'package:foodcost/utils/authentication.dart';
 import 'package:foodcost/utils/extension.dart';
 import 'package:foodcost/utils/firestore/users.dart';
-import 'package:foodcost/utils/functionUtils.dart';
+import 'package:foodcost/utils/function_utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:foodcost/utils/widget_utils.dart';
 import 'dart:io';
@@ -162,6 +162,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                                 //   handleCodeInApp: true,
                                 // );
                                 result.user!.sendEmailVerification();
+                                if (!context.mounted) return;
                                 Navigator.pushReplacement(
                                     context,
                                     MaterialPageRoute(

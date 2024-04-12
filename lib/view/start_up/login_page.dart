@@ -29,7 +29,7 @@ class _LoginPageState extends State<LoginPage> {
   bool _isLoading = false;
   bool _isObscureText = true;
   bool _isMailLoginError = false;
-  bool _isNotMailVerified = false;
+  final bool _isNotMailVerified = false;
   bool _isLineLoginError = false;
   bool _isGoogleLoginError = false;
   bool _isValidEmail = true;
@@ -132,18 +132,25 @@ class _LoginPageState extends State<LoginPage> {
                                   // resultがUserCredentialタイプだったらtrue
                                   if (result is UserCredential) {
                                     if (result.user != null) {
-                                      if (result.user!.emailVerified == true) {
-                                        var getUserResult = await UserFirestore.getUser(result.user!.uid);
-                                        if (getUserResult == true) {
-                                          Navigator.pushReplacement(
-                                              context, MaterialPageRoute(builder: (context) => const CalendarPage()));
-                                        }
-                                      } else {
-                                        debugPrint('メール認証なし');
-                                        // result.user!.sendEmailVerification();
-                                        setState(() {
-                                          _isNotMailVerified = true;
-                                        });
+                                      // if (result.user!.emailVerified == true) {
+                                      //   var getUserResult = await UserFirestore.getUser(result.user!.uid);
+                                      //   if (getUserResult == true) {
+                                      //     Navigator.pushReplacement(
+                                      //         context, MaterialPageRoute(builder: (context) => const CalendarPage()));
+                                      //   }
+                                      // } else {
+                                      //   debugPrint('メール認証なし');
+                                      //   // result.user!.sendEmailVerification();
+                                      //   setState(() {
+                                      //     _isNotMailVerified = true;
+                                      //   });
+                                      // }
+                                    //   テスト用
+                                      var getUserResult = await UserFirestore.getUser(result.user!.uid);
+                                      if (getUserResult == true) {
+                                        if (!context.mounted) return;
+                                        Navigator.pushReplacement(
+                                            context, MaterialPageRoute(builder: (context) => const CalendarPage()));
                                       }
                                     } else {
                                       setState(() {
@@ -233,6 +240,7 @@ class _LoginPageState extends State<LoginPage> {
                                           if (result is UserCredential) {
                                             var getUserResult = await UserFirestore.getUser(result.user!.uid);
                                             if (getUserResult == true) {
+                                              if (!context.mounted) return;
                                               Navigator.pushReplacement(
                                                   context, MaterialPageRoute(builder: (context) => const CalendarPage()));
                                             } else {
@@ -276,6 +284,7 @@ class _LoginPageState extends State<LoginPage> {
                                             if (result is UserCredential) {
                                               var getGoogleUserResult = await UserFirestore.getUser(result.user!.uid);
                                               if (getGoogleUserResult == true) {
+                                                if (!context.mounted) return;
                                                 Navigator.pushReplacement(context,
                                                     MaterialPageRoute(builder: (context) => const CalendarPage()));
                                               } else {
@@ -293,6 +302,7 @@ class _LoginPageState extends State<LoginPage> {
                                                       updatedTime: Timestamp.now());
                                                   var createGoogleUserResult = await UserFirestore.setUser(newAccount);
                                                   if (createGoogleUserResult == true) {
+                                                    if (!context.mounted) return;
                                                     Navigator.pushReplacement(context,
                                                         MaterialPageRoute(builder: (context) => const CalendarPage()));
                                                   } else {

@@ -12,7 +12,7 @@ import 'package:foodcost/utils/authentication.dart';
 import 'package:foodcost/utils/extension.dart';
 import 'package:foodcost/utils/firestore/groups.dart';
 import 'package:foodcost/utils/firestore/users.dart';
-import 'package:foodcost/utils/functionUtils.dart';
+import 'package:foodcost/utils/function_utils.dart';
 import 'package:foodcost/utils/widget_utils.dart';
 import 'package:foodcost/view/start_up/login_page.dart';
 
@@ -301,6 +301,7 @@ class _EditAccountPageState extends State<EditAccountPage> {
                             if (result == true) {
                               accountResult = result;
                             } else {
+                              if (!context.mounted) return;
                               ScaffoldMessenger.of(context).showMaterialBanner(MaterialBanner(
                                 backgroundColor: Colors.deepOrange,
                                 content: const Text(
@@ -345,6 +346,7 @@ class _EditAccountPageState extends State<EditAccountPage> {
                         }
                         // accountResultかグループのresultがtrueなら戻る
                         if (groupResult == true || accountResult == true) {
+                          if (!context.mounted) return;
                           Navigator.pop(context, true);
                         }
                         setState(() {
@@ -374,16 +376,18 @@ class _EditAccountPageState extends State<EditAccountPage> {
             content: const Text('本当に削除しますか？'),
             actions: [
               ElevatedButton(
-                  onPressed: () async {
+                  onPressed: () {
                     setState(() {
                       _isLoading = true;
                     });
-                    await UserFirestore.deleteUser(_myAccount.id);
-                    await Authentication.deleteAuth();
-                    while (Navigator.canPop(context)) {
-                      Navigator.pop(context);
-                    }
-                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginPage()));
+                      UserFirestore.deleteUser(_myAccount.id).then((res){
+                        Authentication.deleteAuth().then((authRes) {
+                          while (Navigator.canPop(context)) {
+                           Navigator.pop(context);
+                          }
+                          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginPage()));
+                        });
+                      });
                     setState(() {
                       _isLoading = false;
                     });

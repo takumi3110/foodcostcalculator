@@ -20,7 +20,7 @@ class NewsFirestore {
       newsList.sort((a, b) => b.createdDate.toDate().compareTo(a.createdDate.toDate()));
       return newsList;
     } on FirebaseException catch (e) {
-      print('お知らせ取得エラー: $e');
+      debugPrint('お知らせ取得エラー: $e');
       return null;
     }
   }

@@ -5,7 +5,7 @@ import 'package:foodcost/utils/authentication.dart';
 import 'package:foodcost/utils/firestore/groups.dart';
 import 'package:foodcost/utils/firestore/menus.dart';
 import 'package:foodcost/utils/firestore/targets.dart';
-import 'package:foodcost/utils/functionUtils.dart';
+import 'package:foodcost/utils/function_utils.dart';
 
 class UserFirestore {
   static final _firestoreInstance = FirebaseFirestore.instance;
