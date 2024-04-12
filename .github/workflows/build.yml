@@ -20,10 +20,12 @@ jobs:
 #      - name: Install pods
 #        run: cd ios && pod install
 #      証明書の生成
-      - name: Make Directory Provisioning Profiles
-        run: mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+      - name: Echo Provisioning Profile
+        run: echo -n ${{ secrets.PROVISIONING_PROFILE }}
       - name: Import Provisioning Profile
-        run: echo -n ${{ secrets.PROVISIONING_PROFILE }} | base64 -d > ~/Library/MobileDevice/Provisioning\ Profiles/foodcost_provisioning.mobileprovision
+        run: |
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          echo -n ${{ secrets.PROVISIONING_PROFILE }} | base64 -d > ~/Library/MobileDevice/Provisioning\ Profiles/foodcost_provisioning.mobileprovision
 #      署名
       - name: Import Code Signing Certificates
         uses: Apple-Actions/import-codesign-certs@v1
