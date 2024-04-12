@@ -13,6 +13,8 @@ jobs:
       - uses: actions/checkout@v3
       - name: Install Flutter
         uses: subosito/flutter-action@v2.16.0
+      - name: Install Flutter Package
+        run: flutter pub get
       - name: Install pods
         run: cd ios && pod install
       - name: Build iOS bundle
