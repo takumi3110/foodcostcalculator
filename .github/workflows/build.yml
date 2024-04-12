@@ -4,10 +4,9 @@ on:
     branches:
       - release
 
-permissions: read-all
-
 jobs:
   build:
+    name: Build and deploy to App store connect
     runs-on: macos-latest
 
     steps:

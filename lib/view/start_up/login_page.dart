@@ -284,7 +284,7 @@ class _LoginPageState extends State<LoginPage> {
                                             if (result is UserCredential) {
                                               var getGoogleUserResult = await UserFirestore.getUser(result.user!.uid);
                                               if (getGoogleUserResult == true) {
-                                                // if (!context.mounted) return;
+                                                if (!context.mounted) return;
                                                 Navigator.pushReplacement(context,
                                                     MaterialPageRoute(builder: (context) => const CalendarPage()));
                                               } else {
