@@ -23,7 +23,7 @@ jobs:
       - name: Import Provisioning Profile
         run: |
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          echo -n ${{ secrets.PROVISIONING_PROFILE }} | base64 -d > ~/Library/MobileDevice/Provisioning\ Profiles/distribution.mobileprovision
+          echo -n ${{ secrets.PROVISIONING_PROFILE }} | base64 -d > ~/Library/MobileDevice/Provisioning\ Profiles/foodcost_provisioning.mobileprovision
 #      署名
       - name: Import Code Signing Certificates
         uses: Apple-Actions/import-codesign-certs@v1
@@ -39,5 +39,4 @@ jobs:
           APP_STORE_CONNECT_ISSUER_ID: ${{secrets.APP_STORE_CONNECT_ISSUE_ID}}
           APP_STORE_CONNECT_KEY_IDENTIFIER: ${{ secrets.APP_STORE_CONNECT_KEY_IDENTIFIER }}
           APP_STORE_CONNECT_PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
-        run: |
-          xcrun altool --upload-app -t ios -f build/ios/ipa/foodcost.ipa --apikey "$APP_STORE_CONNECT_PRIVATE_KEY" --issueId "$APP_STORE_CONNECT_ISSUER_ID" --apiIssuer "$APP_STORE_CONNECT_KEY_IDENTIFIER"
+        run: xcrun altool --upload-app -t ios -f build/ios/ipa/foodcost.ipa --apikey "$APP_STORE_CONNECT_PRIVATE_KEY" --issueId "$APP_STORE_CONNECT_ISSUER_ID" --apiIssuer "$APP_STORE_CONNECT_KEY_IDENTIFIER"
