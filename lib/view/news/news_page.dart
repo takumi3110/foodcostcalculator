@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:foodcost/component/cancel_button.dart';
 import 'package:foodcost/model/news.dart';

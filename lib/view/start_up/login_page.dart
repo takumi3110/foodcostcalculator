@@ -29,7 +29,7 @@ class _LoginPageState extends State<LoginPage> {
   bool _isLoading = false;
   bool _isObscureText = true;
   bool _isMailLoginError = false;
-  bool _isNotMailVerified = false;
+  final bool _isNotMailVerified = false;
   bool _isLineLoginError = false;
   bool _isGoogleLoginError = false;
   bool _isValidEmail = true;
@@ -148,6 +148,7 @@ class _LoginPageState extends State<LoginPage> {
                                     //   テスト用
                                       var getUserResult = await UserFirestore.getUser(result.user!.uid);
                                       if (getUserResult == true) {
+                                        if (!context.mounted) return;
                                         Navigator.pushReplacement(
                                             context, MaterialPageRoute(builder: (context) => const CalendarPage()));
                                       }
@@ -239,6 +240,7 @@ class _LoginPageState extends State<LoginPage> {
                                           if (result is UserCredential) {
                                             var getUserResult = await UserFirestore.getUser(result.user!.uid);
                                             if (getUserResult == true) {
+                                              if (!context.mounted) return;
                                               Navigator.pushReplacement(
                                                   context, MaterialPageRoute(builder: (context) => const CalendarPage()));
                                             } else {
@@ -282,6 +284,7 @@ class _LoginPageState extends State<LoginPage> {
                                             if (result is UserCredential) {
                                               var getGoogleUserResult = await UserFirestore.getUser(result.user!.uid);
                                               if (getGoogleUserResult == true) {
+                                                // if (!context.mounted) return;
                                                 Navigator.pushReplacement(context,
                                                     MaterialPageRoute(builder: (context) => const CalendarPage()));
                                               } else {
@@ -299,6 +302,7 @@ class _LoginPageState extends State<LoginPage> {
                                                       updatedTime: Timestamp.now());
                                                   var createGoogleUserResult = await UserFirestore.setUser(newAccount);
                                                   if (createGoogleUserResult == true) {
+                                                    if (!context.mounted) return;
                                                     Navigator.pushReplacement(context,
                                                         MaterialPageRoute(builder: (context) => const CalendarPage()));
                                                   } else {

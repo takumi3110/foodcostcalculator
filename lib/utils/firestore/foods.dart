@@ -6,31 +6,31 @@ class FoodFirestore {
   static final _firestoreInstance = FirebaseFirestore.instance;
   static final CollectionReference foods = _firestoreInstance.collection('foods');
 
-  static Future<dynamic> addFood(List<Food> newFoods) async {
-    try {
-      for (var newFood in newFoods) {
-        // final CollectionReference menu = _firestoreInstance.collection('menus')
-        //     .doc(newFood.menuId).collection('foods');
-        //
-        // var result = await foods.add({
-        //   'name': newFood.name,
-        //   'unit_price': newFood.unitPrice,
-        //   'cost_count': newFood.costCount,
-        //   'price': newFood.price,
-        //   'menu_id': newFood.menuId
-        // });
-        // menu.doc(result.id).set({
-        //   'food_id': result.id,
-        //   'created_time': Timestamp.now()
-        // });
-        debugPrint('材料を登録しました。');
-      }
-      return true;
-    } on FirebaseException catch (e) {
-      debugPrint('登録エラー: $e');
-      return false;
-    }
-  }
+  // static Future<dynamic> addFood(List<Food> newFoods) async {
+  //   try {
+  //     for (var newFood in newFoods) {
+  //       // final CollectionReference menu = _firestoreInstance.collection('menus')
+  //       //     .doc(newFood.menuId).collection('foods');
+  //       //
+  //       // var result = await foods.add({
+  //       //   'name': newFood.name,
+  //       //   'unit_price': newFood.unitPrice,
+  //       //   'cost_count': newFood.costCount,
+  //       //   'price': newFood.price,
+  //       //   'menu_id': newFood.menuId
+  //       // });
+  //       // menu.doc(result.id).set({
+  //       //   'food_id': result.id,
+  //       //   'created_time': Timestamp.now()
+  //       // });
+  //       debugPrint('材料を登録しました。');
+  //     }
+  //     return true;
+  //   } on FirebaseException catch (e) {
+  //     debugPrint('登録エラー: $e');
+  //     return false;
+  //   }
+  // }
 
   static Future<List<Food>?> getFoodFromIds(List<String> ids) async {
     List<Food> foodList = [];
@@ -75,8 +75,8 @@ class FoodFirestore {
 
   static Future<dynamic> deleteFoods(CollectionReference collectionFoods) async {
     var snapshot = await collectionFoods.get();
-    snapshot.docs.forEach((doc) async{
+    for (var doc in snapshot.docs) {
       await collectionFoods.doc(doc.id).delete();
-    });
+    }
   }
 }

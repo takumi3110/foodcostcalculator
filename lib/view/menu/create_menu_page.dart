@@ -8,7 +8,7 @@ import 'package:foodcost/model/menu.dart';
 import 'package:foodcost/utils/authentication.dart';
 import 'package:foodcost/utils/firestore/menus.dart';
 import 'package:foodcost/utils/firestore/users.dart';
-import 'package:foodcost/utils/functionUtils.dart';
+import 'package:foodcost/utils/function_utils.dart';
 import 'package:foodcost/utils/widget_utils.dart';
 import 'package:intl/intl.dart';
 
@@ -188,8 +188,10 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
                     result = await MenuFirestore.addMenu(newMenu, image);
                   }
                   if (result == true) {
+                    if (!context.mounted) return;
                     Navigator.pop(context);
                   } else {
+                    if (!context.mounted) return;
                     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('登録に失敗しました。')));
                   }
                   setState(() {
