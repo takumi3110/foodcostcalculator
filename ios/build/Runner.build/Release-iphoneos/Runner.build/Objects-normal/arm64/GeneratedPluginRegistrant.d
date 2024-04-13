@@ -1,0 +1,20 @@
+dependencies: \
+  /Users/tak/IdeaProjects/foodcost/ios/Runner/GeneratedPluginRegistrant.m \
+  /Users/tak/IdeaProjects/foodcost/ios/Runner/GeneratedPluginRegistrant.h \
+  /Users/tak/IdeaProjects/foodcost/ios/build/Release-iphoneos/Flutter.framework/Modules/module.modulemap \
+  /Users/tak/IdeaProjects/foodcost/ios/build/Release-iphoneos/Flutter.framework/Headers/Flutter.h \
+  /Users/tak/IdeaProjects/foodcost/ios/build/Release-iphoneos/Flutter.framework/Headers/FlutterAppDelegate.h \
+  /Users/tak/IdeaProjects/foodcost/ios/build/Release-iphoneos/Flutter.framework/Headers/FlutterMacros.h \
+  /Users/tak/IdeaProjects/foodcost/ios/build/Release-iphoneos/Flutter.framework/Headers/FlutterPlugin.h \
+  /Users/tak/IdeaProjects/foodcost/ios/build/Release-iphoneos/Flutter.framework/Headers/FlutterBinaryMessenger.h \
+  /Users/tak/IdeaProjects/foodcost/ios/build/Release-iphoneos/Flutter.framework/Headers/FlutterChannels.h \
+  /Users/tak/IdeaProjects/foodcost/ios/build/Release-iphoneos/Flutter.framework/Headers/FlutterCodecs.h \
+  /Users/tak/IdeaProjects/foodcost/ios/build/Release-iphoneos/Flutter.framework/Headers/FlutterPlatformViews.h \
+  /Users/tak/IdeaProjects/foodcost/ios/build/Release-iphoneos/Flutter.framework/Headers/FlutterTexture.h \
+  /Users/tak/IdeaProjects/foodcost/ios/build/Release-iphoneos/Flutter.framework/Headers/FlutterCallbackCache.h \
+  /Users/tak/IdeaProjects/foodcost/ios/build/Release-iphoneos/Flutter.framework/Headers/FlutterDartProject.h \
+  /Users/tak/IdeaProjects/foodcost/ios/build/Release-iphoneos/Flutter.framework/Headers/FlutterEngine.h \
+  /Users/tak/IdeaProjects/foodcost/ios/build/Release-iphoneos/Flutter.framework/Headers/FlutterEngineGroup.h \
+  /Users/tak/IdeaProjects/foodcost/ios/build/Release-iphoneos/Flutter.framework/Headers/FlutterHeadlessDartRunner.h \
+  /Users/tak/IdeaProjects/foodcost/ios/build/Release-iphoneos/Flutter.framework/Headers/FlutterPluginAppLifeCycleDelegate.h \
+  /Users/tak/IdeaProjects/foodcost/ios/build/Release-iphoneos/Flutter.framework/Headers/FlutterViewController.h

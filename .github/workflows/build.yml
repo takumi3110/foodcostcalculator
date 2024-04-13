@@ -20,8 +20,6 @@ jobs:
 #      - name: Install pods
 #        run: cd ios && pod install
 #      証明書の生成
-      - name: Echo Provisioning Profile
-        run: echo -n ${{ secrets.PROVISIONING_PROFILE }}
       - name: Import Provisioning Profile
         run: |
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles

@@ -1,0 +1,7 @@
+version: "Apple Swift version 5.10 (swiftlang-5.10.0.13 clang-1500.3.9.4)"
+options: "bf34c4f4fbdec482356b266b8172d4a7a08d281679da956caaf7d62e580e2b33"
+build_start_time: [1712969350, 921534000]
+build_end_time: [1712969354, 938574000]
+inputs:
+  "/Users/tak/IdeaProjects/foodcost/ios/Runner/AppDelegate.swift": [1681891988, 0]
+  "/Users/tak/IdeaProjects/foodcost/ios/build/Runner.build/Release-iphoneos/Runner.build/DerivedSources/GeneratedAssetSymbols.swift": [1712969350, 885308592]
