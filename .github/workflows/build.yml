@@ -10,20 +10,49 @@ jobs:
     runs-on: macos-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Extract App Store Connect API Private Key in ./private_keys
+        env:
+          APP_STORE_CONNECT_API_KEY_64: ${{secrets.APP_STORE_CONNECT_API_KEY_64}}
+          APP_STORE_CONNECT_KEY_IDENTIFIER: ${{ secrets.APP_STORE_CONNECT_KEY_IDENTIFIER }}
+        run: |
+          mkdir ./private_keys
+          echo -n "$APP_STORE_CONNECT_API_KEY_64" | base64 --decode -o ./private_keys/AuthKey_$APPLE_API_KEY_ID.p8
       - name: Install Flutter
         uses: subosito/flutter-action@v2.16.0
-      - name: Install pods
-        run: cd ios && pod install
+        with:
+          flutter-version: '3.19.0'
+      - name: Install Flutter Package
+        run: flutter pub get
+#      - name: Install pods
+#        run: cd ios && pod install
+#      証明書の生成
+      - name: Import Provisioning Profile
+        run: |
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          echo -n ${{ secrets.PROVISIONING_PROFILE }} | base64 -d > ~/Library/MobileDevice/Provisioning\ Profiles/foodcost_provisioning.mobileprovision
+#      署名
+      - name: Import Code Signing Certificates
+        uses: Apple-Actions/import-codesign-certs@v1
+        with:
+#          p12-file-base64: ${{ secrets.APNS_CERTIFICATE}}
+          p12-file-base64: ${{ secrets.CERTIFICATES_P12}}
+          p12-password: ${{ secrets.CERTIFICATES_PASSWORD }}
       - name: Build iOS bundle
         run: flutter build ios --release --no-codesign
-      - name: Export ipa
-        run: flutter build ipa --export-method "app-store" --release
-
+#      - name: Export ipa
+#        run: flutter build ipa --export-method "app-store" --release
+#        run: flutter build ipa --export-options-plist="ios/export_options/ExportOptions.plist" --release
+      - name: Archive by xcodebuild
+        env:
+          APP_STORE_CONNECT_API_KEY_64: ${{secrets.APP_STORE_CONNECT_API_KEY_64}}
+          APP_STORE_CONNECT_ISSUER_ID: ${{secrets.APP_STORE_CONNECT_ISSUE_ID}}
+        run: xcodebuild archive CODE_SIGNING_ALLOWED=NO -workspace ./ios/Runner.xcworkspace -scheme Runner -configuration Release -archivePath ./build/ios/Runner.xcarchive
       - name: Upload to App Store Connect
         env:
           APP_STORE_CONNECT_ISSUER_ID: ${{secrets.APP_STORE_CONNECT_ISSUE_ID}}
           APP_STORE_CONNECT_KEY_IDENTIFIER: ${{ secrets.APP_STORE_CONNECT_KEY_IDENTIFIER }}
           APP_STORE_CONNECT_PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
-        run: |
-          xcrun altool --upload-app -t ios -f build/ios/ipa/app.ipa --apikey "$APP_STORE_CONNECT_PRIVATE_KEY" --issueId "$APP_STORE_CONNECT_ISSUER_ID" --apiIssuer "$APP_STORE_CONNECT_KEY_IDENTIFIER"
+        run: xcodebuild -exportArchive -archivePath ./build/ios/Runner.xcarchive -exportPath ./build/ios/ipa -exportOptionsPlist ./ios/ExportOptions.plist -allowProvisioningUpdates -authenticationKeyIssuerId $APP_STORE_CONNECT_ISSUER_ID -authenticationKeyId $APP_STORE_CONNECT_KEY_IDENTIFIER -authenticationKeyPath `pwd`/private_keys/AuthKey_$APPLE_API_KEY_ID.p8
+#        run: xcrun altool --upload-app -t ios -f build/ios/ipa/foodcost.ipa --apikey "$APP_STORE_CONNECT_PRIVATE_KEY" --issueId "$APP_STORE_CONNECT_ISSUER_ID" --apiIssuer "$APP_STORE_CONNECT_KEY_IDENTIFIER"

@@ -49,7 +49,13 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
         title: 'まんまのじぇんこ',
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.limeAccent),
+          // colorScheme: ColorScheme.fromSeed(seedColor: Colors.limeAccent),
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: Colors.limeAccent,
+            primary: Colors.teal,
+            // secondary: Colors.yellow,
+            background: Colors.white,
+          ),
           useMaterial3: true,
         ),
         home: const OpeningPage()

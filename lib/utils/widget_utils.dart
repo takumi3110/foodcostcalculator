@@ -11,6 +11,7 @@ import 'package:foodcost/view/account/account_page.dart';
 import 'package:foodcost/view/calendar/calendar_page.dart';
 import 'package:foodcost/view/cost/cost_page.dart';
 import 'package:foodcost/view/dialog/entry_code_dialog.dart';
+import 'package:foodcost/view/list/list_page.dart';
 import 'package:foodcost/view/menu/create_menu_page.dart';
 import 'package:foodcost/view/news/news_page.dart';
 import 'package:foodcost/view/start_up/login_page.dart';
@@ -88,6 +89,13 @@ class WidgetUtils {
           icons: Icons.assessment_rounded,
           onTap: () {
             Navigator.push(context, MaterialPageRoute(builder: (context) => const CostPage()));
+          }
+      ),
+      SideMenu(
+          title: '買ったものリスト',
+          icons: Icons.list_alt_rounded,
+          onTap: () {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const ListPage()));
           }
       ),
       SideMenu(

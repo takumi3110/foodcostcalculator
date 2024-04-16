@@ -1,0 +1,8 @@
+app_identifier("com.garitto.foodcost") # The bundle identifier of your app
+apple_id("takumi3110@garitto.jp") # Your Apple Developer Portal username
+
+itc_team_id("127004577") # App Store Connect Team ID
+team_id("K83W737RBC") # Developer Portal Team ID
+
+# For more information about the Appfile, see:
+#     https://docs.fastlane.tools/advanced/#appfile

@@ -112,7 +112,7 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
   Widget build(BuildContext context) {
     final bottomSpace = MediaQuery.of(context).viewInsets.bottom;
     return Scaffold(
-      backgroundColor: Colors.white,
+      // backgroundColor: Colors.white,
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: const Text(
