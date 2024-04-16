@@ -274,7 +274,7 @@ class _CostPageState extends State<CostPage> {
     }
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      // backgroundColor: Colors.white,
       appBar: WidgetUtils.createAppBar('今月のグラフ'),
       body: SafeArea(
         child: Stack(

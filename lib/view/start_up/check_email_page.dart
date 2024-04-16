@@ -29,7 +29,7 @@ class _CheckEmailPageState extends State<CheckEmailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      // backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text('メールアドレス確認'),
         elevation: 1,

@@ -87,7 +87,7 @@ class _EditAccountPageState extends State<EditAccountPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      // backgroundColor: Colors.white,
       appBar: WidgetUtils.createAppBar('へんしゅう'),
       body: SafeArea(
         child: Stack(children: [

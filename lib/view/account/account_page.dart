@@ -63,7 +63,7 @@ class _AccountPageState extends State<AccountPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      // backgroundColor: Colors.white,
       appBar: WidgetUtils.createAppBar('マイページ'),
       body: SafeArea(
         child: SingleChildScrollView(

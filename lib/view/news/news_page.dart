@@ -18,7 +18,7 @@ class _NewsPageState extends State<NewsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      // backgroundColor: Colors.white,
       appBar: WidgetUtils.createAppBar('お知らせ'),
       body: Container(
         padding: const EdgeInsets.all(15.0),
