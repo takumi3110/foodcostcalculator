@@ -1,23 +1,30 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class Item {
   String? id;
   String name;
-  String userId;
-  String? groupId;
+  String? registeredUser;
   int price;
   double remainingQuantity;
+  int quantity;
+  String? shop;
 
   Item({
     this.id = '',
     required this.name,
-    required this.userId,
+    this.registeredUser,
     required this.price,
     this.remainingQuantity = 1,
+    required this.quantity,
+    this.shop,
   });
 }
 
-class RegisteredItems {
-  String registeredDate;
-  List<Item> items;
+class Purchase {
+  String id;
+  Timestamp date;
+  List<dynamic> itemIds;
+  String? groupId;
 
-  RegisteredItems({required this.registeredDate, required this.items});
+  Purchase({this.id = '', required this.date, required this.itemIds, this.groupId});
 }
