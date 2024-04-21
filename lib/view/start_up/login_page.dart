@@ -146,13 +146,6 @@ class _LoginPageState extends State<LoginPage> {
                                           _isNotMailVerified = true;
                                         });
                                       }
-                                    // TODO:  テスト用
-                                    //   var getUserResult = await UserFirestore.getUser(result.user!.uid);
-                                    //   if (getUserResult == true) {
-                                    //     if (!context.mounted) return;
-                                    //     Navigator.pushReplacement(
-                                    //         context, MaterialPageRoute(builder: (context) => const CalendarPage()));
-                                    //   }
                                     } else {
                                       setState(() {
                                         _isMailLoginError = true;

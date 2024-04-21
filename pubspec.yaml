@@ -52,6 +52,8 @@ dependencies:
   firebase_messaging: ^14.7.19
   firebase_core: ^2.24.2
   firebase_storage: ^11.6.0
+  keyboard_actions: ^4.2.0
+  flutter_datetime_picker_plus: ^2.2.0
 
 
 dev_dependencies:

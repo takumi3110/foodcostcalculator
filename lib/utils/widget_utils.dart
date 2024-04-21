@@ -11,7 +11,7 @@ import 'package:foodcost/view/account/account_page.dart';
 import 'package:foodcost/view/calendar/calendar_page.dart';
 import 'package:foodcost/view/cost/cost_page.dart';
 import 'package:foodcost/view/dialog/entry_code_dialog.dart';
-import 'package:foodcost/view/list/list_page.dart';
+import 'package:foodcost/view/item/date_list_page.dart';
 import 'package:foodcost/view/menu/create_menu_page.dart';
 import 'package:foodcost/view/news/news_page.dart';
 import 'package:foodcost/view/start_up/login_page.dart';
@@ -95,7 +95,7 @@ class WidgetUtils {
           title: '買ったものリスト',
           icons: Icons.list_alt_rounded,
           onTap: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => const ListPage()));
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const DateListPage()));
           }
       ),
       SideMenu(
@@ -301,6 +301,31 @@ class WidgetUtils {
     );
   }
 
+  static Container itemCard(Widget child) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey),
+          borderRadius: const BorderRadius.all(Radius.circular(10))),
+      child: child
+    );
+  }
+
+  static Align modalCloseIcon(BuildContext context) {
+    return Align(
+      alignment: Alignment.centerRight,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: GestureDetector(
+            onTap: () {
+              Navigator.pop(context);
+            },
+            child: const Icon(Icons.highlight_remove_rounded, size: 40, color: Colors.grey,)
+        ),
+      ),
+    );
+  }
+
   static Future<dynamic> selectPictureModalBottomSheet(BuildContext context, Function setImage) {
     List<SelectPictureModal> selectList = [
       SelectPictureModal(
@@ -374,40 +399,4 @@ class WidgetUtils {
           );
         });
   }
-
-  // Future<dynamic> _showCupertinoModalBottomSheet(BuildContext context) {
-  //   return showCupertinoModalBottomSheet(
-  //       backgroundColor: Colors.white,
-  //       context: context,
-  //       builder: (context) {
-  //         return Padding(
-  //           padding: const EdgeInsets.all(20.0),
-  //           child: Column(
-  //             mainAxisAlignment: MainAxisAlignment.center,
-  //             children: [
-  //               CircleAvatar(
-  //                 radius: 120,
-  //                 // TODO: 画像を選んで戻ってきたら更新されない
-  //                 // foregroundImage: getImage(),
-  //                 foregroundImage: image != null ? FileImage(image!) : null,
-  //                 child: const Icon(
-  //                   Icons.person,
-  //                   size: 120,
-  //                 ),
-  //               ),
-  //               const SizedBox(
-  //                 height: 20,
-  //               ),
-  //               ElevatedButton(
-  //                   onPressed: () {
-  //                     debugPrint('$image');
-  //                     _showBarModalBottomSheet();
-  //                     // Navigator.pop(context);
-  //                   },
-  //                   child: const Text('写真を選択または撮影'))
-  //             ],
-  //           ),
-  //         );
-  //       });
-  // }
 }
