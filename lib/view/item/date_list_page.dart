@@ -49,6 +49,7 @@ class _DateListPageState extends State<DateListPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: WidgetUtils.createAppBar('買った日'),
+      // backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(20),

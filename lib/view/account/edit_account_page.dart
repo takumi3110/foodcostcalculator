@@ -152,7 +152,10 @@ class _EditAccountPageState extends State<EditAccountPage> {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                SizedBox(
+                                Container(
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context).colorScheme.surface
+                                  ),
                                   width: 220,
                                   child: TextField(
                                     keyboardType: TextInputType.name,

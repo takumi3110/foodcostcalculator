@@ -91,6 +91,7 @@ class _CreateItemPageState extends State<CreateItemPage> {
 
     return Scaffold(
         appBar: WidgetUtils.createAppBar(_date != null ? 'ついか': 'とうろく'),
+        backgroundColor: Theme.of(context).colorScheme.surface,
         body: SafeArea(
           child: Stack(
             children: [

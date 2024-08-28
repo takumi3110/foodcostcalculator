@@ -53,8 +53,8 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(
             seedColor: Colors.limeAccent,
             primary: Colors.teal,
+            surface: Colors.white,
             // secondary: Colors.yellow,
-            background: Colors.white,
           ),
           useMaterial3: true,
         ),
