@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:foodcost/component/modal_header.dart';
+import 'package:foodcost/component/primary_button.dart';
 import 'package:foodcost/model/food.dart';
 import 'package:foodcost/model/menu.dart';
 import 'package:foodcost/utils/firestore/users.dart';
@@ -33,10 +35,16 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
           KeyboardActionsItem(focusNode: _nodeText1, toolbarButtons: [
             (node) {
               return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 5),
-                child: TextButton(onPressed: () => node.unfocus(), child: const Text('完了', style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),))
-                // child: GestureDetector(
-                //   onTap: () => node.unfocus(),
+                  padding: const EdgeInsets.symmetric(horizontal: 5),
+                  child: TextButton(
+                      onPressed: () => node.unfocus(),
+                      child: const Text(
+                        '完了',
+                        style: TextStyle(
+                            color: Colors.blue, fontWeight: FontWeight.bold),
+                      ))
+                  // child: GestureDetector(
+                  //   onTap: () => node.unfocus(),
                   // child: Container(
                   //     width: 70,
                   //     decoration: BoxDecoration(
@@ -49,8 +57,8 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
                   //       style: TextStyle(
                   //           fontWeight: FontWeight.bold, color: Colors.white),
                   //     ))),
-                // ),
-              );
+                  // ),
+                  );
             }
           ]),
         ]);
@@ -72,7 +80,7 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
   // List<Map<String, TextEditingController>> foodControllers = [];
   List<Map<String, String>> foods = [];
   int allPrice = 0;
-  bool _isLoading = false;
+  final bool _isLoading = false;
   final List<Count> _costCounts = [];
 
   final List<Count> menuItemValues = [
@@ -246,6 +254,7 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
                           ],
                         ),
                       ),
+                      PrimaryButton(onPressed: () {}, childText: '登録'),
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 10.0),
                         child: Container(
@@ -255,10 +264,6 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
                               border: Border(
                                   top: BorderSide(
                                       color: Colors.orange, width: 3))),
-                          // child: const Text(
-                          //   '食材',
-                          //   style: TextStyle(fontWeight: FontWeight.bold),
-                          // ),
                         ),
                       ),
                       Padding(
@@ -306,194 +311,27 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
                       ],
                     ),
                   ),
-                // if (foodControllers.isEmpty)
-                // if (foods.isEmpty)
-                Expanded(
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    // itemCount: foodControllers.length,
-                    itemCount: foods.length,
-                    itemBuilder: (context, index) {
-                      return Dismissible(
-                        key: UniqueKey(),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10),
-                          child: ListTile(
-                            title: Text(foods[index]['name']!),
+                if (bottomSpace == 0)
+                  Expanded(
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      // itemCount: foodControllers.length,
+                      itemCount: foods.length,
+                      itemBuilder: (context, index) {
+                        return Dismissible(
+                          key: UniqueKey(),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            child: ListTile(
+                              title: Text(foods[index]['name']!),
+                            ),
                           ),
-                        ),
-                      );
-
-                      // TODO: dismiss
-                      // return Dismissible(
-                      //   key: UniqueKey(),
-                      //   background: Container(
-                      //     alignment: Alignment.centerLeft,
-                      //     color: Colors.greenAccent,
-                      //     child: const Row(
-                      //       children: [
-                      //         Icon(Icons.remove_circle_outline_outlined),
-                      //         Text('削除')
-                      //       ],
-                      //     ),
-                      //
-                      //   ),
-                      //   onDismissed: (DismissDirection direction) {
-                      //       setState(() {
-                      //         var price = foodControllers[index]['price'];
-                      //         if (price != null && price.text.isNotEmpty) {
-                      //           allPrice -= int.parse(price.text);
-                      //         }
-                      //       });
-                      //       foodControllers.removeAt(index);
-                      //   },
-                      //   direction: foodControllers.length > 1 ? DismissDirection.startToEnd: DismissDirection.none,
-                      //   child: Container(
-                      //     padding: const EdgeInsets.symmetric(
-                      //         vertical: 5, horizontal: 10),
-                      //     child: Row(
-                      //       mainAxisAlignment: MainAxisAlignment.center,
-                      //       children: [
-                      //         SizedBox(
-                      //           width: 130,
-                      //           child: TextField(
-                      //             controller: foodControllers[index]['name'],
-                      //             decoration:
-                      //                 const InputDecoration(hintText: '名前'),
-                      //           ),
-                      //         ),
-                      //         Padding(
-                      //           padding: const EdgeInsets.symmetric(
-                      //               horizontal: 15.0),
-                      //           child: SizedBox(
-                      //             width: 90,
-                      //             child: TextField(
-                      //               controller: foodControllers[index]
-                      //                   ['unitPrice'],
-                      //               keyboardType: TextInputType.number,
-                      //               decoration: const InputDecoration(
-                      //                   hintText: '金額', suffix: Text('円')),
-                      //               onChanged: (String value) {
-                      //                 setState(() {
-                      //                   var price =
-                      //                       foodControllers[index]['price'];
-                      //                   if (value != '') {
-                      //                     var costCount = foodControllers[index]
-                      //                         ['costCount'];
-                      //                     if (costCount != null &&
-                      //                         costCount.text.isNotEmpty) {
-                      //                       var sumPrice = (int.parse(value) *
-                      //                               double.parse(
-                      //                                   costCount.text))
-                      //                           .round();
-                      //                       if (price != null) {
-                      //                         if (price.text.isNotEmpty) {
-                      //                           if (sumPrice !=
-                      //                               int.parse(price.text)) {
-                      //                             allPrice += (sumPrice -
-                      //                                 int.parse(price.text));
-                      //                           }
-                      //                         } else {
-                      //                           allPrice += sumPrice;
-                      //                         }
-                      //                         foodControllers[index]['price']!
-                      //                             .text = sumPrice.toString();
-                      //                         price.text = sumPrice.toString();
-                      //                       }
-                      //                     }
-                      //                   } else {
-                      //                     if (price != null &&
-                      //                         price.text.isNotEmpty) {
-                      //                       allPrice -= int.parse(price.text);
-                      //                     }
-                      //                     price!.text = '0';
-                      //                   }
-                      //                 });
-                      //               },
-                      //             ),
-                      //           ),
-                      //         ),
-                      //         SizedBox(
-                      //           width: 70,
-                      //           child: DropdownButtonFormField(
-                      //               decoration:
-                      //                   const InputDecoration(hintText: '量'),
-                      //               value: foodControllers[index]['costCount']!
-                      //                       .text
-                      //                       .isNotEmpty
-                      //                   ? _costCounts[index]
-                      //                   : null,
-                      //               // value: _costCounts.length == foodControllers.length ? _costCounts[index] : ,
-                      //               items: menuItemValues.map((value) {
-                      //                 return DropdownMenuItem(
-                      //                   value: value,
-                      //                   child: Text(value.name),
-                      //                 );
-                      //               }).toList(),
-                      //               onChanged: (Count? value) {
-                      //                 setState(() {
-                      //                   if (value != null) {
-                      //                     _costCounts.add(value);
-                      //                     var costCount = foodControllers[index]
-                      //                         ['costCount'];
-                      //                     if (costCount != null) {
-                      //                       costCount.text =
-                      //                           value.count.toString();
-                      //                     }
-                      //                     // foodControllers[index]['costCount']!.text = value.count.toString();
-                      //                     var unitPrice = foodControllers[index]
-                      //                         ['unitPrice'];
-                      //                     // sumPriceとfoodControllers[index]['price']が同じなら何もしない。
-                      //                     // 違ったらallPriceからfoodControllers[index]['price']を引いて、sumPriceを追加
-                      //                     if (unitPrice != null &&
-                      //                         unitPrice.text.isNotEmpty) {
-                      //                       var sumPrice = (value.count *
-                      //                               int.parse(unitPrice.text))
-                      //                           .round();
-                      //                       var price =
-                      //                           foodControllers[index]['price'];
-                      //                       if (price != null) {
-                      //                         if (price.text.isNotEmpty) {
-                      //                           if (sumPrice !=
-                      //                               int.parse(price.text)) {
-                      //                             // すでに登録されている時は差額を登録
-                      //                             allPrice += (sumPrice -
-                      //                                 int.parse(price.text));
-                      //                           }
-                      //                         } else {
-                      //                           // priceに何も登録されてない場合
-                      //                           allPrice += sumPrice;
-                      //                         }
-                      //                         foodControllers[index]['price']!
-                      //                             .text = sumPrice.toString();
-                      //                       }
-                      //                       // 最後尾の名前が入力されてれば行を追加
-                      //                       if (foodControllers.last['name']!
-                      //                               .text.isNotEmpty &&
-                      //                           costCount!.text.isNotEmpty) {
-                      //                         foodControllers.add({
-                      //                           'name': TextEditingController(),
-                      //                           'unitPrice':
-                      //                               TextEditingController(),
-                      //                           'costCount':
-                      //                               TextEditingController(),
-                      //                           'price':
-                      //                               TextEditingController(),
-                      //                         });
-                      //                       }
-                      //                     }
-                      //                   }
-                      //                 });
-                      //               }),
-                      //         ),
-                      //       ],
-                      //     ),
-                      //   ),
-                      // );
-                    },
+                        );
+                      },
+                    ),
                   ),
-                ),
-                Padding(
+                if (bottomSpace == 0)
+                  Padding(
                     padding: const EdgeInsets.only(top: 10),
                     child: ElevatedButton.icon(
                         style: ElevatedButton.styleFrom(
@@ -505,6 +343,36 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
                               isScrollControlled: true,
                               context: context,
                               builder: (BuildContext context) {
+                                onPressAdd() {
+                                  if (nameController.text.isNotEmpty &&
+                                      priceController.text.isNotEmpty) {
+                                    setState(() {
+                                      foods.add({
+                                        'name': nameController.text,
+                                        'unitPrice': unitPriceController.text,
+                                        'costCount': costCountController.text,
+                                        'price': priceController.text
+                                      });
+                                      allPrice +=
+                                          int.parse(priceController.text);
+                                    });
+
+                                    Navigator.pop(context);
+                                    nameController.clear();
+                                    unitPriceController.clear();
+                                    costCountController.clear();
+                                    priceController.clear();
+                                  }
+                                }
+
+                                onPressCancel() {
+                                  Navigator.pop(context);
+                                  nameController.clear();
+                                  unitPriceController.clear();
+                                  costCountController.clear();
+                                  priceController.clear();
+                                }
+
                                 return Container(
                                   width: double.infinity,
                                   height:
@@ -524,60 +392,9 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
                                           CrossAxisAlignment.center,
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(
-                                              vertical: 5, horizontal: 10),
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                const BorderRadius.only(
-                                                    topLeft:
-                                                        Radius.circular(20),
-                                                    topRight:
-                                                        Radius.circular(20)),
-                                            color: Colors.orangeAccent[100],
-                                          ),
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              TextButton(
-                                                  onPressed: () {
-                                                    Navigator.pop(context);
-                                                    nameController.clear();
-                                                    unitPriceController.clear();
-                                                    costCountController.clear();
-                                                    priceController.clear();
-                                                  },
-                                                  child: const Text(
-                                                    'キャンセル',
-                                                    style: TextStyle(
-                                                        color: Colors.red),
-                                                  )),
-                                              TextButton(
-                                                  onPressed: () {
-                                                    if (nameController.text.isNotEmpty && priceController.text.isNotEmpty) {
-                                                      setState(() {
-                                                         foods.add({
-                                                        'name': nameController.text,
-                                                        'unitPrice': unitPriceController.text,
-                                                        'costCount': costCountController.text,
-                                                        'price': priceController.text
-                                                      });
-                                                         allPrice += int.parse(priceController.text);
-                                                      });
-
-                                                      Navigator.pop(context);nameController.clear();
-                                                    unitPriceController.clear();
-                                                    costCountController.clear();
-                                                    priceController.clear();
-                                                    }
-                                                  },
-                                                  child: const Text('登録',
-                                                      style: TextStyle(
-                                                          color: Colors.black)))
-                                            ],
-                                          ),
-                                        ),
+                                        ModalHeader(
+                                            onPressAdd: onPressAdd,
+                                            onPressCancel: onPressCancel),
                                         Expanded(
                                           child: SingleChildScrollView(
                                             child: Container(
@@ -624,24 +441,38 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
                                                                       vertical:
                                                                           10),
                                                               child: TextField(
-                                                                  controller:
-                                                                      unitPriceController,
-                                                                  keyboardType:
-                                                                      TextInputType
-                                                                          .number,
-                                                                  textAlign: TextAlign.right,
-                                                                  focusNode:
-                                                                      _nodeText1,
-                                                                  decoration: const InputDecoration(
-                                                                      labelText:
-                                                                          '金額',
-                                                                      suffix: Text(
-                                                                          '円')),
-                                                                onChanged: (String value) {
-                                                                    if (value != '' && costCountController.text.isNotEmpty) {
-                                                                      var sumPrice = (int.parse(value) * double.parse(costCountController.text)).round();
-                                                                      priceController.text = sumPrice.toString();
-                                                                    }
+                                                                controller:
+                                                                    unitPriceController,
+                                                                keyboardType:
+                                                                    TextInputType
+                                                                        .number,
+                                                                textAlign:
+                                                                    TextAlign
+                                                                        .right,
+                                                                focusNode:
+                                                                    _nodeText1,
+                                                                decoration: const InputDecoration(
+                                                                    labelText:
+                                                                        '金額',
+                                                                    suffix: Text(
+                                                                        '円')),
+                                                                onChanged:
+                                                                    (String
+                                                                        value) {
+                                                                  if (value !=
+                                                                          '' &&
+                                                                      costCountController
+                                                                          .text
+                                                                          .isNotEmpty) {
+                                                                    var sumPrice =
+                                                                        (int.parse(value) *
+                                                                                double.parse(costCountController.text))
+                                                                            .round();
+                                                                    priceController
+                                                                            .text =
+                                                                        sumPrice
+                                                                            .toString();
+                                                                  }
                                                                 },
                                                               ),
                                                             ),
@@ -667,10 +498,17 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
                                                                   setState(() {
                                                                     if (value !=
                                                                         null) {
-                                                                      costCountController.text = value.toString();
-                                                                      if (unitPriceController.text.isNotEmpty) {
-                                                                        var sumPrice = (value.count * int.parse(unitPriceController.text)).round();
-                                                                        priceController.text = sumPrice.toString();
+                                                                      costCountController
+                                                                              .text =
+                                                                          value
+                                                                              .toString();
+                                                                      if (unitPriceController
+                                                                          .text
+                                                                          .isNotEmpty) {
+                                                                        var sumPrice =
+                                                                            (value.count * int.parse(unitPriceController.text)).round();
+                                                                        priceController.text =
+                                                                            sumPrice.toString();
                                                                       }
                                                                     }
                                                                   });
@@ -680,20 +518,25 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
                                                       ),
                                                     ),
                                                     Row(
-                                                      mainAxisAlignment: MainAxisAlignment.end,
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment.end,
                                                       children: [
                                                         const Text('合計'),
-                                                        const SizedBox(width: 20),
+                                                        const SizedBox(
+                                                            width: 20),
                                                         SizedBox(
                                                           width: 130,
                                                           child: TextField(
-                                                            readOnly: true,
-                                                            controller: priceController,
-                                                            textAlign: TextAlign.right,
-                                                            decoration: const InputDecoration(
-                                                              suffix: Text('円')
-                                                            )
-                                                          ),
+                                                              readOnly: true,
+                                                              controller:
+                                                                  priceController,
+                                                              textAlign:
+                                                                  TextAlign
+                                                                      .right,
+                                                              decoration:
+                                                                  const InputDecoration(
+                                                                      suffix: Text(
+                                                                          '円'))),
                                                         ),
                                                       ],
                                                     )
