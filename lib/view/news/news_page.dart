@@ -18,7 +18,7 @@ class _NewsPageState extends State<NewsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // backgroundColor: Colors.white,
+      // backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: WidgetUtils.createAppBar('お知らせ'),
       body: Container(
         padding: const EdgeInsets.all(15.0),
@@ -31,13 +31,19 @@ class _NewsPageState extends State<NewsPage> {
                   itemBuilder: (context, index) {
                     return Column(
                       children: [
-                        ListTile(
-                          title: Text(snapshot.data[index].title),
-                          onTap: () {
-                            _showDialog(snapshot.data[index]);
-                          },
+                        Container(
+                          margin: const EdgeInsets.symmetric(vertical: 5),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(5),
+                            color: Theme.of(context).colorScheme.surface
+                          ),
+                          child: ListTile(
+                            title: Text(snapshot.data[index].title),
+                            onTap: () {
+                              _showDialog(snapshot.data[index]);
+                            },
+                          ),
                         ),
-                        const Divider()
                       ],
                     );
                   });

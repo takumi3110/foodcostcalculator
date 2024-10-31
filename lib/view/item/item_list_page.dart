@@ -68,6 +68,7 @@ class _ItemListPageState extends State<ItemListPage> {
     //   return controller.stream;
     // })(_itemIds);
     return Scaffold(
+      // backgroundColor: Theme.of(context).colorScheme.surface,
       // appBar: WidgetUtils.createAppBar(dateFormatter.format(_date)),
       appBar: WidgetUtils.createAppBar('買ったもの'),
       body: SafeArea(

@@ -274,7 +274,7 @@ class _CostPageState extends State<CostPage> {
     }
 
     return Scaffold(
-      // backgroundColor: Colors.white,
+      // backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: WidgetUtils.createAppBar('今月のグラフ'),
       body: SafeArea(
         child: Stack(
@@ -301,6 +301,7 @@ class _CostPageState extends State<CostPage> {
                             final barsWidth = 9.0 * constraints.maxWidth / 100;
                             return BarChart(
                               BarChartData(
+                                backgroundColor: Theme.of(context).colorScheme.surface,
                                 alignment: BarChartAlignment.center,
                                 barTouchData: BarTouchData(
                                     enabled: true,
@@ -477,78 +478,81 @@ class _CostPageState extends State<CostPage> {
                             ),
                           ),
                           // 金額高い日付順にリスト欲しいかも
-                          ListView.builder(
-                              shrinkWrap: true,
-                              itemCount: menuRankings.length > 6 ? 5 : menuRankings.length,
-                              itemBuilder: (context, index) {
-                                final dateTime = menuRankings[index]['dateTime'];
-                                final totalAmount = menuRankings[index]['totalAmount'];
-                                final isOver = totalAmount >= targetDayAmount;
-                                return Column(
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.only(left: 8.0),
-                                      child: ListTile(
-                                        onTap: () {
-                                          Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) => CalendarPage(
-                                                    selectedDay: dateTime,
-                                                  )));
-                                        },
-                                        title: Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Row(
-                                              // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                              children: [
-                                                Text((index + 1).toString()),
-                                                const SizedBox(
-                                                  width: 30,
-                                                ),
-                                                Text(dateFormatter.format(dateTime)),
-                                              ],
-                                            ),
-                                            Row(
-                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                              children: [
-                                                Text('${numberFormatter.format(totalAmount)} 円'),
-                                                // Text('${numberFormatter.format(10000000)} 円'),
-                                                const SizedBox(width: 10,),
-                                                SizedBox(
-                                                  width: 50,
-                                                  child: Row(
-                                                    mainAxisAlignment: MainAxisAlignment.start,
-                                                    children: [
-                                                      Icon(
-                                                        isOver ? Icons.arrow_drop_up : Icons.arrow_drop_down,
-                                                        // isOver ? Icons.add : Icons.minimize,
-                                                        color: isOver ? Colors.red : Colors.blue,
-                                                        size: 15,
-                                                      ),
-                                                      Text(
-                                                        numberFormatter.format(totalAmount - targetDayAmount),
-                                                        // numberFormatter.format(1000),
-                                                        style: TextStyle(
-                                                          fontSize: 12,
-                                                          color: isOver ? Colors.red : Colors.blue,
-                                                        ),
-                                                      )
-                                                    ],
+                          Container(
+                            color: Theme.of(context).colorScheme.surface,
+                            child: ListView.builder(
+                                shrinkWrap: true,
+                                itemCount: menuRankings.length > 6 ? 5 : menuRankings.length,
+                                itemBuilder: (context, index) {
+                                  final dateTime = menuRankings[index]['dateTime'];
+                                  final totalAmount = menuRankings[index]['totalAmount'];
+                                  final isOver = totalAmount >= targetDayAmount;
+                                  return Column(
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.only(left: 8.0),
+                                        child: ListTile(
+                                          onTap: () {
+                                            Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (context) => CalendarPage(
+                                                      selectedDay: dateTime,
+                                                    )));
+                                          },
+                                          title: Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Row(
+                                                // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                children: [
+                                                  Text((index + 1).toString()),
+                                                  const SizedBox(
+                                                    width: 30,
                                                   ),
-                                                ),
-                                                // Text('${formatter.format(menuRankings[index]['diffAmount'])}')
-                                              ],
-                                            ),
-                                          ],
+                                                  Text(dateFormatter.format(dateTime)),
+                                                ],
+                                              ),
+                                              Row(
+                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                children: [
+                                                  Text('${numberFormatter.format(totalAmount)} 円'),
+                                                  // Text('${numberFormatter.format(10000000)} 円'),
+                                                  const SizedBox(width: 10,),
+                                                  SizedBox(
+                                                    width: 50,
+                                                    child: Row(
+                                                      mainAxisAlignment: MainAxisAlignment.start,
+                                                      children: [
+                                                        Icon(
+                                                          isOver ? Icons.arrow_drop_up : Icons.arrow_drop_down,
+                                                          // isOver ? Icons.add : Icons.minimize,
+                                                          color: isOver ? Colors.red : Colors.blue,
+                                                          size: 15,
+                                                        ),
+                                                        Text(
+                                                          numberFormatter.format(totalAmount - targetDayAmount),
+                                                          // numberFormatter.format(1000),
+                                                          style: TextStyle(
+                                                            fontSize: 12,
+                                                            color: isOver ? Colors.red : Colors.blue,
+                                                          ),
+                                                        )
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  // Text('${formatter.format(menuRankings[index]['diffAmount'])}')
+                                                ],
+                                              ),
+                                            ],
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                    const Divider(),
-                                  ],
-                                );
-                              })
+                                      const Divider(),
+                                    ],
+                                  );
+                                }),
+                          )
                         ],
                       ),
                     )

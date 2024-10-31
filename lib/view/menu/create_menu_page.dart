@@ -2,15 +2,15 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:foodcost/component/modal_header.dart';
 import 'package:foodcost/component/primary_button.dart';
 import 'package:foodcost/model/food.dart';
 import 'package:foodcost/model/menu.dart';
-import 'package:foodcost/utils/authentication.dart';
-import 'package:foodcost/utils/firestore/menus.dart';
 import 'package:foodcost/utils/firestore/users.dart';
 import 'package:foodcost/utils/function_utils.dart';
 import 'package:foodcost/utils/widget_utils.dart';
 import 'package:intl/intl.dart';
+import 'package:keyboard_actions/keyboard_actions.dart';
 
 class CreateMenuPage extends StatefulWidget {
   final DateTime? selectedDay;
@@ -23,6 +23,47 @@ class CreateMenuPage extends StatefulWidget {
 }
 
 class _CreateMenuPageState extends State<CreateMenuPage> {
+  // keyboard
+  final FocusNode _nodeText1 = FocusNode();
+
+  KeyboardActionsConfig _buildConfig(BuildContext context) {
+    return KeyboardActionsConfig(
+        keyboardActionsPlatform: KeyboardActionsPlatform.ALL,
+        keyboardBarColor: Colors.grey[200],
+        nextFocus: true,
+        actions: [
+          KeyboardActionsItem(focusNode: _nodeText1, toolbarButtons: [
+            (node) {
+              return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 5),
+                  child: TextButton(
+                      onPressed: () => node.unfocus(),
+                      child: const Text(
+                        '完了',
+                        style: TextStyle(
+                            color: Colors.blue, fontWeight: FontWeight.bold),
+                      ))
+                  // child: GestureDetector(
+                  //   onTap: () => node.unfocus(),
+                  // child: Container(
+                  //     width: 70,
+                  //     decoration: BoxDecoration(
+                  //         color: Colors.blue,
+                  //         borderRadius: BorderRadius.circular(10)),
+                  //     padding: const EdgeInsets.all(10),
+                  //     child: const Center(
+                  //         child: Text(
+                  //       'done',
+                  //       style: TextStyle(
+                  //           fontWeight: FontWeight.bold, color: Colors.white),
+                  //     ))),
+                  // ),
+                  );
+            }
+          ]),
+        ]);
+  }
+
   // menu
   TextEditingController menuController = TextEditingController();
   File? image;
@@ -31,9 +72,15 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
   String menuId = '';
 
   // food
-  List<Map<String, TextEditingController>> foodControllers = [];
+  TextEditingController nameController = TextEditingController();
+  TextEditingController unitPriceController = TextEditingController();
+  TextEditingController costCountController = TextEditingController();
+  TextEditingController priceController = TextEditingController(text: '0');
+
+  // List<Map<String, TextEditingController>> foodControllers = [];
+  List<Map<String, String>> foods = [];
   int allPrice = 0;
-  bool _isLoading = false;
+  final bool _isLoading = false;
   final List<Count> _costCounts = [];
 
   final List<Count> menuItemValues = [
@@ -79,25 +126,33 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
       selectedMenu = menu;
       menuController.text = menu.name;
       menu.foods.asMap().forEach((int index, Food food) {
-        foodControllers.add({
-          'name': TextEditingController(text: food.name),
-          'unitPrice': TextEditingController(text: food.unitPrice.toString()),
-          'costCount': TextEditingController(text: food.costCount.toString()),
-          'price': TextEditingController(text: food.price.toString()),
+        foods.add({
+          'name': food.name,
+          'unitPrice': food.unitPrice.toString(),
+          'costCount': food.costCount.toString(),
+          'price': food.price.toString(),
         });
+        // foodControllers.add({
+        //   'name': TextEditingController(text: food.name),
+        //   'unitPrice': TextEditingController(text: food.unitPrice.toString()),
+        //   'costCount': TextEditingController(text: food.costCount.toString()),
+        //   'price': TextEditingController(text: food.price.toString()),
+        // });
         allPrice += food.price;
-        final Count count = menuItemValues.firstWhere((Count value) => value.count == double.parse(food.costCount));
+        final Count count = menuItemValues.firstWhere(
+            (Count value) => value.count == double.parse(food.costCount));
         _costCounts.add(count);
 
         // _costCount = food.costCount;
       });
     } else {
-      foodControllers.add({
-        'name': TextEditingController(),
-        'unitPrice': TextEditingController(),
-        'costCount': TextEditingController(),
-        'price': TextEditingController(),
-      });
+      // priceController.text = '0';
+      // foodControllers.add({
+      //   'name': TextEditingController(),
+      //   'unitPrice': TextEditingController(),
+      //   'costCount': TextEditingController(),
+      //   'price': TextEditingController(),
+      // });
     }
     if (widget.selectedDay != null) {
       _selectedDay = widget.selectedDay!;
@@ -116,72 +171,15 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
           style: TextStyle(fontFamily: 'AmeChan', fontSize: 28),
         ),
         elevation: 1,
-        actions: [
-          PrimaryButton(
-              onPressed: () async {
-                // menuにfoodをネストする
-                List<Food> newFoods = [];
-                for (var food in foodControllers) {
-                  if (food['name']!.text.isNotEmpty &&
-                      food['unitPrice']!.text.isNotEmpty &&
-                      food['costCount']!.text.isNotEmpty &&
-                      food['price']!.text.isNotEmpty) {
-                    Food newFood = Food(
-                      name: food['name']!.text,
-                      unitPrice: int.parse(food['unitPrice']!.text),
-                      costCount: food['costCount']!.text,
-                      price: int.parse(food['price']!.text),
-                    );
-                    newFoods.add(newFood);
-                  }
-                }
-                if (menuController.text.isNotEmpty && newFoods.isNotEmpty) {
-                  setState(() {
-                    _isLoading = true;
-                  });
-                  Menu newMenu = Menu(
-                      id: menuId,
-                      name: menuController.text,
-                      userId: Authentication.myAccount!.id,
-                      groupId: Authentication.myAccount!.groupId,
-                      totalAmount: allPrice,
-                      createdTime: Timestamp.fromDate(_selectedDay),
-                      imagePath: selectedMenu?.imagePath,
-                      foods: newFoods);
-                  bool result = false;
-                  if (selectedMenu != null) {
-                    if (image != null || isImageEdit == true) {
-                      var result = await FunctionUtils.uploadImage(menuId, image!);
-                      newMenu.imagePath = result;
-                    }
-                    result = await MenuFirestore.updateMenu(newMenu);
-                  } else {
-                    result = await MenuFirestore.addMenu(newMenu, image);
-                  }
-                  if (result == true) {
-                    if (!context.mounted) return;
-                    Navigator.pop(context);
-                  } else {
-                    if (!context.mounted) return;
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('登録に失敗しました。')));
-                  }
-                  setState(() {
-                    _isLoading = false;
-                  });
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('メニューと1つ以上の食材を登録してください。')));
-                  null;
-                }
-              },
-              childText: '保存')
-        ],
       ),
       body: SafeArea(
         child: Stack(
           children: [
             Padding(
-              padding: EdgeInsets.only(bottom: bottomSpace > 0 ? bottomSpace : 50),
-              child: Column(mainAxisAlignment: MainAxisAlignment.start, children: [
+              padding:
+                  EdgeInsets.only(bottom: bottomSpace > 0 ? bottomSpace : 50),
+              child:
+                  Column(mainAxisAlignment: MainAxisAlignment.start, children: [
                 SizedBox(
                   width: double.infinity,
                   child: Column(
@@ -195,10 +193,44 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
                         style: const TextStyle(fontSize: 18),
                       ),
                       Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 10.0, horizontal: 10.0),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
+                            // const SizedBox(width: 10.0,),
+                            SizedBox(
+                              width: 220,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  TextField(
+                                    keyboardType: TextInputType.text,
+                                    controller: menuController,
+                                    decoration: const InputDecoration(
+                                        hintText: 'メニュー名'),
+                                  ),
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                  if (selectedMenu != null)
+                                    StreamBuilder<DocumentSnapshot>(
+                                        stream: UserFirestore.users
+                                            .doc(selectedMenu!.userId)
+                                            .snapshots(),
+                                        builder: (context, snapshot) {
+                                          if (snapshot.hasData) {
+                                            Map<String, dynamic> data =
+                                                snapshot.data!.data()
+                                                    as Map<String, dynamic>;
+                                            return userInfo(data, '作成者');
+                                          } else {
+                                            return const SizedBox();
+                                          }
+                                        })
+                                ],
+                              ),
+                            ),
                             GestureDetector(
                               onTap: () {
                                 setImage(String path) {
@@ -207,7 +239,8 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
                                   });
                                 }
 
-                                WidgetUtils.selectPictureModalBottomSheet(context, setImage);
+                                WidgetUtils.selectPictureModalBottomSheet(
+                                    context, setImage);
                               },
                               child: CircleAvatar(
                                 foregroundImage: getImage(),
@@ -218,56 +251,32 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
                                 ),
                               ),
                             ),
-                            // const SizedBox(width: 10.0,),
-                            SizedBox(
-                              width: 220,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  TextField(
-                                    keyboardType: TextInputType.text,
-                                    controller: menuController,
-                                    decoration: const InputDecoration(hintText: 'メニュー名'),
-                                  ),
-                                  const SizedBox(height: 10,),
-                                  if (selectedMenu != null)
-                                  StreamBuilder<DocumentSnapshot>(
-                                    stream: UserFirestore.users.doc(selectedMenu!.userId).snapshots(),
-                                    builder: (context, snapshot) {
-                                      if (snapshot.hasData) {
-                                        Map<String, dynamic> data = snapshot.data!.data() as Map<String, dynamic>;
-                                        return userInfo(data, '作成者');
-                                      } else {
-                                        return const SizedBox();
-                                      }
-                                    }
-                                  )
-                                ],
-                              ),
-                            ),
                           ],
                         ),
                       ),
+                      PrimaryButton(onPressed: () {}, childText: '登録'),
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 10.0),
                         child: Container(
                           alignment: Alignment.center,
                           width: double.infinity,
-                          decoration:
-                              const BoxDecoration(border: Border(top: BorderSide(color: Colors.orange, width: 3))),
-                          // child: const Text(
-                          //   '食材',
-                          //   style: TextStyle(fontWeight: FontWeight.bold),
-                          // ),
+                          decoration: const BoxDecoration(
+                              border: Border(
+                                  top: BorderSide(
+                                      color: Colors.orange, width: 3))),
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.only(top: 10, bottom: 20, right: 25.0),
+                        padding: const EdgeInsets.only(
+                            top: 10, bottom: 20, right: 25.0),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            const Text('合計金額', style: TextStyle(fontSize: 16),),
+                            const Text(
+                              '合計金額',
+                              style: TextStyle(fontSize: 16),
+                            ),
                             const SizedBox(
                               width: 20,
                             ),
@@ -275,171 +284,278 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
                               formatter.format(allPrice).toString(),
                               style: const TextStyle(fontSize: 22),
                             ),
-                            const Text('円', style: TextStyle(fontSize: 16),)
+                            const Text(
+                              '円',
+                              style: TextStyle(fontSize: 16),
+                            )
                           ],
                         ),
                       ),
                     ],
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  child: Row(
-                    children: [
-                      const SizedBox(width: 50,),
-                      header('材料名', 110),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                        child: header('金額', 70),
-                      ),
-                      header('使った量', 90)
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: foodControllers.length,
-                    itemBuilder: (context, index) {
-                      return Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            IconButton(
-                                onPressed: () {
-                                  setState(() {
-                                    var price = foodControllers[index]['price'];
-                                    if (price != null && price.text.isNotEmpty) {
-                                      allPrice -= int.parse(price.text);
-                                    }
-                                  });
-                                  foodControllers.removeAt(index);
-                                },
-                                icon: const Icon(Icons.remove_circle_outline_outlined)),
-                            SizedBox(
-                              width: 110,
-                              child: TextField(
-                                controller: foodControllers[index]['name'],
-                                decoration: const InputDecoration(hintText: '名前'),
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                              child: SizedBox(
-                                width: 70,
-                                child: TextField(
-                                  controller: foodControllers[index]['unitPrice'],
-                                  keyboardType: TextInputType.number,
-                                  decoration: const InputDecoration(hintText: '金額', suffix: Text('円')),
-                                  onChanged: (String value) {
-                                    setState(() {
-                                      var price = foodControllers[index]['price'];
-                                      if (value != '') {
-                                        var costCount = foodControllers[index]['costCount'];
-                                        if (costCount != null && costCount.text.isNotEmpty) {
-                                          var sumPrice = (int.parse(value) * double.parse(costCount.text)).round();
-                                          if (price != null) {
-                                            if (price.text.isNotEmpty) {
-                                              if (sumPrice != int.parse(price.text)) {
-                                                allPrice += (sumPrice - int.parse(price.text));
-                                              }
-                                            } else {
-                                              allPrice += sumPrice;
-                                            }
-                                            foodControllers[index]['price']!.text = sumPrice.toString();
-                                            price.text = sumPrice.toString();
-                                          }
-                                        }
-                                      } else {
-                                        if (price != null && price.text.isNotEmpty) {
-                                          allPrice -= int.parse(price.text);
-                                        }
-                                        price!.text = '0';
-                                      }
-                                    });
-                                  },
-                                ),
-                              ),
-                            ),
-                            SizedBox(
-                              width: 90,
-                              child: DropdownButtonFormField(
-                                  decoration: const InputDecoration(hintText: '量'),
-                                  value:
-                                      foodControllers[index]['costCount']!.text.isNotEmpty ? _costCounts[index] : null,
-                                  // value: _costCounts.length == foodControllers.length ? _costCounts[index] : ,
-                                  items: menuItemValues.map((value) {
-                                    return DropdownMenuItem(
-                                      value: value,
-                                      child: Text(value.name),
-                                    );
-                                  }).toList(),
-                                  onChanged: (Count? value) {
-                                    setState(() {
-                                      if (value != null) {
-                                        _costCounts.add(value);
-                                        var costCount = foodControllers[index]['costCount'];
-                                        if (costCount != null) {
-                                          costCount.text = value.count.toString();
-                                        }
-                                        // foodControllers[index]['costCount']!.text = value.count.toString();
-                                        var unitPrice = foodControllers[index]['unitPrice'];
-                                        // sumPriceとfoodControllers[index]['price']が同じなら何もしない。
-                                        // 違ったらallPriceからfoodControllers[index]['price']を引いて、sumPriceを追加
-                                        if (unitPrice != null && unitPrice.text.isNotEmpty) {
-                                          var sumPrice = (value.count * int.parse(unitPrice.text)).round();
-                                          var price = foodControllers[index]['price'];
-                                          if (price != null) {
-                                            if (price.text.isNotEmpty) {
-                                              if (sumPrice != int.parse(price.text)) {
-                                                // すでに登録されている時は差額を登録
-                                                allPrice += (sumPrice - int.parse(price.text));
-                                              }
-                                            } else {
-                                              // priceに何も登録されてない場合
-                                              allPrice += sumPrice;
-                                            }
-                                            foodControllers[index]['price']!.text = sumPrice.toString();
-                                          }
-                                          // 最後尾の名前が入力されてれば行を追加
-                                          if (foodControllers.last['name']!.text.isNotEmpty &&
-                                              costCount!.text.isNotEmpty) {
-                                            foodControllers.add({
-                                              'name': TextEditingController(),
-                                              'unitPrice': TextEditingController(),
-                                              'costCount': TextEditingController(),
-                                              'price': TextEditingController(),
-                                            });
-                                          }
-                                        }
-                                      }
-                                    });
-                                  }),
-                            ),
-                          ],
+                // if (foodControllers.isNotEmpty)
+                if (foods.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // const SizedBox(width: 50,),
+                        header('材料名', 130),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                          child: header('金額', 90),
                         ),
-                      );
-                    },
+                        header('使った量', 70)
+                      ],
+                    ),
                   ),
-                ),
                 if (bottomSpace == 0)
-                  SizedBox(
-                    width: 300,
+                  Expanded(
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      // itemCount: foodControllers.length,
+                      itemCount: foods.length,
+                      itemBuilder: (context, index) {
+                        return Dismissible(
+                          key: UniqueKey(),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            child: ListTile(
+                              title: Text(foods[index]['name']!),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                if (bottomSpace == 0)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 10),
                     child: ElevatedButton.icon(
-                        onPressed: () {
-                          setState(() {
-                            foodControllers.add({
-                              'name': TextEditingController(),
-                              'unitPrice': TextEditingController(),
-                              'costCount': TextEditingController(),
-                              'price': TextEditingController(),
-                            });
-                          });
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.orangeAccent,
+                          // foregroundColor: Colors.white
+                        ),
+                        onPressed: () async {
+                          await showModalBottomSheet(
+                              isScrollControlled: true,
+                              context: context,
+                              builder: (BuildContext context) {
+                                onPressAdd() {
+                                  if (nameController.text.isNotEmpty &&
+                                      priceController.text.isNotEmpty) {
+                                    setState(() {
+                                      foods.add({
+                                        'name': nameController.text,
+                                        'unitPrice': unitPriceController.text,
+                                        'costCount': costCountController.text,
+                                        'price': priceController.text
+                                      });
+                                      allPrice +=
+                                          int.parse(priceController.text);
+                                    });
+
+                                    Navigator.pop(context);
+                                    nameController.clear();
+                                    unitPriceController.clear();
+                                    costCountController.clear();
+                                    priceController.clear();
+                                  }
+                                }
+
+                                onPressCancel() {
+                                  Navigator.pop(context);
+                                  nameController.clear();
+                                  unitPriceController.clear();
+                                  costCountController.clear();
+                                  priceController.clear();
+                                }
+
+                                return Container(
+                                  width: double.infinity,
+                                  height:
+                                      MediaQuery.sizeOf(context).height * 0.6,
+                                  // padding: const EdgeInsets.all(10),
+                                  // height: MediaQuery.sizeOf(context).height * 0.8,
+                                  decoration: const BoxDecoration(
+                                    borderRadius: BorderRadius.only(
+                                        topLeft: Radius.circular(20),
+                                        topRight: Radius.circular(20)),
+                                    color: Colors.white,
+                                  ),
+                                  child: Padding(
+                                    padding: MediaQuery.of(context).viewInsets,
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        ModalHeader(
+                                            onPressAdd: onPressAdd,
+                                            onPressCancel: onPressCancel),
+                                        Expanded(
+                                          child: SingleChildScrollView(
+                                            child: Container(
+                                              width: 300,
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      vertical: 20,
+                                                      horizontal: 30),
+                                              // color: Colors.white,
+                                              child: Center(
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment
+                                                          .stretch,
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    SizedBox(
+                                                      height:
+                                                          MediaQuery.of(context)
+                                                                  .size
+                                                                  .height *
+                                                              0.3,
+                                                      child: KeyboardActions(
+                                                        config: _buildConfig(
+                                                            context),
+                                                        child: Column(
+                                                          children: [
+                                                            TextField(
+                                                              controller:
+                                                                  nameController,
+                                                              decoration:
+                                                                  const InputDecoration(
+                                                                      labelText:
+                                                                          '材料名'),
+                                                              keyboardType:
+                                                                  TextInputType
+                                                                      .text,
+                                                            ),
+                                                            Padding(
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                      .symmetric(
+                                                                      vertical:
+                                                                          10),
+                                                              child: TextField(
+                                                                controller:
+                                                                    unitPriceController,
+                                                                keyboardType:
+                                                                    TextInputType
+                                                                        .number,
+                                                                textAlign:
+                                                                    TextAlign
+                                                                        .right,
+                                                                focusNode:
+                                                                    _nodeText1,
+                                                                decoration: const InputDecoration(
+                                                                    labelText:
+                                                                        '金額',
+                                                                    suffix: Text(
+                                                                        '円')),
+                                                                onChanged:
+                                                                    (String
+                                                                        value) {
+                                                                  if (value !=
+                                                                          '' &&
+                                                                      costCountController
+                                                                          .text
+                                                                          .isNotEmpty) {
+                                                                    var sumPrice =
+                                                                        (int.parse(value) *
+                                                                                double.parse(costCountController.text))
+                                                                            .round();
+                                                                    priceController
+                                                                            .text =
+                                                                        sumPrice
+                                                                            .toString();
+                                                                  }
+                                                                },
+                                                              ),
+                                                            ),
+                                                            DropdownButtonFormField(
+                                                                decoration:
+                                                                    const InputDecoration(
+                                                                        labelText:
+                                                                            '使った量'),
+                                                                items: menuItemValues
+                                                                    .map(
+                                                                        (value) {
+                                                                  return DropdownMenuItem(
+                                                                    value:
+                                                                        value,
+                                                                    child: Text(
+                                                                        value
+                                                                            .name),
+                                                                  );
+                                                                }).toList(),
+                                                                onChanged:
+                                                                    (Count?
+                                                                        value) {
+                                                                  setState(() {
+                                                                    if (value !=
+                                                                        null) {
+                                                                      costCountController
+                                                                              .text =
+                                                                          value
+                                                                              .toString();
+                                                                      if (unitPriceController
+                                                                          .text
+                                                                          .isNotEmpty) {
+                                                                        var sumPrice =
+                                                                            (value.count * int.parse(unitPriceController.text)).round();
+                                                                        priceController.text =
+                                                                            sumPrice.toString();
+                                                                      }
+                                                                    }
+                                                                  });
+                                                                }),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment.end,
+                                                      children: [
+                                                        const Text('合計'),
+                                                        const SizedBox(
+                                                            width: 20),
+                                                        SizedBox(
+                                                          width: 130,
+                                                          child: TextField(
+                                                              readOnly: true,
+                                                              controller:
+                                                                  priceController,
+                                                              textAlign:
+                                                                  TextAlign
+                                                                      .right,
+                                                              decoration:
+                                                                  const InputDecoration(
+                                                                      suffix: Text(
+                                                                          '円'))),
+                                                        ),
+                                                      ],
+                                                    )
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              });
                         },
-                        style: ElevatedButton.styleFrom(foregroundColor: Colors.black, backgroundColor: Colors.amber),
-                        icon: const Icon(Icons.add),
-                        label: const Text('食材を追加')),
+                        icon: const Icon(
+                          Icons.add,
+                        ),
+                        label: const Text('材料を追加する')),
                   ),
               ]),
             ),
@@ -450,19 +566,34 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
     );
   }
 
-  Widget userInfo (Map<String, dynamic> data, title) {
+  Widget userInfo(Map<String, dynamic> data, title) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        Text('$title:', style: const TextStyle(fontSize: 12),),
-        const SizedBox(width: 5,),
+        Text(
+          '$title:',
+          style: const TextStyle(fontSize: 12),
+        ),
+        const SizedBox(
+          width: 5,
+        ),
         CircleAvatar(
           radius: 10,
-          foregroundImage: data['image_path'] != null ? FunctionUtils.getForeGroundImage(data['image_path']): null,
-          child: const Icon(Icons.person, size: 10,),
+          foregroundImage: data['image_path'] != null
+              ? FunctionUtils.getForeGroundImage(data['image_path'])
+              : null,
+          child: const Icon(
+            Icons.person,
+            size: 10,
+          ),
         ),
-        const SizedBox(width: 2,),
-        Text('${data['name']} さん', style: const TextStyle(fontSize: 12),),
+        const SizedBox(
+          width: 2,
+        ),
+        Text(
+          '${data['name']} さん',
+          style: const TextStyle(fontSize: 12),
+        ),
       ],
     );
   }
@@ -472,7 +603,9 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
         width: width,
         child: Align(
             alignment: Alignment.center,
-            child: Text(title, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),))
-    );
+            child: Text(
+              title,
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+            )));
   }
 }

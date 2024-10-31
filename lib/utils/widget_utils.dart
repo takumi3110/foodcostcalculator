@@ -304,9 +304,19 @@ class WidgetUtils {
   static Container itemCard(Widget child) {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
-      decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey),
-          borderRadius: const BorderRadius.all(Radius.circular(10))),
+      decoration: const BoxDecoration(
+          // border: Border.all(color: Colors.grey),
+          borderRadius: BorderRadius.all(Radius.circular(10)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black26,
+            offset: Offset(1, 3),
+            blurRadius: 2,
+            spreadRadius: 1
+          )
+        ],
+        color: Colors.white
+      ),
       child: child
     );
   }
