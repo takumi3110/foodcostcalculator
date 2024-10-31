@@ -144,64 +144,6 @@ class _CreateItemPageState extends State<CreateItemPage> {
                         decoration: const InputDecoration(label: Text('購入店舗')),
                       ),
                     ),
-                    PrimaryButton(
-                        onPressed: () async {
-                          if (dateController.text.isNotEmpty) {
-                            setState(() {
-                              _isLoading = true;
-                            });
-                            List<Item> newItems = [];
-                            for (var item in itemControllers) {
-                              if (item['name']!.text.isNotEmpty &&
-                                  item['price']!.text.isNotEmpty) {
-                                int quantity =
-                                    int.parse(item['quantity']!.text);
-                                Item newItem = Item(
-                                    name: item['name']!.text,
-                                    price: int.parse(item['price']!.text),
-                                    shop: shopController.text,
-                                    remainingQuantity: quantity.toDouble(),
-                                    registeredUser: _myAccount!.name,
-                                    quantity: quantity);
-                                newItems.add(newItem);
-                              }
-                            }
-                            var itemIds =
-                                await ItemFirestore.addItems(newItems);
-                            Purchase newPurchase = Purchase(
-                              date: Timestamp.fromDate(purchaseDate),
-                              groupId: _myAccount!.groupId,
-                              itemIds: itemIds,
-                            );
-                            List<dynamic> newItemIds = [];
-                            if (_date != null) {
-                              // 日付がある時更新。item追加処理
-                              // グループいる時とソロの時処理が違う
-                              newItemIds = _myAccount!.groupId != null
-                                  ? await ItemFirestore
-                                      .updateGroupPurchaseItems(
-                                          _myAccount!.groupId!, _date!, itemIds)
-                                  : await ItemFirestore.updatePurchaseItems(
-                                      _date!, itemIds);
-                            } else {
-                              // 日付がないので新規登録
-                              newItemIds =
-                                  await ItemFirestore.addPurchase(newPurchase);
-                            }
-                            setState(() {
-                              _isLoading = false;
-                            });
-                            if (newItemIds.isNotEmpty) {
-                              if (!context.mounted) return;
-                              Navigator.pop(context, newItemIds);
-                            } else {
-                              if (!context.mounted) return;
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('登録に失敗しました。')));
-                            }
-                          }
-                        },
-                        childText: '登録'),
                     const Divider(),
                     Expanded(
                       child: ListView.builder(
@@ -210,12 +152,26 @@ class _CreateItemPageState extends State<CreateItemPage> {
                           itemBuilder: (context, index) {
                             return Dismissible(
                               key: UniqueKey(),
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 10),
+                              child: Container(
+                                margin: const EdgeInsets.symmetric(horizontal: 20),
+                                decoration: BoxDecoration(
+                                  border: items.length > 1 ? const Border(bottom: BorderSide(color: Colors.black26)): null
+                                ),
                                 child: ListTile(
                                   title: Text(items[index]['name']!),
-                                  subtitle: Text(items[index]['price']!),
+                                  subtitle: Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      Text('${items[index]['price']!} 円'),
+                                      const Padding(
+                                        padding: EdgeInsets.symmetric(horizontal: 8),
+                                        child: Text('×'),
+                                      ),
+                                      Text('${items[index]['quantity']} 個')
+                                    ],
+                                  ),
+                                  trailing: Text('${items[index]['totalPrice']} 円', style: const TextStyle(fontSize: 16),),
                                 ),
                               ),
                             );
@@ -229,17 +185,19 @@ class _CreateItemPageState extends State<CreateItemPage> {
                               backgroundColor: Colors.orangeAccent),
                           onPressed: () async {
                             await showModalBottomSheet(
-                                elevation: 0,
                                 context: context,
                                 builder: (BuildContext context) {
                                   onPressAdd() {
                                     if (itemNameController.text.isNotEmpty &&
                                         priceController.text.isNotEmpty) {
+                                      var quantity = quantityController.text.isNotEmpty ? quantityController.text: '1';
+                                      var totalPrice = int.parse(priceController.text) * int.parse(quantity);
                                       setState(() {
                                         items.add({
                                           'name': itemNameController.text,
                                           'price': priceController.text,
-                                          'quantity': quantityController.text
+                                          'quantity': quantity,
+                                          'totalPrice': totalPrice.toString()
                                         });
                                       });
                                       Navigator.pop(context);
@@ -258,8 +216,7 @@ class _CreateItemPageState extends State<CreateItemPage> {
 
                                   return Container(
                                     width: double.infinity,
-                                    height:
-                                        MediaQuery.sizeOf(context).height * 0.7,
+                                    height: MediaQuery.sizeOf(context).height * 0.7,
                                     decoration: const BoxDecoration(
                                       borderRadius: BorderRadius.only(
                                         topLeft: Radius.circular(20),
@@ -388,7 +345,83 @@ class _CreateItemPageState extends State<CreateItemPage> {
                           label: const Text('追加'),
                           icon: const Icon(Icons.add),
                         ),
-                      )
+                      ),
+                    if (bottomSpace == 0)
+                    Container(
+                      width: 200,
+                      margin: const EdgeInsets.only(top: 10),
+                      child: PrimaryButton(
+                          onPressed: () async {
+                            if (dateController.text.isNotEmpty && items.isNotEmpty) {
+                              setState(() {
+                                _isLoading = true;
+                              });
+                              List<Item> newItems = [];
+                              for (var item in items) {
+                                Item newItem = Item(
+                                  name: item['name']!,
+                                  price: int.parse(item['price']!),
+                                  shop: shopController.text,
+                                  remainingQuantity: double.parse(item['quantity']!),
+                                  registeredUser: _myAccount!.name,
+                                  quantity: int.parse(item['quantity']!)
+                                );
+                                newItems.add(newItem);
+                              }
+
+                              // for (var item in itemControllers) {
+                              //   if (item['name']!.text.isNotEmpty &&
+                              //       item['price']!.text.isNotEmpty) {
+                              //     int quantity =
+                              //         int.parse(item['quantity']!.text);
+                              //     Item newItem = Item(
+                              //         name: item['name']!.text,
+                              //         price: int.parse(item['price']!.text),
+                              //         shop: shopController.text,
+                              //         remainingQuantity: quantity.toDouble(),
+                              //         registeredUser: _myAccount!.name,
+                              //         quantity: quantity);
+                              //     newItems.add(newItem);
+                              //   }
+                              // }
+
+                              var itemIds =
+                                  await ItemFirestore.addItems(newItems);
+                              Purchase newPurchase = Purchase(
+                                date: Timestamp.fromDate(purchaseDate),
+                                groupId: _myAccount!.groupId,
+                                itemIds: itemIds,
+                              );
+                              List<dynamic> newItemIds = [];
+                              if (_date != null) {
+                                // 日付がある時更新。item追加処理
+                                // グループいる時とソロの時処理が違う
+                                newItemIds = _myAccount!.groupId != null
+                                    ? await ItemFirestore
+                                        .updateGroupPurchaseItems(
+                                            _myAccount!.groupId!, _date!, itemIds)
+                                    : await ItemFirestore.updatePurchaseItems(
+                                        _date!, itemIds);
+                              } else {
+                                // 日付がないので新規登録
+                                newItemIds =
+                                    await ItemFirestore.addPurchase(newPurchase);
+                              }
+                              setState(() {
+                                _isLoading = false;
+                              });
+                              if (newItemIds.isNotEmpty) {
+                                if (!context.mounted) return;
+                                Navigator.pop(context, newItemIds);
+                              } else {
+                                if (!context.mounted) return;
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('登録に失敗しました。')));
+                              }
+                            }
+                          },
+                          childText: '登録'),
+                    ),
                   ],
                 ),
               ),

@@ -310,8 +310,8 @@ class WidgetUtils {
         boxShadow: [
           BoxShadow(
             color: Colors.black26,
-            offset: Offset(5, 5),
-            blurRadius: 5,
+            offset: Offset(1, 3),
+            blurRadius: 2,
             spreadRadius: 1
           )
         ],
