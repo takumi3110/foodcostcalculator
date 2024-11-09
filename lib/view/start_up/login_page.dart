@@ -53,21 +53,36 @@ class _LoginPageState extends State<LoginPage> {
                   width: double.infinity,
                   child: Column(
                     children: [
-                      const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 50.0),
-                        child: Text(
-                          'まんまのじぇんこ',
-                          style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold, fontFamily: 'AmeChan', color: Colors.green,),
-                        ),
+                      Container(
+                        width: double.infinity,
+                        height: 200,
+                        child: Stack(children: [
+                          Opacity(
+                            opacity: 0.2,
+                            child: Container(
+                              decoration: const BoxDecoration(
+                                image: DecorationImage(
+                                    image: AssetImage('assets/images/icon.png'),
+                                    fit: BoxFit.contain),
+                              ),
+                            ),
+                          ),
+                          const Center(
+                            child: Text(
+                              'まんまのじぇんこ',
+                              style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, fontFamily: 'AmeChan', color: Colors.black,),
+                            ),
+                          )
+                        ]),
                       ),
                       LoginTextField(
-                          hintText: 'メールアドレス',
-                          textInputType: TextInputType.emailAddress,
-                          textEditingController: emailController,
+                        hintText: 'メールアドレス',
+                        textInputType: TextInputType.emailAddress,
+                        textEditingController: emailController,
                         onChanged: (String value) {
-                            setState(() {
-                              _isValidEmail = value.isValidEmail();
-                            });
+                          setState(() {
+                            _isValidEmail = value.isValidEmail();
+                          });
                         },
                       ),
                       if (!_isValidEmail)
@@ -83,61 +98,38 @@ class _LoginPageState extends State<LoginPage> {
                                 _isObscureText = !_isObscureText;
                               });
                             },
-                            icon: Icon(_isObscureText ? Icons.visibility_off : Icons.visibility)),
+                            icon: Icon(_isObscureText
+                                ? Icons.visibility_off
+                                : Icons.visibility)),
                       ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      RichText(
-                          text: TextSpan(style: const TextStyle(color: Colors.black), children: [
-                            const TextSpan(text: 'アカウントを作成していない方は'),
-                            TextSpan(
-                                text: 'こちら',
-                                style: const TextStyle(color: Colors.blue),
-                                recognizer: TapGestureRecognizer()
-                                  ..onTap = () {
-                                    Navigator.push(
-                                        context, MaterialPageRoute(builder: (context) => const CreateAccountPage()));
-                                  })
-                          ])),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8.0),
-                        child: RichText(text: TextSpan(
-                            children: [
-                              TextSpan(
-                                  text: 'パスワードを忘れた場合',
-                                  style: const TextStyle(color: Colors.blue),
-                                  recognizer: TapGestureRecognizer()..onTap = () {
-                                    Navigator.push(
-                                        context, MaterialPageRoute(builder: (context) => const ForgetPasswordPage())
-                                    );
-                                  }
-                              )
-                            ]
-                        )),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 20.0),
+                       Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 10.0),
                         child: Column(
                           children: [
-
                             PrimaryButton(
                               onPressed: () async {
-                                if (emailController.text.isNotEmpty && passController.text.isNotEmpty) {
+                                if (emailController.text.isNotEmpty &&
+                                    passController.text.isNotEmpty) {
                                   setState(() {
                                     _isLoading = true;
                                   });
                                   var result = await Authentication.emailSignIn(
-                                      email: emailController.text, password: passController.text);
+                                      email: emailController.text,
+                                      password: passController.text);
                                   // resultがUserCredentialタイプだったらtrue
                                   if (result is UserCredential) {
                                     if (result.user != null) {
                                       if (result.user!.emailVerified == true) {
-                                        var getUserResult = await UserFirestore.getUser(result.user!.uid);
+                                        var getUserResult =
+                                            await UserFirestore.getUser(
+                                                result.user!.uid);
                                         if (getUserResult == true) {
                                           if (!context.mounted) return;
                                           Navigator.pushReplacement(
-                                              context, MaterialPageRoute(builder: (context) => const CalendarPage()));
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      const CalendarPage()));
                                         }
                                       } else {
                                         debugPrint('メール認証なし');
@@ -163,80 +155,145 @@ class _LoginPageState extends State<LoginPage> {
                                   null;
                                 }
                               },
-                              childText: 'メールアドレスでログイン',
-                            ),if (_isNotMailVerified)
+                              childText: 'ログイン',
+                            ),
+                            if (_isNotMailVerified)
                               Column(
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
                                   const ErrorText(text: 'メールの認証が完了していません。'),
                                   RichText(
-                                      text: TextSpan(style: const TextStyle(color: Colors.black), children: [
+                                      text: TextSpan(
+                                          style: const TextStyle(
+                                              color: Colors.black),
+                                          children: [
                                         TextSpan(
                                             text: 'ここをタップ',
-                                            style: const TextStyle(color: Colors.blue),
+                                            style: const TextStyle(
+                                                color: Colors.blue),
                                             recognizer: TapGestureRecognizer()
                                               ..onTap = () {
-                                                if (Authentication.currentFirebaseUser != null &&
-                                                    emailController.text.isNotEmpty &&
-                                                    passController.text.isNotEmpty) {
-                                                  Authentication.currentFirebaseUser!.sendEmailVerification();
+                                                if (Authentication.currentFirebaseUser !=
+                                                        null &&
+                                                    emailController
+                                                        .text.isNotEmpty &&
+                                                    passController
+                                                        .text.isNotEmpty) {
+                                                  Authentication
+                                                      .currentFirebaseUser!
+                                                      .sendEmailVerification();
                                                   Navigator.push(
                                                       context,
                                                       MaterialPageRoute(
-                                                          builder: (context) => CheckEmailPage(
-                                                            email: emailController.text,
-                                                            pass: passController.text,
-                                                            user: Authentication.currentFirebaseUser!,
-                                                          )));
+                                                          builder: (context) =>
+                                                              CheckEmailPage(
+                                                                email:
+                                                                    emailController
+                                                                        .text,
+                                                                pass:
+                                                                    passController
+                                                                        .text,
+                                                                user: Authentication
+                                                                    .currentFirebaseUser!,
+                                                              )));
                                                 }
                                               }),
-                                        const TextSpan(text: 'して認証を完了してください。', style: TextStyle(color: Colors.red))
+                                        const TextSpan(
+                                            text: 'して認証を完了してください。',
+                                            style: TextStyle(color: Colors.red))
                                       ])),
                                 ],
                               ),
                             if (_isMailLoginError)
                               const Center(
-                                child: ErrorText(text: '正しいメールアドレスとパスワードを入力してください。'),
+                                child: ErrorText(
+                                    text: '正しいメールアドレスとパスワードを入力してください。'),
                               ),
                           ],
                         ),
                       ),
+                      RichText(
+                          text: TextSpan(
+                              style: const TextStyle(color: Colors.black),
+                              children: [
+                            const TextSpan(text: 'アカウントを作成していない方は'),
+                            TextSpan(
+                                text: 'こちら',
+                                style: const TextStyle(color: Colors.blue),
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap = () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                const CreateAccountPage()));
+                                  })
+                          ])),
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                        padding: const EdgeInsets.symmetric(vertical:5),
+                        child: RichText(
+                            text: TextSpan(children: [
+                          TextSpan(
+                              text: 'パスワードを忘れた場合',
+                              style: const TextStyle(color: Colors.blue),
+                              recognizer: TapGestureRecognizer()
+                                ..onTap = () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              const ForgetPasswordPage()));
+                                })
+                        ])),
+                      ),
+
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10.0),
                         child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Container(
                               padding: const EdgeInsets.symmetric(
                                 vertical: 5.0,
                               ),
                               alignment: Alignment.center,
-                              decoration: const BoxDecoration(border: Border(top: BorderSide(color: Colors.grey))),
+                              decoration: const BoxDecoration(
+                                  border: Border(
+                                      top: BorderSide(color: Colors.grey))),
                               width: double.infinity,
                               child: const Text('他の方法でログインする'),
                             ),
                             // LINE Login
                             Padding(
-                              padding: const EdgeInsets.all(8.0),
+                              padding: const EdgeInsets.all(10),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Ink.image(
                                     width: 45,
                                     height: 45,
-                                    image: const AssetImage('assets/images/line/btn_base.png'),
+                                    image: const AssetImage(
+                                        'assets/images/line/btn_base.png'),
                                     child: InkWell(
                                         borderRadius: BorderRadius.circular(15),
                                         onTap: () async {
                                           setState(() {
                                             _isLoading = true;
                                           });
-                                          var result = await Authentication.lineSignIn();
+                                          var result =
+                                              await Authentication.lineSignIn();
                                           if (result is UserCredential) {
-                                            var getUserResult = await UserFirestore.getUser(result.user!.uid);
+                                            var getUserResult =
+                                                await UserFirestore.getUser(
+                                                    result.user!.uid);
                                             if (getUserResult == true) {
                                               if (!context.mounted) return;
                                               Navigator.pushReplacement(
-                                                  context, MaterialPageRoute(builder: (context) => const CalendarPage()));
+                                                  context,
+                                                  MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          const CalendarPage()));
                                             } else {
                                               setState(() {
                                                 _isLineLoginError = true;
@@ -251,7 +308,8 @@ class _LoginPageState extends State<LoginPage> {
                                             _isLoading = false;
                                           });
                                         },
-                                        splashColor: const Color(0xff000000).withAlpha(30)),
+                                        splashColor: const Color(0xff000000)
+                                            .withAlpha(30)),
                                   ),
                                   const SizedBox(
                                     width: 10.0,
@@ -261,47 +319,67 @@ class _LoginPageState extends State<LoginPage> {
                                     height: 45,
                                     padding: const EdgeInsets.all(3),
                                     decoration: BoxDecoration(
-                                        border: Border.all(color: Colors.grey.shade400),
-                                        borderRadius: BorderRadius.circular(10)),
+                                        border: Border.all(
+                                            color: Colors.grey.shade400),
+                                        borderRadius:
+                                            BorderRadius.circular(10)),
                                     child: Ink.image(
                                       // padding: EdgeInsets.all(8),
                                       // width: 45,
                                       // height: 45,
-                                      image: const AssetImage('assets/images/google_logo.png'),
+                                      image: const AssetImage(
+                                          'assets/images/google_logo.png'),
                                       child: InkWell(
-                                          borderRadius: BorderRadius.circular(10),
+                                          borderRadius:
+                                              BorderRadius.circular(10),
                                           onTap: () async {
                                             setState(() {
                                               _isLoading = true;
                                             });
-                                            var result = await Authentication.signInWithGoogle();
+                                            var result = await Authentication
+                                                .signInWithGoogle();
                                             if (result is UserCredential) {
-                                              var getGoogleUserResult = await UserFirestore.getUser(result.user!.uid);
+                                              var getGoogleUserResult =
+                                                  await UserFirestore.getUser(
+                                                      result.user!.uid);
                                               if (getGoogleUserResult == true) {
                                                 if (!context.mounted) return;
-                                                Navigator.pushReplacement(context,
-                                                    MaterialPageRoute(builder: (context) => const CalendarPage()));
+                                                Navigator.pushReplacement(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            const CalendarPage()));
                                               } else {
                                                 // user作成処理
                                                 if (result.user != null) {
                                                   final user = result.user!;
                                                   Account newAccount = Account(
                                                       id: user.uid,
-                                                      createdTime: Timestamp.now(),
+                                                      createdTime:
+                                                          Timestamp.now(),
                                                       email: user.email!,
                                                       groupId: null,
                                                       imagePath: user.photoURL,
                                                       isInitialAccess: true,
                                                       name: user.displayName!,
-                                                      updatedTime: Timestamp.now());
-                                                  var createGoogleUserResult = await UserFirestore.setUser(newAccount);
-                                                  if (createGoogleUserResult == true) {
-                                                    if (!context.mounted) return;
-                                                    Navigator.pushReplacement(context,
-                                                        MaterialPageRoute(builder: (context) => const CalendarPage()));
+                                                      updatedTime:
+                                                          Timestamp.now());
+                                                  var createGoogleUserResult =
+                                                      await UserFirestore
+                                                          .setUser(newAccount);
+                                                  if (createGoogleUserResult ==
+                                                      true) {
+                                                    if (!context.mounted)
+                                                      return;
+                                                    Navigator.pushReplacement(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                            builder: (context) =>
+                                                                const CalendarPage()));
                                                   } else {
                                                     setState(() {
-                                                      _isGoogleLoginError = true;
+                                                      _isGoogleLoginError =
+                                                          true;
                                                     });
                                                   }
                                                 } else {
@@ -320,7 +398,8 @@ class _LoginPageState extends State<LoginPage> {
                                             });
                                           },
                                           // highlightColor: Colors.red,
-                                          splashColor: const Color(0xff000000).withAlpha(30)),
+                                          splashColor: const Color(0xff000000)
+                                              .withAlpha(30)),
                                     ),
                                   ),
                                 ],
@@ -332,8 +411,8 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                             if (_isGoogleLoginError == true)
                               const Center(
-                                  child: ErrorText(text: 'Googleの認証ができませんでした。')
-                              ),
+                                  child:
+                                      ErrorText(text: 'Googleの認証ができませんでした。')),
                           ],
                         ),
                       ),
