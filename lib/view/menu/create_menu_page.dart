@@ -29,10 +29,10 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
   String menuId = '';
 
   // food
-  TextEditingController nameController = TextEditingController();
-  TextEditingController unitPriceController = TextEditingController();
-  TextEditingController costCountController = TextEditingController();
-  TextEditingController priceController = TextEditingController(text: '0');
+  // TextEditingController nameController = TextEditingController();
+  // TextEditingController unitPriceController = TextEditingController();
+  // TextEditingController costCountController = TextEditingController();
+  // TextEditingController priceController = TextEditingController(text: '0');
   double _currentSliderValue = 0;
 
   // List<Map<String, TextEditingController>> foodControllers = [];
@@ -75,31 +75,38 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
     }
   }
 
-  void onPressAdd() {
-    if (nameController.text.isNotEmpty && priceController.text.isNotEmpty) {
-      setState(() {
-        foods.add({
-          'name': nameController.text,
-          'unitPrice': unitPriceController.text,
-          'costCount': costCountController.text,
-          'price': priceController.text
-        });
-        allPrice += int.parse(priceController.text);
-      });
-
-      Navigator.pop(context);
-      nameController.clear();
-      unitPriceController.clear();
-      costCountController.clear();
-      priceController.clear();
-    }
-  }
-
-  void onChangeSliderValue(double value) {
+  void onPressAdd(String name, int price, int unitPrice, int costCount) {
+    // if (nameController.text.isNotEmpty && priceController.text.isNotEmpty) {
     setState(() {
-      _currentSliderValue = value;
+      // foods.add({
+      //   'name': nameController.text,
+      //   'unitPrice': unitPriceController.text,
+      //   'costCount': costCountController.text,
+      //   'price': priceController.text
+      // });
+      // allPrice += int.parse(priceController.text);
+      foods.add({
+        'name': name,
+        'unitPrice': unitPrice.toString(),
+        'costCount': costCount.toString(),
+        'price': price.toString()
+      });
+      allPrice += price;
     });
+
+    Navigator.pop(context);
+    // nameController.clear();
+    // unitPriceController.clear();
+    // costCountController.clear();
+    // priceController.clear();
+    // }
   }
+
+  // void onChangeSliderValue(double value) {
+  //   setState(() {
+  //     _currentSliderValue = value;
+  //   });
+  // }
 
   @override
   void initState() {
@@ -296,14 +303,41 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 10),
                                   child: ListTile(
-                                    title: Text(foods[index]['name']!),
-                                  ),
+                                      title: Row(
+                                    children: [
+                                      SizedBox(
+                                          width: 130,
+                                          child: Align(
+                                            alignment: Alignment.center,
+                                            child: Text(foods[index]['name']!,
+                                                style: const TextStyle(
+                                                    fontSize: 12)),
+                                          )),
+                                      SizedBox(
+                                          width: 90,
+                                          child: Align(
+                                            alignment: Alignment.centerRight,
+                                            child: Text(foods[index]['price']!,
+                                                style: const TextStyle(
+                                                    fontSize: 12)),
+                                          )),
+                                      SizedBox(
+                                          width: 70,
+                                          child: Align(
+                                            alignment: Alignment.centerRight,
+                                            child: Text(
+                                                foods[index]['costCount']!,
+                                                style: const TextStyle(
+                                                    fontSize: 12)),
+                                          )),
+                                    ],
+                                  )),
                                 ),
                               );
                             },
                           ),
                         ),
-                      if (bottomSpace == 0)
+                      if (bottomSpace == 0 && foods.isNotEmpty)
                         Padding(
                           padding: const EdgeInsets.only(top: 10),
                           child: ElevatedButton.icon(
@@ -313,9 +347,9 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
                               ),
                               onPressed: () {},
                               icon: const Icon(
-                                Icons.add,
+                                Icons.save_alt_rounded,
                               ),
-                              label: const Text('登録する')),
+                              label: const Text('保存する')),
                         ),
                     ]),
               ),
@@ -323,14 +357,16 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
             ],
           ),
         ),
-        floatingActionButton: ItemModal(
-          nameController: nameController,
-          priceController: priceController,
-          unitPriceController: unitPriceController,
-          costCountController: costCountController,
-          sliderValue: _currentSliderValue,
-          onPressAdd: onPressAdd,
-          onChangeSliderValue: onChangeSliderValue,
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            showModalBottomSheet(
+                isScrollControlled: true,
+                context: context,
+                builder: (BuildContext context) {
+                  return ItemModal(onPressAdd: onPressAdd);
+                });
+          },
+          child: const Icon(Icons.add),
         ));
   }
 
@@ -375,5 +411,14 @@ class _CreateMenuPageState extends State<CreateMenuPage> {
               title,
               style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
             )));
+  }
+
+  Widget content(String title, double width) {
+    return SizedBox(
+        width: width,
+        child: Align(
+          alignment: Alignment.center,
+          child: Text(title, style: const TextStyle(fontSize: 12)),
+        ));
   }
 }

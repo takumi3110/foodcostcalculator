@@ -1,24 +1,46 @@
 import 'package:flutter/material.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
 
-class ItemModal extends StatelessWidget {
-  final TextEditingController nameController;
-  final TextEditingController priceController;
-  final TextEditingController unitPriceController;
-  final TextEditingController costCountController;
+class ItemModal extends StatefulWidget {
+  // final TextEditingController nameController;
+  // final TextEditingController priceController;
+  // final TextEditingController unitPriceController;
+  // final TextEditingController costCountController;
   final Function onPressAdd;
-  final double sliderValue;
-  final Function onChangeSliderValue;
 
-  const ItemModal(
-      {super.key,
-      required this.nameController,
-      required this.priceController,
-      required this.unitPriceController,
-      required this.costCountController,
-      required this.onPressAdd,
-      required this.sliderValue,
-      required this.onChangeSliderValue});
+  // final double sliderValue;
+  // final Function onChangeSliderValue;
+
+  const ItemModal({
+    super.key,
+    // required this.nameController,
+    // required this.priceController,
+    // required this.unitPriceController,
+    // required this.costCountController,
+    required this.onPressAdd,
+    // required this.sliderValue,
+    // required this.onChangeSliderValue
+  });
+
+  @override
+  State<ItemModal> createState() => _ItemModalState();
+}
+
+class _ItemModalState extends State<ItemModal> {
+  TextEditingController nameController = TextEditingController();
+  TextEditingController unitPriceController = TextEditingController();
+  TextEditingController costCountController = TextEditingController();
+  TextEditingController priceController = TextEditingController(text: '0');
+  double _currentSliderValue = 0;
+
+  // onPressCancel() {
+  //               Navigator.pop(context);
+  //               nameController.clear();
+  //               unitPriceController.clear();
+  //               costCountController.clear();
+  //               priceController.clear();
+  //             }
+
 
   @override
   Widget build(BuildContext context) {
@@ -61,21 +83,7 @@ class ItemModal extends StatelessWidget {
           ]);
     }
 
-    return FloatingActionButton(
-      onPressed: () async {
-        await showModalBottomSheet(
-            isScrollControlled: true,
-            context: context,
-            builder: (BuildContext context) {
-              onPressCancel() {
-                Navigator.pop(context);
-                nameController.clear();
-                unitPriceController.clear();
-                costCountController.clear();
-                priceController.clear();
-              }
-
-              return Container(
+    return Container(
                 width: double.infinity,
                 height: MediaQuery.sizeOf(context).height * 0.8,
                 decoration: const BoxDecoration(
@@ -163,22 +171,46 @@ class ItemModal extends StatelessWidget {
                                     children: [
                                       const Text('使った量'),
                                       Slider(
-                                          value: sliderValue,
+                                          value: _currentSliderValue,
                                           max: 100,
                                           divisions: 10,
-                                          label: '${sliderValue.round()}%'
-                                              .toString(),
-                                          onChanged: (double value) =>
-                                              onChangeSliderValue(value)
-                                      ),
-                                      Text('${sliderValue.round()}%')
+                                          label: '${_currentSliderValue.round()}%',
+                                          onChanged: (double value) => {
+                                                setState(() {
+                                                  _currentSliderValue = value;
+                                                  costCountController.text =
+                                                      value.round().toString();
+                                                })
+                                              }),
+                                      Text('${_currentSliderValue.round()}%')
                                     ],
                                   ),
                                   Padding(
                                     padding: const EdgeInsets.symmetric(
                                         vertical: 8.0),
                                     child: ElevatedButton(
-                                        onPressed: onPressAdd(),
+                                        onPressed: () => {
+                                              if (nameController
+                                                      .text.isNotEmpty &&
+                                                  priceController
+                                                      .text.isNotEmpty &&
+                                                  unitPriceController
+                                                      .text.isNotEmpty &&
+                                                  costCountController
+                                                      .text.isNotEmpty)
+                                                {
+                                                  widget.onPressAdd(
+                                                      nameController.text,
+                                                      int.parse(
+                                                          priceController.text),
+                                                      int.parse(
+                                                          unitPriceController
+                                                              .text),
+                                                      int.parse(
+                                                          costCountController
+                                                              .text))
+                                                }
+                                            },
                                         child: const Text('登録')),
                                   )
                                 ],
@@ -191,9 +223,6 @@ class ItemModal extends StatelessWidget {
                   ],
                 ),
               );
-            });
-      },
-      child: const Icon(Icons.add),
-    );
+
   }
 }
